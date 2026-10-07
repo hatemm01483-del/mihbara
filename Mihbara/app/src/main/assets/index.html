@@ -1,0 +1,485 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ff3d68"><title>مِحبرة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@600;700;800&family=Readex+Pro:wght@400;500;600&display=swap">
+<style>
+/* Layout: app shell — floating glass top bar, pill tab switcher, input card beside a live "on-air" output card */
+:root{
+  --bg:#f4f4f8; --bg2:#ffffff; --card:rgba(255,255,255,.78); --ink:#121218; --muted:#6b6b7b; --line:rgba(18,18,24,.09);
+  --a1:#ff3d68; --a2:#ff8a3d; --rgb:255,61,104; --rgb2:255,138,61; --acc-l:#e8335c; --acc-d:#ff5c7e;
+  --accent:var(--acc-l); --accent-soft:rgba(var(--rgb),.09); --flash:#e8335c;
+  --glow1:rgba(var(--rgb),.18); --glow2:rgba(var(--rgb2),.16); --glow3:rgba(120,120,160,.10);
+  --display:"Alexandria","Readex Pro",Tahoma,sans-serif;
+  --body:"Readex Pro",Tahoma,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0b0b10; --bg2:#14141c; --card:rgba(26,26,36,.72); --ink:#f3f3f7; --muted:#9a9aab; --line:rgba(255,255,255,.08);
+  --accent:var(--acc-d); --accent-soft:rgba(var(--rgb),.14); --flash:#ff5c7e;
+  --glow1:rgba(var(--rgb),.22); --glow2:rgba(var(--rgb2),.14); --glow3:rgba(120,120,160,.12); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0b0b10; --bg2:#14141c; --card:rgba(26,26,36,.72); --ink:#f3f3f7; --muted:#9a9aab; --line:rgba(255,255,255,.08);
+  --accent:var(--acc-d); --accent-soft:rgba(var(--rgb),.14); --flash:#ff5c7e;
+  --glow1:rgba(var(--rgb),.22); --glow2:rgba(var(--rgb2),.14); --glow3:rgba(120,120,160,.12); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.75;padding-inline:16px;padding-block:0 48px;min-height:100%;
+  background-image:radial-gradient(40rem 26rem at 90% -10%,var(--glow1),transparent 60%),radial-gradient(34rem 24rem at -10% 10%,var(--glow2),transparent 60%),radial-gradient(40rem 30rem at 50% 120%,var(--glow3),transparent 60%);background-attachment:fixed}
+.wrap{max-width:1140px;margin:0 auto}
+header{position:sticky;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:6;margin-top:14px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 20px;padding:10px 14px 10px 18px;border:1px solid var(--line);border-radius:22px;background:var(--card);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%)}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;flex:none;filter:drop-shadow(0 6px 14px rgba(var(--rgb),.35))}
+h1{font-family:var(--display);font-weight:800;font-size:26px;margin:0;line-height:1.1;letter-spacing:-.01em}
+h1 span{background:linear-gradient(90deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.tag{font-size:12.5px;color:var(--muted);margin:2px 0 0}
+#today{font-size:12.5px;padding:6px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);margin:0;font-weight:500}
+.ticker{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--muted);margin-top:22px;white-space:nowrap;overflow:hidden}
+.ticker b{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(90deg,var(--a1),var(--a2));color:#fff;padding:3px 12px;border-radius:999px;font-weight:600;font-size:12px}
+.ticker b::before{content:"";width:6px;height:6px;border-radius:50%;background:#fff}
+@media (prefers-reduced-motion:no-preference){.ticker b::before{animation:pulse 1.6s ease-in-out infinite}@keyframes pulse{50%{opacity:.25}}}
+.ticker span{overflow:hidden;text-overflow:ellipsis}
+nav{display:inline-flex;flex-wrap:wrap;gap:4px;margin-block:18px;padding:5px;border-radius:18px;background:var(--card);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+nav button{font:inherit;font-weight:500;font-size:14px;background:transparent;color:var(--muted);border:0;border-radius:13px;padding:9px 18px;cursor:pointer;transition:background .2s,color .2s}
+nav button:hover{color:var(--ink)}
+nav button[aria-selected="true"]{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;box-shadow:0 6px 18px rgba(var(--rgb),.35)}
+nav button:focus-visible,.btn:focus-visible,textarea:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.desk{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:18px}
+.slip,.proof{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px;min-width:0;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 20px 40px -24px rgba(0,0,0,.25)}
+.slip h2,.proof h2{font-family:var(--display);font-weight:700;font-size:19px;margin:0 0 2px}
+.lead{color:var(--muted);font-size:13.5px;margin:0 0 10px}
+label{display:block;font-weight:500;font-size:12.5px;color:var(--muted);margin-block:14px 6px}
+textarea,select,input{width:100%;font:inherit;font-size:14.5px;color:var(--ink);background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;transition:border-color .2s,box-shadow .2s}
+textarea:focus,select:focus,input:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);outline:none}
+textarea{min-height:150px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.btn{font:inherit;font-weight:600;font-size:14px;border-radius:14px;padding:11px 22px;cursor:pointer;border:0;background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;box-shadow:0 8px 22px -6px rgba(var(--rgb),.55);transition:transform .15s,box-shadow .2s}
+.btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 12px 26px -6px rgba(var(--rgb),.6)}
+.btn.ghost{background:var(--bg2);color:var(--ink);border:1px solid var(--line);box-shadow:none}
+.btn:disabled{opacity:.45;cursor:default}
+.method{margin-top:20px;padding:14px 16px;background:var(--accent-soft);border-radius:16px;font-size:13.5px}
+.method strong{display:block;color:var(--accent);margin-bottom:2px;font-weight:600}
+.proof-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding-bottom:12px;margin-bottom:14px;border-bottom:1px solid var(--line)}
+.chip{font-size:12px;padding:4px 12px;border-radius:999px;background:var(--bg2);border:1px solid var(--line);color:var(--muted)}
+.chip.live{background:var(--accent-soft);border-color:transparent;color:var(--accent);font-weight:500}
+.out{min-width:0;overflow-wrap:anywhere}
+.out h3{font-family:var(--display);font-weight:700;font-size:16px;margin:18px 0 6px;display:flex;align-items:center;gap:8px}
+.out h3::before{content:"";width:8px;height:8px;border-radius:3px;background:linear-gradient(135deg,var(--a1),var(--a2));flex:none}
+.out h3:first-child{margin-top:0}
+.out p{margin:0 0 10px}
+.out ul,.out ol{margin:0 0 10px;padding-inline-start:22px}
+.out li{margin-bottom:4px}
+.out li::marker{color:var(--accent)}
+.note{font-size:13px;color:var(--muted);margin-top:10px}
+.err{color:var(--flash)}
+footer{margin-top:28px;font-size:12px;color:var(--muted);text-align:center}
+@media (prefers-reduced-motion:no-preference){.out.streaming::after{content:"";display:inline-block;width:8px;height:8px;margin-inline-start:4px;border-radius:50%;background:var(--accent);animation:pulse 1s ease-in-out infinite}}
+
+.hright{display:flex;align-items:center;gap:10px}
+.swatches{display:flex;gap:6px;padding:5px;border-radius:999px;background:var(--bg2);border:1px solid var(--line)}
+.sw{width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;transition:transform .15s}
+.sw:hover{transform:scale(1.12)}
+.sw[aria-pressed="true"]{border-color:var(--ink)}
+.sw:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:820px){
+  .desk{grid-template-columns:1fr}
+  header{padding:8px 12px}
+  .logo{width:38px;height:38px}
+  h1{font-size:22px}
+  #today{display:none}
+  nav{position:fixed;inset-inline:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:6;margin:0;display:flex;flex-wrap:nowrap;border-radius:22px;box-shadow:0 12px 30px -10px rgba(0,0,0,.35)}
+  nav button{flex:1;padding:9px 4px;font-size:12px;line-height:1.3;border-radius:16px}
+  body{padding-block:0 110px}
+  .slip,.proof{padding:18px;border-radius:20px}
+}
+html,body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+.gear{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);color:var(--ink);cursor:pointer;display:grid;place-items:center;padding:0}
+.gear svg{width:20px;height:20px}
+.banner{margin-top:16px;padding:14px 16px;border-radius:18px;background:var(--accent-soft);display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;font-size:14px}
+.sheet{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;padding:16px}
+.sheet .panel{width:100%;max-width:520px;background:var(--bg2);border-radius:24px;padding:22px;margin-bottom:env(safe-area-inset-bottom,0px)}
+.sheet h2{font-family:var(--display);margin:0 0 4px;font-size:20px}
+.small{font-size:12.5px;color:var(--muted)}
+</style>
+
+</head><body><div class="wrap">
+  <header>
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--a1)"/><stop offset="1" style="stop-color:var(--a2)"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#lg)"/><path d="M32 12 L45 31 Q41 42 34.5 51 L32 55 L29.5 51 Q23 42 19 31 Z" fill="#fff"/><circle cx="32" cy="33" r="3.6" style="fill:var(--a1)"/><path d="M32 36.6 V53" style="stroke:var(--a1)" stroke-width="1.8" stroke-linecap="round"/><path d="M49 8 L50.8 13.2 L56 15 L50.8 16.8 L49 22 L47.2 16.8 L42 15 L47.2 13.2 Z" fill="#fff"/></svg>
+      <div>
+        <h1>مِحبرة<span> AI</span></h1>
+        <p class="tag">مساعدك الصحفي الذكي — اكتب، تحقّق، اعمل محتوى، وجهّز حوارك</p>
+      </div>
+    </div>
+    <div class="hright">
+      <p class="tag" id="today"></p>
+      <button class="gear" type="button" id="openSettings" aria-label="الإعدادات"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+    </div>
+  </header>
+  <div class="banner" id="keyBanner" hidden><span>عشان الأدوات تشتغل، حط مفتاح Claude API في الإعدادات.</span><button class="btn" type="button" id="openSettings2">افتح الإعدادات</button></div>
+  <div class="ticker"><b>عاجل</b><span>كل أداة بتديك النتيجة + ملاحظة تعليمية بتشرح ليه اتكتبت كدا</span></div>
+
+  <nav role="tablist" id="tabs"></nav>
+
+  <section class="desk">
+    <form class="slip" id="form">
+      <h2 id="t-title"></h2>
+      <p class="lead" id="t-lead"></p>
+      <div id="fields"></div>
+      <div class="actions">
+        <button class="btn" type="submit" id="go">نفّذ</button>
+        <button class="btn ghost" type="button" id="stop" hidden>إيقاف</button>
+        <button class="btn ghost" type="button" id="clear">مسح المدخلات</button>
+      </div>
+      <div class="method" id="method"></div>
+    </form>
+
+    <article class="proof">
+      <div class="proof-head">
+        <h2>البروفة</h2>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="chip" id="status">مثال توضيحي</span>
+          <button class="btn ghost" type="button" id="copy" style="padding:6px 14px;font-size:13px">نسخ</button>
+        </div>
+      </div>
+      <div class="out" id="out"></div>
+      <p class="note" id="note"></p>
+    </article>
+  </section>
+
+  <div class="sheet" id="settings" hidden>
+    <form class="panel" id="settingsForm">
+      <h2>الإعدادات</h2>
+      <p class="small">المفتاح بيتحفظ على موبايلك بس، ومش بيتبعت لأي حد غير Anthropic.</p>
+      <label for="apiKey">مفتاح Claude API</label>
+      <input id="apiKey" type="password" placeholder="sk-ant-..." autocomplete="off" dir="ltr">
+      <p class="small">تجيبه من موقع console.anthropic.com ← API Keys.</p>
+      <label for="model">الموديل</label>
+      <select id="model" dir="ltr"><option value="">تلقائي (أحدث Sonnet)</option></select>
+      <p class="small" id="settingsMsg"></p>
+      <div class="actions">
+        <button class="btn" type="submit">حفظ</button>
+        <button class="btn ghost" type="button" id="testKey">اختبر المفتاح</button>
+        <button class="btn ghost" type="button" id="closeSettings">إغلاق</button>
+      </div>
+    </form>
+  </div>
+  <footer>مِحبرة · نسخة 1.0 · النتائج من إنتاج الذكاء الاصطناعي وممكن تحتوي أخطاء. راجع أي معلومة أو رقم من مصدره قبل النشر — دي أول قاعدة في الصحافة.</footer>
+</div>
+
+<script>
+const TOOLS = {
+  news: {
+    name: "كتابة خبر",
+    title: "من المعلومات الخام لخبر جاهز",
+    lead: "حط الحقائق اللي عندك، والأداة تبني الخبر بأسلوب الهرم المقلوب مع عناوين بديلة.",
+    fields: [
+      {id:"facts", label:"المعلومات الخام", type:"textarea", value:"افتتحت كلية الإعلام بجامعة القاهرة يوم الأحد معملاً جديداً للصحافة الرقمية بتكلفة 4 ملايين جنيه. المعمل يضم 40 جهاز كمبيوتر واستوديو بودكاست. عميد الكلية قال إن المعمل هيخدم 1200 طالب سنوياً. التدريب يبدأ الشهر الجاي."},
+      {id:"kind", label:"نوع المادة", type:"select", options:["خبر قصير","خبر موسّع","تقرير إخباري"]},
+      {id:"outlet", label:"منصة النشر", type:"select", options:["موقع إخباري","صحيفة مطبوعة","نشرة إذاعية"]}
+    ],
+    method: "<strong>الطريقة: الهرم المقلوب</strong>أهم معلومة في الأول، والتفاصيل الأقل أهمية في الآخر. المقدمة لازم تجاوب على: مين؟ عمل إيه؟ فين؟ إمتى؟ وليه؟",
+    prompt: v => `أنت محرر صحفي خبير ومدرّب لطلاب الإعلام. اكتب ${v.kind} لـ${v.outlet} باللغة العربية الفصحى من المعلومات التالية فقط، بدون اختراع أي معلومة أو رقم أو اقتباس غير موجود.
+
+المعلومات:
+${v.facts}
+
+اكتب الرد بهذا الشكل بالضبط (عناوين بعلامة ###):
+### العنوان الرئيسي
+### عناوين بديلة
+(3 عناوين بأساليب مختلفة: مباشر، تشويقي، رقمي)
+### المقدمة (Lead)
+### متن الخبر
+### ملاحظة تعليمية
+اشرح للطالب باختصار (بالعامية المصرية) ليه رتبت المعلومات كدا، وإيه الأسئلة الخمسة اللي اتجاوبت، وإيه المعلومات الناقصة اللي المفروض يسأل عنها مصادره.`,
+    example: `### العنوان الرئيسي
+إعلام القاهرة تفتتح معملاً للصحافة الرقمية بتكلفة 4 ملايين جنيه
+
+### عناوين بديلة
+- 1200 طالب سنوياً يتدربون في معمل الصحافة الرقمية الجديد
+- استوديو بودكاست و40 جهازاً.. ماذا ينتظر طلاب إعلام القاهرة؟
+
+### المقدمة (Lead)
+افتتحت كلية الإعلام بجامعة القاهرة، الأحد، معملاً جديداً للصحافة الرقمية بتكلفة 4 ملايين جنيه، يخدم 1200 طالب سنوياً.
+
+### ملاحظة تعليمية
+المقدمة جاوبت على مين وعمل إيه وإمتى، والرقم الأكبر دخل فيها عشان يشد القارئ. ناقصك "ليه" — اسأل العميد عن هدف المعمل.`
+  },
+  verify: {
+    name: "التحقق من الأخبار",
+    title: "افحص الخبر قبل ما تنشره",
+    lead: "الصق خبر أو بوست منتشر، والأداة تحلله وتطلع علامات التضليل وخطوات التحقق.",
+    fields: [
+      {id:"claim", label:"نص الخبر أو البوست", type:"textarea", value:"عاجل جداً!! وزارة التعليم قررت إلغاء امتحانات الثانوية العامة السنة دي نهائياً والنجاح بالتقييم المستمر. انشر قبل ما يتحذف!!! المصدر: مسؤول كبير رفض ذكر اسمه"},
+      {id:"source", label:"مصدره (اختياري)", type:"input", value:"صفحة فيسبوك اسمها «أخبار التعليم لحظة بلحظة»"}
+    ],
+    method: "<strong>الطريقة: التحقق الجانبي (Lateral Reading)</strong>ماتصدّقش الخبر من جوّه. اطلع برّه الصفحة وشوف مين الناشر، وهل مصادر رسمية أو وسائل إعلام موثوقة نقلته.",
+    prompt: v => `أنت مدقق معلومات محترف (Fact-checker) ومدرّب لطلاب الإعلام. حلّل الادعاء التالي. لا تستطيع تصفح الإنترنت، فلا تدّعِ أنك تحققت من مصادر خارجية؛ ركّز على التحليل ومنهجية التحقق.
+
+الادعاء:
+${v.claim}
+
+المصدر المذكور: ${v.source || "غير محدد"}
+
+اكتب بالعامية المصرية الواضحة، بهذا الشكل (عناوين بعلامة ###):
+### التقييم المبدئي
+(اختر واحد: يبدو موثوقاً / يحتاج تحقق / مؤشرات تضليل قوية) مع سطر تبرير
+### علامات الإنذار
+(نقاط: لغة عاطفية، مصدر مجهول، استعجال، إلخ — مع اقتباس الجزء من النص)
+### خطوات التحقق المقترحة
+(خطوات عملية مرقّمة: أي جهة رسمية يراجعها، أي كلمات يبحث بها، أدوات مثل البحث العكسي عن الصور)
+### أسئلة لازم تتجاوب قبل النشر
+### ملاحظة تعليمية`,
+    example: `### التقييم المبدئي
+مؤشرات تضليل قوية — قرار بالحجم دا لازم يطلع في بيان رسمي، مش من "مسؤول رفض ذكر اسمه".
+
+### علامات الإنذار
+- **استعجال مصطنع:** "انشر قبل ما يتحذف"
+- **مصدر مجهول** في قرار رسمي كبير
+- **علامات تعجب كتير** ولغة عاطفية
+
+### خطوات التحقق المقترحة
+1. راجع الصفحة الرسمية للوزارة والمتحدث الرسمي.
+2. ابحث بالخبر في 3 مواقع إخبارية معروفة.`
+  },
+  content: {
+    name: "سكريبتات وبوستات",
+    title: "حوّل الموضوع لمحتوى",
+    lead: "سكريبت فيديو قصير، بودكاست، تقرير تلفزيوني، أو بوستات سوشيال ميديا.",
+    fields: [
+      {id:"topic", label:"الموضوع أو الفكرة", type:"textarea", value:"إزاي الطالب يفرّق بين الخبر الحقيقي والإشاعة على السوشيال ميديا في 3 خطوات"},
+      {id:"format", label:"الشكل", type:"select", options:["سكريبت ريلز/تيك توك (60 ثانية)","سكريبت تقرير تلفزيوني","حلقة بودكاست (مخطط)","بوستات لفيسبوك وإنستجرام وX"]},
+      {id:"tone", label:"الأسلوب", type:"select", options:["عامية مصرية خفيفة","فصحى مبسطة","رسمي إخباري"]}
+    ],
+    method: "<strong>الطريقة: الخطّاف ثم القيمة</strong>أول 3 ثواني (أو أول سطر) هي اللي بتقرر إذا الجمهور هيكمّل. ابدأ بسؤال أو مفاجأة، وبعدين قدّم المعلومة، واختم بدعوة لفعل.",
+    prompt: v => `أنت كاتب محتوى إعلامي محترف ومدرّب لطلاب الإعلام. اكتب ${v.format} عن الموضوع التالي بأسلوب ${v.tone}.
+
+الموضوع:
+${v.topic}
+
+القواعد: لا تخترع إحصائيات أو أسماء مصادر. لو احتجت رقم، اكتب [رقم من مصدر موثوق].
+للسكريبتات: قسّم إلى مشاهد/مقاطع، ولكل مقطع: (الصورة/اللقطة) و(النص المنطوق) والتوقيت التقريبي.
+للبوستات: اكتب نسخة لكل منصة مع هاشتاجات مناسبة.
+
+استخدم عناوين بعلامة ### لكل جزء، واختم بـ:
+### ملاحظة تعليمية
+اشرح بالعامية المصرية ليه اخترت الخطّاف دا، وإزاي الطالب يطوّر السكريبت.`,
+    example: `### الخطّاف (0–3 ث)
+**اللقطة:** موبايل عليه بوست مكتوب "عاجل!!!"
+**النص:** "قبل ما تعمل شير.. اسأل نفسك 3 أسئلة."
+
+### المقطع الأول (3–20 ث)
+**النص:** "أول سؤال: مين اللي قال؟ لو المصدر مجهول، استنى."
+
+### ملاحظة تعليمية
+بدأنا بموقف الجمهور بيعيشه كل يوم، عشان يحس إن الكلام عنه.`
+  },
+  interview: {
+    name: "تلخيص وأسئلة حوار",
+    title: "لخّص وجهّز أسئلتك",
+    lead: "الصق نص (تقرير، بيان، سيرة ضيف) واختار: تلخيص، أسئلة حوار، أو الاتنين.",
+    fields: [
+      {id:"text", label:"النص أو معلومات عن الضيف", type:"textarea", value:"د. سارة محمود، أستاذة الإعلام الرقمي، نشرت دراسة على 800 طالب جامعي بتقول إن 68% منهم بيعتمدوا على تيك توك كمصدر أساسي للأخبار، وإن 30% بس بيتأكدوا من الخبر قبل مشاركته. الدراسة أوصت بإدخال مادة التربية الإعلامية في السنة الأولى بكل الكليات."},
+      {id:"task", label:"المطلوب", type:"select", options:["تلخيص + أسئلة حوار","تلخيص فقط","أسئلة حوار فقط"]},
+      {id:"style", label:"نوع الحوار", type:"select", options:["حوار صحفي مكتوب","مقابلة تلفزيونية","حلقة بودكاست"]}
+    ],
+    method: "<strong>الطريقة: من المفتوح للمحدد</strong>ابدأ بأسئلة مفتوحة تخلّي الضيف يحكي، وبعدها أسئلة متابعة دقيقة، وسيب السؤال الصعب للنص بعد ما يرتاح.",
+    prompt: v => `أنت صحفي محاور خبير ومدرّب لطلاب الإعلام. المطلوب: ${v.task}، استعداداً لـ${v.style}.
+
+النص:
+${v.text}
+
+اكتب بهذا الشكل (عناوين بعلامة ###)، واحذف الأجزاء غير المطلوبة:
+### الملخص
+(5 نقاط بحد أقصى، مع الأرقام الواردة في النص فقط)
+### أسئلة افتتاحية
+### أسئلة العمق والمتابعة
+### السؤال الصعب
+(سؤال جريء لكن مهني، مع نصيحة لطريقة طرحه)
+### سؤال الختام
+### ملاحظة تعليمية
+اشرح بالعامية المصرية ترتيب الأسئلة، وإزاي الطالب يتعامل لو الضيف هرب من سؤال.`,
+    example: `### الملخص
+- دراسة على 800 طالب جامعي.
+- 68% بيعتمدوا على تيك توك كمصدر أساسي للأخبار.
+- 30% بس بيتأكدوا قبل المشاركة.
+
+### أسئلة افتتاحية
+1. إيه اللي خلاكي تختاري تيك توك تحديداً كمحور للدراسة؟
+
+### السؤال الصعب
+عيّنة 800 طالب، هل تكفي إننا نعمّم النتيجة على كل الجامعات؟`
+  }
+};
+
+const $ = id => document.getElementById(id);
+let current = "news", ctl = null;
+const drafts = {};
+
+try { $("today").textContent = new Date().toLocaleDateString("ar-EG",{weekday:"long",year:"numeric",month:"long",day:"numeric"}); } catch(e){}
+
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function inline(s){return esc(s).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>");}
+function md(src){
+  const lines = src.split("\n"); let html="", list=null;
+  const close=()=>{ if(list){ html+=`</${list}>`; list=null; } };
+  for(const raw of lines){
+    const l = raw.trim();
+    if(!l){ close(); continue; }
+    let m;
+    if((m=l.match(/^#{1,4}\s+(.*)/))){ close(); html+=`<h3>${inline(m[1])}</h3>`; }
+    else if((m=l.match(/^[-*•]\s+(.*)/))){ if(list!=="ul"){close(); html+="<ul>"; list="ul";} html+=`<li>${inline(m[1])}</li>`; }
+    else if((m=l.match(/^[\d٠-٩]+[.)]\s+(.*)/))){ if(list!=="ol"){close(); html+="<ol>"; list="ol";} html+=`<li>${inline(m[1])}</li>`; }
+    else { close(); html+=`<p>${inline(l)}</p>`; }
+  }
+  close(); return html;
+}
+
+function buildTabs(){
+  const nav=$("tabs"); nav.innerHTML="";
+  for(const [k,t] of Object.entries(TOOLS)){
+    const b=document.createElement("button");
+    b.type="button"; b.role="tab"; b.textContent=t.name; b.id="tab-"+k;
+    b.setAttribute("aria-selected", k===current);
+    b.onclick=()=>{ saveDraft(); current=k; buildTabs(); render(); };
+    nav.append(b);
+  }
+}
+function saveDraft(){
+  const d={}; for(const f of TOOLS[current].fields){ const el=$("f-"+current+"-"+f.id); if(el) d[f.id]=el.value; }
+  drafts[current]=d;
+}
+function render(){
+  const t=TOOLS[current];
+  $("t-title").textContent=t.title; $("t-lead").textContent=t.lead; $("method").innerHTML=t.method;
+  const box=$("fields"); box.innerHTML="";
+  const selects=[];
+  for(const f of t.fields){
+    const id="f-"+current+"-"+f.id;
+    const wrap=document.createElement("div");
+    const lab=document.createElement("label"); lab.htmlFor=id; lab.textContent=f.label; wrap.append(lab);
+    let el;
+    if(f.type==="textarea"){ el=document.createElement("textarea"); }
+    else if(f.type==="select"){ el=document.createElement("select"); for(const o of f.options){ const op=document.createElement("option"); op.textContent=o; el.append(op);} }
+    else { el=document.createElement("input"); el.type="text"; }
+    el.id=id;
+    const saved=drafts[current]?.[f.id];
+    el.value = saved ?? (f.value ?? (f.options? f.options[0] : ""));
+    wrap.append(el);
+    if(f.type==="select") selects.push(wrap); else box.append(wrap);
+  }
+  if(selects.length){ const row=document.createElement("div"); row.className="row"; selects.forEach(s=>row.append(s)); box.append(row); }
+  const res = results[current];
+  if(res){ $("out").innerHTML=md(res); setStatus("النتيجة","live"); }
+  else { $("out").innerHTML=md(t.example); setStatus("مثال توضيحي"); }
+}
+const results={};
+function setStatus(txt,cls){ const s=$("status"); s.textContent=txt; s.className="chip"+(cls?" "+cls:""); }
+
+const ERR = {
+  not_granted:"لازم توافق على استخدام Claude عشان الأدوات تشتغل. افتح قائمة الصلاحيات في الصفحة وفعّلها.",
+  sampling_disabled:"Claude مش متاح لحسابك حالياً.",
+  rate_limited:"طلبات كتير ورا بعض. استنى دقيقة وجرب تاني.",
+  session_expired:"الجلسة انتهت. سجّل دخول تاني.",
+  refused:"الطلب دا اترفض. جرّب تعدّل النص.",
+  prompt_too_large:"النص طويل جداً. قصّره وجرب تاني.",
+  empty_completion:"مفيش رد. بسّط الطلب وجرب تاني."
+};
+
+
+// ===== Claude API (direct) =====
+const store={get:k=>{try{return localStorage.getItem(k)||""}catch(e){return ""}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+const API="https://api.anthropic.com/v1";
+function headers(key){return {"x-api-key":key,"anthropic-version":"2023-06-01","content-type":"application/json","anthropic-dangerous-direct-browser-access":"true"};}
+async function listModels(key){
+  const r=await fetch(API+"/models?limit=100",{headers:headers(key)});
+  if(!r.ok) throw {status:r.status};
+  return (await r.json()).data||[];
+}
+async function pickModel(key){
+  const chosen=store.get("mihbara-model"); if(chosen) return chosen;
+  const cached=store.get("mihbara-auto-model"); if(cached) return cached;
+  try{ const ms=await listModels(key); const m=ms.find(x=>/sonnet/i.test(x.id))||ms[0]; if(m){ store.set("mihbara-auto-model",m.id); return m.id; } }catch(e){}
+  return "claude-sonnet-4-5";
+}
+async function sample(prompt,{signal,onText}={}){
+  const key=store.get("mihbara-key");
+  if(!key) throw {code:"no_key"};
+  const model=await pickModel(key);
+  let r;
+  try{ r=await fetch(API+"/messages",{method:"POST",signal,headers:headers(key),body:JSON.stringify({model,max_tokens:4000,stream:true,messages:[{role:"user",content:prompt}]})}); }
+  catch(e){ throw {code: e.name==="AbortError"?"cancelled":"network"}; }
+  if(!r.ok){ const code=r.status===401?"bad_key":r.status===429?"rate_limited":r.status===404?"bad_model":r.status===400?"bad_request":r.status===402||r.status===403?"billing":"upstream_error"; if(code==="bad_model") store.set("mihbara-auto-model",""); throw {code}; }
+  const reader=r.body.getReader(), dec=new TextDecoder(); let buf="", text="", truncated=false;
+  try{
+    for(;;){
+      const {done,value}=await reader.read(); if(done) break;
+      buf+=dec.decode(value,{stream:true});
+      let i; while((i=buf.indexOf("\n"))>=0){
+        const line=buf.slice(0,i).trim(); buf=buf.slice(i+1);
+        if(!line.startsWith("data:")) continue;
+        let ev; try{ ev=JSON.parse(line.slice(5)); }catch(e){ continue; }
+        if(ev.type==="content_block_delta"&&ev.delta?.type==="text_delta"){ text+=ev.delta.text; onText&&onText({text}); }
+        else if(ev.type==="message_delta"&&ev.delta?.stop_reason==="max_tokens") truncated=true;
+        else if(ev.type==="error") throw {code:"upstream_error",text};
+      }
+    }
+  }catch(e){ if(e&&e.code) throw e; throw {code:e?.name==="AbortError"?"cancelled":"network",text}; }
+  if(!text.trim()) throw {code:"empty_completion"};
+  return {text,truncated};
+}
+Object.assign(ERR,{no_key:"حط مفتاح Claude API في الإعدادات الأول.",bad_key:"المفتاح غلط أو اتلغى. راجعه في الإعدادات.",billing:"الحساب محتاج رصيد. اشحن من console.anthropic.com.",network:"مفيش اتصال بالإنترنت. اتأكد من النت وجرب تاني.",bad_model:"الموديل دا مش متاح. اختار موديل تاني من الإعدادات.",bad_request:"الطلب مش مظبوط. قصّر النص وجرب تاني."});
+function refreshKeyState(){ const has=!!store.get("mihbara-key"); $("keyBanner").hidden=has; $("note").textContent=""; }
+function openSettings(){ $("apiKey").value=store.get("mihbara-key"); $("settingsMsg").textContent=""; fillModels(); $("settings").hidden=false; }
+async function fillModels(){
+  const sel=$("model"), key=$("apiKey").value.trim()||store.get("mihbara-key"), cur=store.get("mihbara-model");
+  sel.innerHTML='<option value="">تلقائي (أحدث Sonnet)</option>';
+  if(key){ try{ for(const m of await listModels(key)){ const o=document.createElement("option"); o.value=m.id; o.textContent=m.display_name||m.id; sel.append(o);} }catch(e){} }
+  if(cur && ![...sel.options].some(o=>o.value===cur)){ const o=document.createElement("option"); o.value=cur; o.textContent=cur; sel.append(o); }
+  sel.value=cur;
+}
+$("openSettings").onclick=openSettings; $("openSettings2").onclick=openSettings;
+$("closeSettings").onclick=()=>{$("settings").hidden=true;};
+$("settings").addEventListener("click",e=>{ if(e.target.id==="settings") $("settings").hidden=true; });
+$("settingsForm").addEventListener("submit",e=>{ e.preventDefault(); store.set("mihbara-key",$("apiKey").value.trim()); store.set("mihbara-model",$("model").value); store.set("mihbara-auto-model",""); $("settings").hidden=true; refreshKeyState(); });
+$("testKey").onclick=async()=>{ const k=$("apiKey").value.trim(); const m=$("settingsMsg"); if(!k){m.textContent="اكتب المفتاح الأول.";return;} m.textContent="بختبر…"; try{ const ms=await listModels(k); m.textContent="المفتاح شغال ✓ ("+ms.length+" موديل متاح)"; fillModels(); }catch(e){ m.textContent= e.status===401?"المفتاح غلط.":"مقدرتش أوصل لـ Anthropic. اتأكد من النت."; } };
+
+$("form").addEventListener("submit", async e=>{
+  e.preventDefault();
+  if(!store.get("mihbara-key")){ openSettings(); return; }
+  saveDraft();
+  const t=TOOLS[current], v=drafts[current], tool=current;
+  const main = t.fields[0].id;
+  if(!v[main] || !v[main].trim()){ $("note").textContent="اكتب "+t.fields[0].label+" الأول."; return; }
+  ctl=new AbortController();
+  $("go").disabled=true; $("stop").hidden=false; $("note").textContent="";
+  $("out").innerHTML="<p>بيفكّر…</p>"; $("out").classList.add("streaming"); setStatus("جاري الكتابة","live");
+  try{
+    const r = await sample(t.prompt(v), { signal:ctl.signal, cache:false, onText:({text})=>{ if(current===tool) $("out").innerHTML=md(text); } });
+    results[tool]=r.text;
+    if(current===tool){ $("out").innerHTML=md(r.text); setStatus("النتيجة","live"); if(r.truncated) $("note").textContent="الرد اتقطع. جرّب نص أقصر."; }
+  }catch(err){
+    if(err && err.text) { results[tool]=err.text; if(current===tool) $("out").innerHTML=md(err.text); }
+    else if(current===tool && !results[tool]) { $("out").innerHTML=md(t.example); setStatus("مثال توضيحي"); }
+    if(err?.code==="refused"){ delete results[tool]; if(current===tool){ $("out").innerHTML=""; } }
+    if(err?.code!=="cancelled") { $("note").textContent = ERR[err?.code] || "حصل خطأ مؤقت. جرب تاني."; $("note").classList.add("err"); }
+  }finally{
+    $("go").disabled=false; $("stop").hidden=true; $("out").classList.remove("streaming");
+    setTimeout(()=>$("note").classList.remove("err"),6000);
+  }
+});
+$("stop").onclick=()=>ctl?.abort();
+$("clear").onclick=()=>{ for(const f of TOOLS[current].fields){ const el=$("f-"+current+"-"+f.id); if(el && f.type!=="select") el.value=""; } $("f-"+current+"-"+TOOLS[current].fields[0].id).focus(); };
+$("copy").onclick=async()=>{
+  const txt=$("out").innerText;
+  try{ await navigator.clipboard.writeText(txt); $("copy").textContent="اتنسخ ✓"; }
+  catch(e){ const r=document.createRange(); r.selectNodeContents($("out")); const s=getSelection(); s.removeAllRanges(); s.addRange(r); $("copy").textContent="حدّد واعمل نسخ"; }
+  setTimeout(()=>$("copy").textContent="نسخ",2000);
+};
+
+buildTabs(); render();
+refreshKeyState();
+</script>
+
+</body></html>

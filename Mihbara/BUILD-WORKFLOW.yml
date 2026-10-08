@@ -20,10 +20,16 @@ jobs:
           gradle-version: '8.9'
 
       - name: Build APK
-        run: gradle assembleDebug --no-daemon
-
-      - name: Rename APK
-        run: cp app/build/outputs/apk/debug/app-debug.apk Mihbara.apk
+        run: |
+          FILE=$(find . -name settings.gradle -not -path "./.git/*" | head -1)
+          if [ -z "$FILE" ]; then
+            echo "❌ ملفات المشروع مش مرفوعة. ارفع محتويات فولدر Mihbara الأول."
+            exit 1
+          fi
+          cd "$(dirname "$FILE")"
+          echo "✅ لقيت المشروع في: $(pwd)"
+          gradle assembleDebug --no-daemon
+          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/Mihbara.apk"
 
       - uses: actions/upload-artifact@v4
         with:

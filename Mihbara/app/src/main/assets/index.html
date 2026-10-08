@@ -101,6 +101,54 @@ img{max-width:100%}
 .sheet .panel{width:100%;max-width:520px;background:var(--bg2);border-radius:24px;padding:22px;margin-bottom:env(safe-area-inset-bottom,0px)}
 .sheet h2{font-family:var(--display);margin:0 0 4px;font-size:20px}
 .small{font-size:12.5px;color:var(--muted)}
+
+.screen{position:relative;aspect-ratio:16/9;max-width:100%;border-radius:18px;overflow:hidden;background:#0b0b10;isolation:isolate}
+.screen img,.screen video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.screen img{filter:saturate(.9)}
+.onair{position:absolute;top:12px;inset-inline-start:12px;display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.55);color:#fff;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;backdrop-filter:blur(6px)}
+.onair span{width:7px;height:7px;border-radius:50%;background:#ff3d68}
+.ai-badge{position:absolute;top:12px;inset-inline-end:12px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;padding:4px 10px;border-radius:999px}
+.lower{position:absolute;inset-inline:12px;bottom:12px;display:flex;align-items:stretch;border-radius:10px;overflow:hidden;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.lower b{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;padding:6px 12px;font-weight:700;flex:none}
+.lower span{background:rgba(255,255,255,.94);color:#121218;padding:6px 12px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.screen:has(video:not([hidden])) .lower{bottom:56px}
+.progress{position:absolute;inset:0;display:grid;place-content:center;gap:12px;justify-items:center;background:rgba(11,11,16,.72);color:#fff;text-align:center;padding:16px}
+.progress i{width:42px;height:42px;border-radius:50%;border:3px solid rgba(255,255,255,.2);border-top-color:var(--a1);animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.progress p{margin:0;font-size:14px}
+.scr-title{font-family:var(--display);font-size:15px;margin:16px 0 4px}
+.script{margin:0;white-space:pre-wrap;color:var(--ink)}
+.presenters{display:flex;gap:10px;flex-wrap:wrap}
+.pres{width:64px;height:64px;border-radius:16px;border:2px solid var(--line);background:var(--bg2) center/cover;cursor:pointer;padding:0;color:var(--muted);font:inherit;font-size:24px}
+.pres[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.check{display:flex;align-items:center;gap:8px;color:var(--ink);font-size:13.5px}
+.check input{width:auto}
+#st-open{display:inline-block;margin-top:12px;text-decoration:none}
+
+footer p{margin:4px 0}
+.flinks{display:flex;justify-content:center;gap:8px;align-items:center;margin-bottom:6px;position:static;background:none;border:0;padding:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+.flinks button{font:inherit;font-size:13px;font-weight:500;color:var(--accent);background:none;border:0;padding:4px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;flex:none}
+.sheet .panel.legal{max-width:640px;max-height:86vh;display:flex;flex-direction:column;padding:0;overflow:hidden}
+.legal-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.seg{display:flex;gap:4px;background:var(--bg);padding:4px;border-radius:14px}
+.seg button{font:inherit;font-size:13px;border:0;background:none;color:var(--muted);padding:7px 12px;border-radius:10px;cursor:pointer}
+.seg button[aria-selected="true"]{background:var(--bg2);color:var(--ink);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.x{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;font-size:14px;flex:none}
+.legal-body{overflow-y:auto;padding:18px 20px 24px;font-size:14px;line-height:1.85}
+.legal-body h3{font-family:var(--display);font-size:16px;margin:18px 0 6px}
+.legal-body h3:first-of-type{margin-top:6px}
+.legal-body ul{padding-inline-start:20px;margin:0 0 8px}
+.legal-body .upd{color:var(--muted);font-size:12.5px;margin:0}
+.screen.talking img{animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:scale(1.04) translateY(0)}35%{transform:scale(1.05) translateY(-1.2%) rotate(-.4deg)}70%{transform:scale(1.045) translateY(.4%) rotate(.3deg)}}
+.eq{position:absolute;top:44px;inset-inline-start:14px;display:none;gap:3px;align-items:flex-end;height:18px}
+.screen.talking .eq{display:flex}
+.eq i{width:4px;background:#fff;border-radius:2px;animation:eq .9s ease-in-out infinite}
+.eq i:nth-child(2){animation-delay:.15s}.eq i:nth-child(3){animation-delay:.3s}.eq i:nth-child(4){animation-delay:.45s}
+@keyframes eq{0%,100%{height:4px}50%{height:18px}}
+.caption{position:absolute;inset-inline:12px;bottom:56px;text-align:center;color:#fff;font-size:14px;font-weight:500;text-shadow:0 1px 3px rgba(0,0,0,.8);line-height:1.6}
+.caption:empty{display:none}
+@media (prefers-reduced-motion:reduce){.screen.talking img,.eq i{animation:none}}
 </style>
 
 </head><body><div class="wrap">
@@ -114,15 +162,13 @@ img{max-width:100%}
     </div>
     <div class="hright">
       <p class="tag" id="today"></p>
-      <button class="gear" type="button" id="openSettings" aria-label="الإعدادات"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
     </div>
   </header>
-  <div class="banner" id="keyBanner" hidden><span>عشان الأدوات تشتغل، حط مفتاح Claude API في الإعدادات.</span><button class="btn" type="button" id="openSettings2">افتح الإعدادات</button></div>
   <div class="ticker"><b>عاجل</b><span>كل أداة بتديك النتيجة + ملاحظة تعليمية بتشرح ليه اتكتبت كدا</span></div>
 
   <nav role="tablist" id="tabs"></nav>
 
-  <section class="desk">
+  <section class="desk" id="mainDesk">
     <form class="slip" id="form">
       <h2 id="t-title"></h2>
       <p class="lead" id="t-lead"></p>
@@ -148,26 +194,75 @@ img{max-width:100%}
     </article>
   </section>
 
-  <div class="sheet" id="settings" hidden>
-    <form class="panel" id="settingsForm">
-      <h2>الإعدادات</h2>
-      <p class="small">المفتاح بيتحفظ على موبايلك بس، ومش بيتبعت لأي حد غير Anthropic.</p>
-      <label for="apiKey">مفتاح Claude API</label>
-      <input id="apiKey" type="password" placeholder="sk-ant-..." autocomplete="off" dir="ltr">
-      <p class="small">تجيبه من موقع console.anthropic.com ← API Keys.</p>
-      <label for="model">الموديل</label>
-      <select id="model" dir="ltr"><option value="">تلقائي (أحدث Sonnet)</option></select>
-      <p class="small" id="settingsMsg"></p>
-      <div class="actions">
-        <button class="btn" type="submit">حفظ</button>
-        <button class="btn ghost" type="button" id="testKey">اختبر المفتاح</button>
-        <button class="btn ghost" type="button" id="closeSettings">إغلاق</button>
+  <section class="desk" id="studioDesk" hidden>
+    <form class="slip" id="studioForm">
+      <h2>المذيع الافتراضي</h2>
+      <p class="lead">اكتب الخبر أو الموضوع، والمذيع هيقراه بصوت عربي. <span class="chip" id="st-mode">صوت + صورة متحركة</span></p>
+      <label for="st-text">الخبر أو الموضوع</label>
+      <textarea id="st-text">افتتحت كلية الإعلام بجامعة القاهرة يوم الأحد معملاً جديداً للصحافة الرقمية بتكلفة 4 ملايين جنيه، يضم 40 جهاز كمبيوتر واستوديو بودكاست، ويخدم 1200 طالب سنوياً.</textarea>
+      <div class="row">
+        <div><label for="st-voice">الصوت</label>
+          <select id="st-voice">
+            <option value="ar-EG-SalmaNeural">سلمى (مصري، ست)</option>
+            <option value="ar-EG-ShakirNeural">شاكر (مصري، راجل)</option>
+            <option value="ar-SA-ZariyahNeural">زارية (فصحى، ست)</option>
+            <option value="ar-SA-HamedNeural">حامد (فصحى، راجل)</option>
+          </select></div>
+        <div><label for="st-len">طول النشرة</label>
+          <select id="st-len"><option value="40">قصيرة (~20 ثانية)</option><option value="80">متوسطة (~40 ثانية)</option><option value="130">طويلة (~1 دقيقة)</option></select></div>
       </div>
+      <label>صورة المذيع</label>
+      <div class="presenters" id="presenters"></div>
+      <input type="file" id="st-photo" accept="image/jpeg,image/png" hidden>
+      <p class="small">استخدم صورتك أو صورة عندك إذن باستخدامها. ممنوع صور مشاهير أو أشخاص من غير موافقتهم.</p>
+      <label class="check"><input type="checkbox" id="st-rewrite" checked> خلّي الذكاء الاصطناعي يحوّله لنص نشرة الأول</label>
+      <div class="actions">
+        <button class="btn" type="submit" id="st-go">اعمل النشرة</button>
+        <button class="btn ghost" type="button" id="st-stop" hidden>إيقاف</button>
+        <button class="btn ghost" type="button" id="st-replay" hidden>إعادة</button>
+      </div>
+      <div class="method"><strong>للتعلّم: الكتابة للأذن</strong>نص النشرة بيتكتب للسمع مش للقراءة: جمل قصيرة، رقم واحد في الجملة، والمعلومة الأهم في الأول وتتكرر في الآخر.</div>
     </form>
+
+    <article class="proof">
+      <div class="proof-head"><h2>الاستوديو</h2><span class="chip" id="st-status">جاهز</span></div>
+      <div class="screen" id="screen">
+        <img id="st-poster" alt="المذيع">
+        <video id="st-video" playsinline controls hidden></video>
+        <div class="onair"><span></span>مِحبرة نيوز</div>
+        <div class="ai-badge">مذيع افتراضي · AI</div>
+        <div class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <div class="caption" id="st-caption"></div>
+        <div class="lower"><b>عاجل</b><span id="st-headline">اكتب خبر واضغط «اعمل النشرة»</span></div>
+        <div class="progress" id="st-progress" hidden><i></i><p id="st-ptext">بيجهّز…</p></div>
+      </div>
+      <h3 class="scr-title">نص النشرة</h3>
+      <p class="script" id="st-script">النص اللي المذيع هيقوله هيظهر هنا.</p>
+      <p class="note" id="st-note"></p>
+      <a class="btn ghost" id="st-open" target="_blank" rel="noopener" hidden>افتح الفيديو / حمّله</a>
+    </article>
+  </section>
+
+  <div class="sheet" id="legal" hidden>
+    <div class="panel legal" role="dialog" aria-modal="true" aria-labelledby="legalTitle">
+      <div class="legal-head">
+        <div class="seg" role="tablist">
+          <button type="button" id="lg-privacy" aria-selected="true">سياسة الخصوصية</button>
+          <button type="button" id="lg-terms" aria-selected="false">الشروط والأحكام</button>
+        </div>
+        <button class="x" type="button" id="closeLegal" aria-label="إغلاق">✕</button>
+      </div>
+      <div class="legal-body" id="legalBody"></div>
+    </div>
   </div>
-  <footer>مِحبرة · نسخة 1.0 · النتائج من إنتاج الذكاء الاصطناعي وممكن تحتوي أخطاء. راجع أي معلومة أو رقم من مصدره قبل النشر — دي أول قاعدة في الصحافة.</footer>
+  <footer>
+    <nav class="flinks"><button type="button" id="openPrivacy">سياسة الخصوصية</button><span>·</span><button type="button" id="openTerms">الشروط والأحكام</button></nav>
+    <p>مِحبرة · نسخة 1.2 · المحتوى من إنتاج الذكاء الاصطناعي وممكن يحتوي أخطاء. راجع أي معلومة أو رقم من مصدره قبل النشر.</p>
+    <p>© 2026 مِحبرة. جميع الحقوق محفوظة.</p>
+  </footer>
 </div>
 
+<script src="config.js"></script>
 <script>
 const TOOLS = {
   news: {
@@ -342,10 +437,15 @@ function buildTabs(){
     const b=document.createElement("button");
     b.type="button"; b.role="tab"; b.textContent=t.name; b.id="tab-"+k;
     b.setAttribute("aria-selected", k===current);
-    b.onclick=()=>{ saveDraft(); current=k; buildTabs(); render(); };
+    b.onclick=()=>{ if(current!=="studio") saveDraft(); current=k; buildTabs(); showDesk(); if(k!=="studio") render(); };
     nav.append(b);
   }
+  const b=document.createElement("button"); b.type="button"; b.role="tab"; b.textContent="المذيع الافتراضي"; b.id="tab-studio";
+  b.setAttribute("aria-selected", current==="studio");
+  b.onclick=()=>{ if(current!=="studio") saveDraft(); current="studio"; buildTabs(); showDesk(); };
+  nav.append(b);
 }
+function showDesk(){ const st=current==="studio"; $("studioDesk").hidden=!st; $("mainDesk").hidden=st; }
 function saveDraft(){
   const d={}; for(const f of TOOLS[current].fields){ const el=$("f-"+current+"-"+f.id); if(el) d[f.id]=el.value; }
   drafts[current]=d;
@@ -378,76 +478,118 @@ const results={};
 function setStatus(txt,cls){ const s=$("status"); s.textContent=txt; s.className="chip"+(cls?" "+cls:""); }
 
 const ERR = {
-  not_granted:"لازم توافق على استخدام Claude عشان الأدوات تشتغل. افتح قائمة الصلاحيات في الصفحة وفعّلها.",
-  sampling_disabled:"Claude مش متاح لحسابك حالياً.",
   rate_limited:"طلبات كتير ورا بعض. استنى دقيقة وجرب تاني.",
-  session_expired:"الجلسة انتهت. سجّل دخول تاني.",
   refused:"الطلب دا اترفض. جرّب تعدّل النص.",
   prompt_too_large:"النص طويل جداً. قصّره وجرب تاني.",
   empty_completion:"مفيش رد. بسّط الطلب وجرب تاني."
 };
 
 
-// ===== Claude API (direct) =====
+// ===== AI engine =====
+const CFG=Object.assign({server:"",token:"",contact:""},window.MIHBARA_CONFIG||{});
+CFG.server=(CFG.server||"").replace(/\/+$/,"");
 const store={get:k=>{try{return localStorage.getItem(k)||""}catch(e){return ""}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
-const API="https://api.anthropic.com/v1";
-function headers(key){return {"x-api-key":key,"anthropic-version":"2023-06-01","content-type":"application/json","anthropic-dangerous-direct-browser-access":"true"};}
-async function listModels(key){
-  const r=await fetch(API+"/models?limit=100",{headers:headers(key)});
-  if(!r.ok) throw {status:r.status};
-  return (await r.json()).data||[];
+async function readSSE(r,onDelta,signal){
+  const ct=(r.headers.get("content-type")||"");
+  if(!ct.includes("event-stream")){
+    const raw=await r.text(); let t=raw;
+    try{ const j=JSON.parse(raw); t=j.choices?.[0]?.message?.content ?? j.content?.[0]?.text ?? j.text ?? raw; }catch(e){}
+    onDelta(String(t)); return;
+  }
+  const reader=r.body.getReader(), dec=new TextDecoder(); let buf="";
+  for(;;){
+    const {done,value}=await reader.read(); if(done) break;
+    buf+=dec.decode(value,{stream:true});
+    let i; while((i=buf.indexOf("\n"))>=0){
+      const line=buf.slice(0,i).trim(); buf=buf.slice(i+1);
+      if(!line.startsWith("data:")) continue;
+      const data=line.slice(5).trim(); if(data==="[DONE]") return;
+      let ev; try{ ev=JSON.parse(data); }catch(e){ continue; }
+      if(ev.type==="content_block_delta"&&ev.delta?.type==="text_delta") onDelta(ev.delta.text);
+      else if(ev.type==="error") throw {code:"upstream_error"};
+      else { const d=ev.choices?.[0]?.delta?.content; if(d) onDelta(d); }
+    }
+  }
 }
-async function pickModel(key){
-  const chosen=store.get("mihbara-model"); if(chosen) return chosen;
-  const cached=store.get("mihbara-auto-model"); if(cached) return cached;
-  try{ const ms=await listModels(key); const m=ms.find(x=>/sonnet/i.test(x.id))||ms[0]; if(m){ store.set("mihbara-auto-model",m.id); return m.id; } }catch(e){}
-  return "claude-sonnet-4-5";
+async function viaServer(prompt,signal,onDelta){
+  const r=await fetch(CFG.server+"/ai",{method:"POST",signal,headers:{"content-type":"application/json","x-app-token":CFG.token},body:JSON.stringify({prompt})});
+  if(!r.ok) throw {code:r.status===429?"rate_limited":"server_down"};
+  await readSSE(r,onDelta,signal);
+}
+async function viaFree(prompt,signal,onDelta){
+  let r;
+  try{ r=await fetch("https://text.pollinations.ai/openai",{method:"POST",signal,headers:{"content-type":"application/json"},body:JSON.stringify({model:"openai",stream:true,private:true,messages:[{role:"user",content:prompt}]})}); }
+  catch(e){ if(e.name==="AbortError") throw e; r=null; }
+  if((!r||!r.ok) && prompt.length<1800){
+    r=await fetch("https://text.pollinations.ai/"+encodeURIComponent(prompt)+"?private=true",{signal});
+  }
+  if(!r||!r.ok) throw {code:r&&r.status===429?"rate_limited":"free_down"};
+  await readSSE(r,onDelta,signal);
 }
 async function sample(prompt,{signal,onText}={}){
-  const key=store.get("mihbara-key");
-  if(!key) throw {code:"no_key"};
-  const model=await pickModel(key);
-  let r;
-  try{ r=await fetch(API+"/messages",{method:"POST",signal,headers:headers(key),body:JSON.stringify({model,max_tokens:4000,stream:true,messages:[{role:"user",content:prompt}]})}); }
-  catch(e){ throw {code: e.name==="AbortError"?"cancelled":"network"}; }
-  if(!r.ok){ const code=r.status===401?"bad_key":r.status===429?"rate_limited":r.status===404?"bad_model":r.status===400?"bad_request":r.status===402||r.status===403?"billing":"upstream_error"; if(code==="bad_model") store.set("mihbara-auto-model",""); throw {code}; }
-  const reader=r.body.getReader(), dec=new TextDecoder(); let buf="", text="", truncated=false;
+  let text=""; const onDelta=d=>{ text+=d; onText&&onText({text}); };
   try{
-    for(;;){
-      const {done,value}=await reader.read(); if(done) break;
-      buf+=dec.decode(value,{stream:true});
-      let i; while((i=buf.indexOf("\n"))>=0){
-        const line=buf.slice(0,i).trim(); buf=buf.slice(i+1);
-        if(!line.startsWith("data:")) continue;
-        let ev; try{ ev=JSON.parse(line.slice(5)); }catch(e){ continue; }
-        if(ev.type==="content_block_delta"&&ev.delta?.type==="text_delta"){ text+=ev.delta.text; onText&&onText({text}); }
-        else if(ev.type==="message_delta"&&ev.delta?.stop_reason==="max_tokens") truncated=true;
-        else if(ev.type==="error") throw {code:"upstream_error",text};
-      }
-    }
-  }catch(e){ if(e&&e.code) throw e; throw {code:e?.name==="AbortError"?"cancelled":"network",text}; }
+    if(CFG.server){
+      try{ await viaServer(prompt,signal,onDelta); }
+      catch(e){ if(e?.name==="AbortError"||text) throw e; await viaFree(prompt,signal,onDelta); }
+    } else await viaFree(prompt,signal,onDelta);
+  }catch(e){ if(e&&e.code) throw Object.assign(e,{text:text||undefined}); throw {code:e?.name==="AbortError"?"cancelled":"network",text:text||undefined}; }
   if(!text.trim()) throw {code:"empty_completion"};
-  return {text,truncated};
+  return {text,truncated:false};
 }
-Object.assign(ERR,{no_key:"حط مفتاح Claude API في الإعدادات الأول.",bad_key:"المفتاح غلط أو اتلغى. راجعه في الإعدادات.",billing:"الحساب محتاج رصيد. اشحن من console.anthropic.com.",network:"مفيش اتصال بالإنترنت. اتأكد من النت وجرب تاني.",bad_model:"الموديل دا مش متاح. اختار موديل تاني من الإعدادات.",bad_request:"الطلب مش مظبوط. قصّر النص وجرب تاني."});
-function refreshKeyState(){ const has=!!store.get("mihbara-key"); $("keyBanner").hidden=has; $("note").textContent=""; }
-function openSettings(){ $("apiKey").value=store.get("mihbara-key"); $("settingsMsg").textContent=""; fillModels(); $("settings").hidden=false; }
-async function fillModels(){
-  const sel=$("model"), key=$("apiKey").value.trim()||store.get("mihbara-key"), cur=store.get("mihbara-model");
-  sel.innerHTML='<option value="">تلقائي (أحدث Sonnet)</option>';
-  if(key){ try{ for(const m of await listModels(key)){ const o=document.createElement("option"); o.value=m.id; o.textContent=m.display_name||m.id; sel.append(o);} }catch(e){} }
-  if(cur && ![...sel.options].some(o=>o.value===cur)){ const o=document.createElement("option"); o.value=cur; o.textContent=cur; sel.append(o); }
-  sel.value=cur;
+Object.assign(ERR,{network:"مفيش اتصال بالإنترنت. اتأكد من النت وجرب تاني.",free_down:"الخدمة مشغولة دلوقتي. جرّب كمان دقيقة.",server_down:"السيرفر مش بيرد. جرّب كمان شوية.",upstream_error:"حصل خطأ مؤقت. جرب تاني."});
+function refreshKeyState(){ $("note").textContent=""; }
+
+// ===== Legal =====
+const LEGAL={
+privacy:`<p class="upd">آخر تحديث: 8 أكتوبر 2026</p>
+<p>توضح هذه السياسة كيف يتعامل تطبيق «مِحبرة» مع بياناتك. باستخدامك للتطبيق فأنت توافق على ما ورد فيها.</p>
+<h3>1. البيانات التي لا نجمعها</h3>
+<ul><li>لا يتطلب التطبيق إنشاء حساب، ولا نطلب اسمك أو بريدك أو رقم هاتفك.</li><li>لا نستخدم إعلانات ولا أدوات تتبّع أو تحليلات.</li><li>لا نبيع أي بيانات ولا نشاركها لأغراض تسويقية.</li></ul>
+<h3>2. البيانات التي تُعالَج عند الاستخدام</h3>
+<ul><li><b>النصوص التي تكتبها:</b> تُرسل إلى مزوّد خدمة ذكاء اصطناعي خارجي لتوليد النتيجة، ثم تُعرض لك. لا يحتفظ التطبيق بنسخة منها على أي خادم تابع له.</li><li><b>صورة المذيع:</b> عند استخدام وضع الفيديو، تُرسل الصورة والنص إلى مزوّد خدمة توليد فيديو خارجي لإنتاج المقطع.</li><li><b>الصوت:</b> في الوضع المجاني تُقرأ النشرة بمحرّك الصوت المثبّت على جهازك.</li></ul>
+<p>لا تُدخل في التطبيق معلومات شخصية حساسة أو بيانات لا تملك حق مشاركتها.</p>
+<h3>3. ما يُحفظ على جهازك</h3>
+<p>يحفظ التطبيق على جهازك فقط بعض التفضيلات وصورة المذيع التي اخترتها. يمكنك حذفها في أي وقت من إعدادات الهاتف ← التطبيقات ← مِحبرة ← مسح البيانات.</p>
+<h3>4. مزوّدو الخدمات الخارجيون</h3>
+<p>تخضع معالجة البيانات لدى مزوّدي خدمات الذكاء الاصطناعي وتوليد الفيديو لسياسات الخصوصية الخاصة بهم.</p>
+<h3>5. الأطفال</h3>
+<p>التطبيق موجّه لطلاب الجامعات ومن في حكمهم. لا يُنصح باستخدامه لمن هم دون 13 عامًا إلا تحت إشراف ولي الأمر أو المعلّم.</p>
+<h3>6. التعديلات</h3>
+<p>قد نحدّث هذه السياسة من وقت لآخر، ويظهر تاريخ آخر تحديث في أعلاها.</p>
+<h3>7. التواصل</h3>
+<p>${CFG.contact?`لأي استفسار عن الخصوصية: <span dir="ltr">${CFG.contact}</span>`:"لأي استفسار، تواصل مع فريق مِحبرة."}</p>`,
+terms:`<p class="upd">آخر تحديث: 8 أكتوبر 2026</p>
+<p>باستخدامك تطبيق «مِحبرة» فأنت توافق على الشروط التالية.</p>
+<h3>1. الغرض من التطبيق</h3>
+<p>مِحبرة أداة تعليمية تساعد طلاب الإعلام على التدرّب على كتابة الأخبار والتحقق منها وإعداد المحتوى والحوارات.</p>
+<h3>2. دقة المحتوى</h3>
+<ul><li>المحتوى من إنتاج الذكاء الاصطناعي وقد يحتوي على أخطاء أو معلومات غير دقيقة.</li><li>أنت مسؤول عن مراجعة أي معلومة أو رقم أو اقتباس من مصدره الأصلي قبل نشره أو الاعتماد عليه.</li><li>نتيجة أداة «التحقق من الأخبار» استرشادية ولا تُعدّ حكمًا نهائيًا على صحة الخبر.</li></ul>
+<h3>3. الاستخدام المقبول</h3>
+<p>يُمنع استخدام التطبيق في:</p>
+<ul><li>إنتاج أو نشر أخبار كاذبة أو مضللة أو شائعات.</li><li>انتحال شخصية أي شخص أو جهة، أو إيهام الجمهور بأن المذيع الافتراضي شخص حقيقي.</li><li>استخدام صورة أي شخص دون إذنه، أو صور المشاهير والشخصيات العامة.</li><li>المحتوى المسيء أو المحرّض على الكراهية أو العنف أو المخالف للقانون.</li></ul>
+<h3>4. المذيع الافتراضي</h3>
+<p>عند نشر أي مقطع من إنتاج المذيع الافتراضي، يجب الإفصاح بوضوح أنه مُنتَج بالذكاء الاصطناعي، وعدم إزالة علامة «مذيع افتراضي · AI».</p>
+<h3>5. ملكية المحتوى</h3>
+<p>المحتوى الذي تنتجه باستخدام التطبيق ملك لك، وتتحمّل وحدك مسؤولية استخدامه ونشره. اسم «مِحبرة» وشعارها وتصميمها مملوكة لأصحاب التطبيق.</p>
+<h3>6. توفر الخدمة</h3>
+<p>يُقدَّم التطبيق «كما هو» دون أي ضمانات. قد تتوقف بعض الخدمات أو تتغيّر أو تبطئ في أي وقت.</p>
+<h3>7. حدود المسؤولية</h3>
+<p>لا يتحمّل أصحاب التطبيق أي مسؤولية عن أضرار ناتجة عن استخدام المحتوى المُنتَج أو الاعتماد عليه.</p>
+<h3>8. التعديلات</h3>
+<p>قد نعدّل هذه الشروط في أي وقت، واستمرارك في استخدام التطبيق بعد التعديل يعني موافقتك عليها.</p>`};
+function openLegal(which){
+  $("legalBody").innerHTML=LEGAL[which]; $("legalBody").scrollTop=0;
+  $("lg-privacy").setAttribute("aria-selected",which==="privacy"); $("lg-terms").setAttribute("aria-selected",which==="terms");
+  $("legal").hidden=false;
 }
-$("openSettings").onclick=openSettings; $("openSettings2").onclick=openSettings;
-$("closeSettings").onclick=()=>{$("settings").hidden=true;};
-$("settings").addEventListener("click",e=>{ if(e.target.id==="settings") $("settings").hidden=true; });
-$("settingsForm").addEventListener("submit",e=>{ e.preventDefault(); store.set("mihbara-key",$("apiKey").value.trim()); store.set("mihbara-model",$("model").value); store.set("mihbara-auto-model",""); $("settings").hidden=true; refreshKeyState(); });
-$("testKey").onclick=async()=>{ const k=$("apiKey").value.trim(); const m=$("settingsMsg"); if(!k){m.textContent="اكتب المفتاح الأول.";return;} m.textContent="بختبر…"; try{ const ms=await listModels(k); m.textContent="المفتاح شغال ✓ ("+ms.length+" موديل متاح)"; fillModels(); }catch(e){ m.textContent= e.status===401?"المفتاح غلط.":"مقدرتش أوصل لـ Anthropic. اتأكد من النت."; } };
+$("openPrivacy").onclick=()=>openLegal("privacy"); $("openTerms").onclick=()=>openLegal("terms");
+$("lg-privacy").onclick=()=>openLegal("privacy"); $("lg-terms").onclick=()=>openLegal("terms");
+$("closeLegal").onclick=()=>{$("legal").hidden=true;};
+$("legal").addEventListener("click",e=>{ if(e.target.id==="legal") $("legal").hidden=true; });
 
 $("form").addEventListener("submit", async e=>{
   e.preventDefault();
-  if(!store.get("mihbara-key")){ openSettings(); return; }
   saveDraft();
   const t=TOOLS[current], v=drafts[current], tool=current;
   const main = t.fields[0].id;
@@ -479,6 +621,119 @@ $("copy").onclick=async()=>{
 };
 
 buildTabs(); render();
+// ===== Virtual anchor =====
+const DEFAULT_PRESENTER="https://d-id-public-bucket.s3.us-west-2.amazonaws.com/alice.jpg";
+let videoMode=false, busy=false, ttsCtl=null, lastScript="";
+async function checkServer(){
+  if(!CFG.server) return;
+  try{ const r=await fetch(CFG.server+"/status",{headers:{"x-app-token":CFG.token}}); const j=await r.json(); videoMode=!!j.did; }catch(e){ videoMode=false; }
+  $("st-mode").textContent=videoMode?"فيديو بحركة شفايف":"صوت + صورة متحركة";
+}
+async function didFetch(path,opts={}){
+  let r; try{ r=await fetch(CFG.server+"/did"+path,Object.assign({},opts,{headers:Object.assign({"x-app-token":CFG.token},opts.headers||{})})); }catch(e){ throw {code:"network"}; }
+  if(r.ok) return r.json();
+  throw {code:r.status===402?"did_credits":r.status===451?"did_moderation":"did_error"};
+}
+function presenterSrc(){ return store.get("mihbara-photo")||DEFAULT_PRESENTER; }
+function renderPresenters(){
+  const box=$("presenters"); box.innerHTML=""; const mine=store.get("mihbara-photo"); const cur=presenterSrc();
+  const opts=[{src:DEFAULT_PRESENTER,label:"المذيعة الافتراضية",val:""}]; if(mine) opts.push({src:mine,label:"صورتك",val:mine});
+  for(const o of opts){ const b=document.createElement("button"); b.type="button"; b.className="pres"; b.title=o.label; b.setAttribute("aria-label",o.label);
+    b.style.backgroundImage=`url("${o.src}")`; b.setAttribute("aria-pressed",o.src===cur);
+    b.onclick=()=>{ if(o.val) store.set("mihbara-photo",o.val); else { store.set("mihbara-photo-keep",store.get("mihbara-photo")); store.set("mihbara-photo",""); } setPoster(presenterSrc()); renderPresenters(); }; box.append(b); }
+  const keep=store.get("mihbara-photo-keep");
+  if(!mine && keep){ const b=document.createElement("button"); b.type="button"; b.className="pres"; b.title="صورتك"; b.style.backgroundImage=`url("${keep}")`; b.setAttribute("aria-pressed","false"); b.onclick=()=>{ store.set("mihbara-photo",keep); setPoster(keep); renderPresenters(); }; box.append(b); }
+  const up=document.createElement("button"); up.type="button"; up.className="pres"; up.textContent="+"; up.title="ارفع صورة"; up.setAttribute("aria-label","ارفع صورة");
+  up.onclick=()=>$("st-photo").click(); box.append(up);
+}
+function setPoster(u){ $("st-poster").src=u; $("st-poster").hidden=false; $("st-video").hidden=true; }
+function shrink(dataUrl,max){ return new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>{ const c=document.createElement("canvas"); const k=Math.min(1,max/Math.max(im.width,im.height)); c.width=Math.round(im.width*k); c.height=Math.round(im.height*k); c.getContext("2d").drawImage(im,0,0,c.width,c.height); res(c.toDataURL("image/jpeg",.88)); }; im.onerror=rej; im.src=dataUrl; }); }
+$("st-photo").onchange=async e=>{
+  const f=e.target.files[0]; if(!f) return; e.target.value="";
+  try{
+    const raw=await new Promise(res=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.readAsDataURL(f); });
+    const small=await shrink(raw,900);
+    store.set("mihbara-photo",small); store.set("mihbara-photo-did",""); setPoster(small); renderPresenters(); $("st-note").textContent="الصورة اتحطت ✓";
+  }catch(err){ $("st-note").textContent="الصورة دي مش شغالة. جرّب صورة JPG أو PNG فيها وش واضح."; }
+};
+async function didSource(){
+  const mine=store.get("mihbara-photo"); if(!mine) return DEFAULT_PRESENTER;
+  const cached=store.get("mihbara-photo-did"); if(cached) return cached;
+  const blob=await (await fetch(mine)).blob(); const fd=new FormData(); fd.append("image",blob,"anchor.jpg");
+  const j=await didFetch("/images",{method:"POST",body:fd}); store.set("mihbara-photo-did",j.url); return j.url;
+}
+const DIDERR={did_credits:"رصيد خدمة الفيديو خلص.",did_moderation:"الصورة أو النص اترفضوا (ممكن صورة شخص مشهور أو محتوى ممنوع). غيّرهم وجرّب.",did_error:"خدمة الفيديو مش متاحة دلوقتي. هيتقري بالصوت بدلها.",no_tts:"الموبايل محتاج صوت عربي. افتح الإعدادات ← تحويل النص إلى كلام ← نزّل اللغة العربية.",network:"مفيش اتصال بالإنترنت."};
+function prog(on,t){ $("st-progress").hidden=!on; if(t) $("st-ptext").textContent=t; }
+function splitSentences(t){ return t.replace(/\s+/g," ").split(/(?<=[.!؟?،:])\s+/).reduce((a,x)=>{ if(a.length && (a[a.length-1].length<40)) a[a.length-1]+=" "+x; else a.push(x); return a; },[]).filter(x=>x.trim()); }
+// --- TTS: Android bridge or browser speechSynthesis
+const ttsWaiters={};
+window.__tts=(ev,id)=>{ const w=ttsWaiters[id]; if(!w) return; if(ev==="done"){ delete ttsWaiters[id]; w.res(); } else if(ev==="error"){ delete ttsWaiters[id]; w.rej({code:"no_tts"}); } };
+function speakOne(text,i,voice){
+  const male=/Shakir|Hamed/.test(voice), lang=/ar-EG/.test(voice)?"ar-EG":"ar-SA";
+  return new Promise((res,rej)=>{
+    if(window.MihbaraTTS){ const id="u"+Date.now()+"_"+i; ttsWaiters[id]={res,rej}; if(!window.MihbaraTTS.speak(text,lang,id,male?0.82:1.08,0.95)){ delete ttsWaiters[id]; rej({code:"no_tts"}); } return; }
+    if(!("speechSynthesis" in window)) return rej({code:"no_tts"});
+    const u=new SpeechSynthesisUtterance(text); u.lang=lang; u.pitch=male?0.8:1.1; u.rate=0.95;
+    const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.startsWith("ar")); if(v) u.voice=v;
+    u.onend=()=>res(); u.onerror=e=>{ e.error==="interrupted"||e.error==="canceled"?res():rej({code:"no_tts"}); };
+    speechSynthesis.speak(u);
+  });
+}
+function stopSpeech(){ if(ttsCtl) ttsCtl.stopped=true; try{ window.MihbaraTTS?window.MihbaraTTS.stop():speechSynthesis.cancel(); }catch(e){} for(const k in ttsWaiters){ ttsWaiters[k].res(); delete ttsWaiters[k]; } }
+async function performAudio(script){
+  stopSpeech(); const ctl=ttsCtl={stopped:false};
+  const parts=splitSentences(script); $("screen").classList.add("talking"); $("st-stop").hidden=false; $("st-status").textContent="على الهوا"; $("st-status").className="chip live";
+  try{ for(let i=0;i<parts.length&&!ctl.stopped;i++){ $("st-caption").textContent=parts[i]; await speakOne(parts[i],i,$("st-voice").value); } }
+  finally{ $("screen").classList.remove("talking"); $("st-caption").textContent=""; $("st-stop").hidden=true; if(ttsCtl===ctl){ $("st-status").textContent="خلصت"; } $("st-replay").hidden=false; }
+}
+$("st-stop").onclick=()=>{ stopSpeech(); const v=$("st-video"); if(!v.hidden) v.pause(); };
+$("st-replay").onclick=()=>{ const v=$("st-video"); if(!v.hidden){ v.currentTime=0; v.play().catch(()=>{}); } else if(lastScript) performAudio(lastScript).catch(e=>{ $("st-note").textContent=DIDERR[e.code]||"الصوت مش شغال."; }); };
+$("studioForm").addEventListener("submit",async e=>{
+  e.preventDefault(); if(busy) return;
+  const raw=$("st-text").value.trim(); if(!raw){ $("st-note").textContent="اكتب الخبر الأول."; return; }
+  const words=+$("st-len").value; busy=true; stopSpeech(); $("st-go").disabled=true; $("st-note").textContent=""; $("st-open").hidden=true; $("st-replay").hidden=true;
+  $("st-status").textContent="جاري التجهيز"; $("st-status").className="chip live"; setPoster(presenterSrc());
+  try{
+    let script=raw, headline=raw.split(/[.،\n]/)[0].slice(0,90);
+    if($("st-rewrite").checked){
+      prog(true,"بيكتب نص النشرة…");
+      const j=await sampleJSON(`أنت محرر نشرات أخبار. حوّل المادة التالية إلى نص نشرة يقرأه مذيع بصوت عالٍ، بالعربية الفصحى المبسطة، في حدود ${words} كلمة. ابدأ بتحية قصيرة باسم «مِحبرة نيوز». جمل قصيرة، بدون رموز أو عناوين أو تنسيق، وبدون أي معلومة غير موجودة في المادة. ثم اكتب عنواناً قصيراً للشريط الإخباري (أقل من 10 كلمات).
+
+المادة:
+${raw}
+
+رد بـ JSON فقط بهذا الشكل: {"script":"...","headline":"..."}`);
+      script=String(j.script||"").trim()||raw; headline=String(j.headline||headline).trim();
+    }
+    lastScript=script; $("st-script").textContent=script; $("st-headline").textContent=headline;
+    if(videoMode){
+      try{
+        prog(true,"المذيع بيسجّل… (ممكن ياخد دقيقة)");
+        const src=await didSource();
+        const t=await didFetch("/talks",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({source_url:src,script:{type:"text",input:script.slice(0,3000),provider:{type:"microsoft",voice_id:$("st-voice").value}},config:{stitch:true}})});
+        let r,tries=0;
+        do{ await new Promise(z=>setTimeout(z,3000)); r=await didFetch("/talks/"+t.id); tries++; prog(true,r.status==="started"?"بيحرّك الوش ويركّب الصوت…":"في الطابور…"); }
+        while(r.status!=="done"&&r.status!=="error"&&r.status!=="rejected"&&tries<100);
+        if(r.status!=="done") throw {code:"did_error"};
+        const v=$("st-video"); v.src=r.result_url; v.hidden=false; $("st-poster").hidden=true; prog(false);
+        $("st-open").href=r.result_url; $("st-open").hidden=false; $("st-replay").hidden=false; $("st-status").textContent="على الهوا"; try{ await v.play(); }catch(_){ }
+        return;
+      }catch(err){ if(err?.code==="did_moderation"){ throw err; } $("st-note").textContent=DIDERR[err?.code]||DIDERR.did_error; }
+    }
+    prog(false);
+    await performAudio(script);
+  }catch(err){
+    prog(false); $("st-status").textContent="جاهز"; $("st-status").className="chip";
+    $("st-note").textContent=DIDERR[err?.code]||ERR[err?.code]||"حصل خطأ. جرّب تاني.";
+  }finally{ busy=false; $("st-go").disabled=false; }
+});
+async function sampleJSON(prompt){
+  const {text}=await sample(prompt);
+  const a=text.indexOf("{"), b=text.lastIndexOf("}");
+  try{ return JSON.parse(text.slice(a,b+1)); }catch(e){ return {script:text.replace(/[{}"]/g,"")}; }
+}
+setPoster(presenterSrc()); renderPresenters(); checkServer();
+
 refreshKeyState();
 </script>
 

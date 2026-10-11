@@ -1,0 +1,1931 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1E3A8A"><title>مِحبرة</title>
+<link rel="preconnect" href="https://text.pollinations.ai" crossorigin>
+<link rel="preload" href="fonts/readex-pro-arabic-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* Layout: app shell — floating glass top bar, pill tab switcher, input card beside a live "on-air" output card */
+@font-face{font-family:"Alexandria";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/alexandria-arabic-700-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0897-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+@font-face{font-family:"Alexandria";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/alexandria-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Readex Pro";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/readex-pro-arabic-400-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0897-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+@font-face{font-family:"Readex Pro";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/readex-pro-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Readex Pro";font-style:normal;font-weight:500;font-display:swap;src:url(fonts/readex-pro-arabic-500-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0897-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+@font-face{font-family:"Readex Pro";font-style:normal;font-weight:500;font-display:swap;src:url(fonts/readex-pro-latin-500-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Readex Pro";font-style:normal;font-weight:600;font-display:swap;src:url(fonts/readex-pro-arabic-600-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0897-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC}
+@font-face{font-family:"Readex Pro";font-style:normal;font-weight:600;font-display:swap;src:url(fonts/readex-pro-latin-600-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+/* Layout: native app shell — solid app bar, greeting + search home, 2-col tinted tool tiles, stacked tool pages, floating tab bar */
+:root{
+  --bg:#F6F6F9; --surface:#FFFFFF; --surface2:#F1F1F6; --ink:#15151C; --muted:#6E6E7E; --line:#E7E7EF;
+  --a1:#1E3A8A; --a2:#2563EB; --rgb:37,99,235; --rgb2:245,183,0; --gold:#F5B700; --gold-ink:#3A2A00;
+  --accent:#1D4ED8; --accent-soft:rgba(37,99,235,.10); --flash:#D9363E; --ok:#12B886;
+  --shadow:0 1px 2px rgba(20,20,40,.04),0 6px 18px rgba(20,20,40,.05);
+  --bg2:var(--surface2); --card:var(--surface);
+  --glow1:transparent; --glow2:transparent; --glow3:transparent;
+  --display:"Alexandria","Readex Pro",Tahoma,sans-serif;
+  --body:"Readex Pro",Tahoma,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E0E13; --surface:#17171F; --surface2:#20202A; --ink:#F2F2F6; --muted:#9C9CAE; --line:#2A2A36;
+  --accent:#7AA7FF; --accent-soft:rgba(122,167,255,.14); --flash:#FF6B6B; --a1:#2B4CB8; --a2:#3B82F6; --shadow:0 1px 0 rgba(255,255,255,.02); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E0E13; --surface:#17171F; --surface2:#20202A; --ink:#F2F2F6; --muted:#9C9CAE; --line:#2A2A36;
+  --accent:#7AA7FF; --accent-soft:rgba(122,167,255,.14); --flash:#FF6B6B; --a1:#2B4CB8; --a2:#3B82F6; --shadow:0 1px 0 rgba(255,255,255,.02); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.75;padding-inline:16px;padding-block:0 48px;min-height:100%;
+  background-image:radial-gradient(40rem 26rem at 90% -10%,var(--glow1),transparent 60%),radial-gradient(34rem 24rem at -10% 10%,var(--glow2),transparent 60%),radial-gradient(40rem 30rem at 50% 120%,var(--glow3),transparent 60%);background-attachment:fixed}
+.wrap{max-width:1140px;margin:0 auto}
+header{position:sticky;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:6;margin-top:14px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 20px;padding:10px 14px 10px 18px;border:1px solid var(--line);border-radius:22px;background:var(--card);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%)}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;flex:none;filter:drop-shadow(0 6px 14px rgba(var(--rgb),.35))}
+h1{font-family:var(--display);font-weight:800;font-size:26px;margin:0;line-height:1.1;letter-spacing:-.01em}
+h1 span{background:linear-gradient(90deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.tag{font-size:12.5px;color:var(--muted);margin:2px 0 0}
+#today{font-size:12.5px;padding:6px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);margin:0;font-weight:500}
+.ticker{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--muted);margin-top:22px;white-space:nowrap;overflow:hidden}
+.ticker b{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(90deg,var(--a1),var(--a2));color:#fff;padding:3px 12px;border-radius:999px;font-weight:600;font-size:12px}
+.ticker b::before{content:"";width:6px;height:6px;border-radius:50%;background:#fff}
+@media (prefers-reduced-motion:no-preference){.ticker b::before{animation:pulse 1.6s ease-in-out infinite}@keyframes pulse{50%{opacity:.25}}}
+.ticker span{overflow:hidden;text-overflow:ellipsis}
+#mainnav{display:inline-flex;flex-wrap:wrap;gap:4px;margin-block:18px;padding:5px;border-radius:18px;background:var(--card);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+#mainnav button{display:inline-flex;align-items:center;gap:6px;font:inherit;font-weight:500;font-size:14px;background:transparent;color:var(--muted);border:0;border-radius:13px;padding:9px 18px;cursor:pointer;transition:background .2s,color .2s}
+#mainnav button:hover{color:var(--ink)}
+#mainnav button[aria-selected="true"]{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;box-shadow:0 6px 18px rgba(var(--rgb),.35)}
+button:focus-visible,.btn:focus-visible,textarea:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.desk{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:18px}
+.slip,.proof{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px;min-width:0;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 20px 40px -24px rgba(0,0,0,.25)}
+.slip h2,.proof h2{font-family:var(--display);font-weight:700;font-size:19px;margin:0 0 2px}
+.lead{color:var(--muted);font-size:13.5px;margin:0 0 10px}
+label{display:block;font-weight:500;font-size:12.5px;color:var(--muted);margin-block:14px 6px}
+textarea,select,input{width:100%;font:inherit;font-size:14.5px;color:var(--ink);background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;transition:border-color .2s,box-shadow .2s}
+textarea:focus,select:focus,input:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);outline:none}
+textarea{min-height:150px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.btn{font:inherit;font-weight:600;font-size:14px;border-radius:14px;padding:11px 22px;cursor:pointer;border:0;background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;box-shadow:0 8px 22px -6px rgba(var(--rgb),.55);transition:transform .15s,box-shadow .2s}
+.btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 12px 26px -6px rgba(var(--rgb),.6)}
+.btn.ghost{background:var(--bg2);color:var(--ink);border:1px solid var(--line);box-shadow:none}
+.btn:disabled{opacity:.45;cursor:default}
+.method{margin-top:20px;padding:14px 16px;background:var(--accent-soft);border-radius:16px;font-size:13.5px}
+.method strong{display:block;color:var(--accent);margin-bottom:2px;font-weight:600}
+.proof-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding-bottom:12px;margin-bottom:14px;border-bottom:1px solid var(--line)}
+.chip{font-size:12px;padding:4px 12px;border-radius:999px;background:var(--bg2);border:1px solid var(--line);color:var(--muted)}
+.chip.live{background:var(--accent-soft);border-color:transparent;color:var(--accent);font-weight:500}
+.out{min-width:0;overflow-wrap:anywhere}
+.out h3{font-family:var(--display);font-weight:700;font-size:16px;margin:18px 0 6px;display:flex;align-items:center;gap:8px}
+.out h3::before{content:"";width:8px;height:8px;border-radius:3px;background:linear-gradient(135deg,var(--a1),var(--a2));flex:none}
+.out h3:first-child{margin-top:0}
+.out p{margin:0 0 10px}
+.out ul,.out ol{margin:0 0 10px;padding-inline-start:22px}
+.out li{margin-bottom:4px}
+.out li::marker{color:var(--accent)}
+.note{font-size:13px;color:var(--muted);margin-top:10px}
+.err{color:var(--flash)}
+footer{margin-top:28px;font-size:12px;color:var(--muted);text-align:center}
+@media (prefers-reduced-motion:no-preference){.out.streaming::after{content:"";display:inline-block;width:8px;height:8px;margin-inline-start:4px;border-radius:50%;background:var(--accent);animation:pulse 1s ease-in-out infinite}}
+
+.hright{display:flex;align-items:center;gap:10px}
+.swatches{display:flex;gap:6px;padding:5px;border-radius:999px;background:var(--bg2);border:1px solid var(--line)}
+.sw{width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;transition:transform .15s}
+.sw:hover{transform:scale(1.12)}
+.sw[aria-pressed="true"]{border-color:var(--ink)}
+.sw:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:820px){
+  .desk{grid-template-columns:1fr}
+  header{padding:8px 12px;flex-wrap:nowrap}
+  header .brand .tag{display:none}
+  .hero .stats{gap:14px}
+  .logo{width:38px;height:38px}
+  h1{font-size:22px}
+  #today{display:none}
+  #mainnav{position:fixed;inset-inline:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:6;margin:0;display:flex;flex-wrap:nowrap;border-radius:22px;box-shadow:0 12px 30px -10px rgba(0,0,0,.35)}
+  #mainnav button{flex:1;flex-direction:column;gap:2px;padding:7px 4px;font-size:11.5px;line-height:1.2;border-radius:16px}
+  #mainnav svg{width:20px;height:20px}
+  .hero{padding:18px}
+  .hero h2{font-size:21px}
+  body{padding-block:0 110px}
+  .slip,.proof{padding:18px;border-radius:20px}
+}
+html,body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+.gear{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);color:var(--ink);cursor:pointer;display:grid;place-items:center;padding:0}
+.gear svg{width:20px;height:20px}
+.banner{margin-top:16px;padding:14px 16px;border-radius:18px;background:var(--accent-soft);display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;font-size:14px}
+.sheet{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;padding:16px}
+.sheet .panel{width:100%;max-width:520px;background:var(--bg2);border-radius:24px;padding:22px;margin-bottom:env(safe-area-inset-bottom,0px)}
+.sheet h2{font-family:var(--display);margin:0 0 4px;font-size:20px}
+.small{font-size:12.5px;color:var(--muted)}
+
+.screen{position:relative;aspect-ratio:16/9;max-width:100%;border-radius:18px;overflow:hidden;background:#0b0b10;isolation:isolate}
+.screen img,.screen video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.screen img{filter:saturate(.9)}
+.onair{position:absolute;top:12px;inset-inline-start:12px;display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.55);color:#fff;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;backdrop-filter:blur(6px)}
+.onair span{width:7px;height:7px;border-radius:50%;background:#ff4d4d}
+.ai-badge{position:absolute;top:12px;inset-inline-end:12px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;padding:4px 10px;border-radius:999px}
+.lower{position:absolute;inset-inline:12px;bottom:12px;display:flex;align-items:stretch;border-radius:10px;overflow:hidden;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.lower b{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;padding:6px 12px;font-weight:700;flex:none}
+.lower span{background:rgba(255,255,255,.94);color:#121218;padding:6px 12px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.screen:has(video:not([hidden])) .lower{bottom:56px}
+.progress{position:absolute;inset:0;display:grid;place-content:center;gap:12px;justify-items:center;background:rgba(11,11,16,.72);color:#fff;text-align:center;padding:16px}
+.progress i{width:42px;height:42px;border-radius:50%;border:3px solid rgba(255,255,255,.2);border-top-color:var(--a1);animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.progress p{margin:0;font-size:14px}
+.scr-title{font-family:var(--display);font-size:15px;margin:16px 0 4px}
+.script{margin:0;white-space:pre-wrap;color:var(--ink)}
+.presenters{display:flex;gap:10px;flex-wrap:wrap}
+.pres{width:64px;height:64px;border-radius:16px;border:2px solid var(--line);background:var(--bg2) center/cover;cursor:pointer;padding:0;color:var(--muted);font:inherit;font-size:24px}
+.pres[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.check{display:flex;align-items:center;gap:8px;color:var(--ink);font-size:13.5px}
+.check input{width:auto}
+#st-open{display:inline-block;text-decoration:none}
+
+footer p{margin:4px 0}
+.flinks{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;align-items:center;margin-bottom:6px;position:static;background:none;border:0;padding:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+.flinks button{font:inherit;font-size:13px;font-weight:500;color:var(--accent);background:none;border:0;padding:4px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;flex:none}
+.sheet .panel.legal{max-width:640px;max-height:86vh;display:flex;flex-direction:column;padding:0;overflow:hidden}
+.legal-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.seg{display:flex;gap:4px;background:var(--bg);padding:4px;border-radius:14px}
+.seg button{font:inherit;font-size:13px;border:0;background:none;color:var(--muted);padding:7px 12px;border-radius:10px;cursor:pointer}
+.seg button[aria-selected="true"]{background:var(--bg2);color:var(--ink);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.x{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;font-size:14px;flex:none}
+.legal-body{overflow-y:auto;padding:18px 20px 24px;font-size:14px;line-height:1.85}
+.legal-body h3{font-family:var(--display);font-size:16px;margin:18px 0 6px}
+.legal-body h3:first-of-type{margin-top:6px}
+.legal-body ul{padding-inline-start:20px;margin:0 0 8px}
+.legal-body .upd{color:var(--muted);font-size:12.5px;margin:0}
+.screen.talking img{animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:scale(1.04) translateY(0)}35%{transform:scale(1.05) translateY(-1.2%) rotate(-.4deg)}70%{transform:scale(1.045) translateY(.4%) rotate(.3deg)}}
+.eq{position:absolute;top:44px;inset-inline-start:14px;display:none;gap:3px;align-items:flex-end;height:18px}
+.screen.talking .eq{display:flex}
+.eq i{width:4px;background:#fff;border-radius:2px;animation:eq .9s ease-in-out infinite}
+.eq i:nth-child(2){animation-delay:.15s}.eq i:nth-child(3){animation-delay:.3s}.eq i:nth-child(4){animation-delay:.45s}
+@keyframes eq{0%,100%{height:4px}50%{height:18px}}
+.caption{position:absolute;inset-inline:12px;bottom:56px;text-align:center;color:#fff;font-size:14px;font-weight:500;text-shadow:0 1px 3px rgba(0,0,0,.8);line-height:1.6}
+.caption:empty{display:none}
+@media (prefers-reduced-motion:reduce){.screen.talking img,.eq i{animation:none}}
+
+/* ---- v1.3: home, views, quiz, history, theme, welcome ---- */
+#mainnav svg{width:17px;height:17px;flex:none}
+.ico{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.iconbtn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);color:var(--ink);cursor:pointer;display:grid;place-items:center;padding:0;flex:none}
+.hero{margin-top:18px;padding:22px 24px;border-radius:24px;background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset-inline-end:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.12)}
+.hero h2{font-family:var(--display);font-size:24px;margin:0 0 4px;text-wrap:balance}
+.hero p{margin:0;opacity:.92;font-size:14px;max-width:52ch}
+.hero .stats{display:flex;gap:18px;margin-top:14px;font-size:12.5px;flex-wrap:wrap}
+.hero .stats b{display:block;font-family:var(--display);font-size:20px;font-variant-numeric:tabular-nums}
+.group-title{font-family:var(--display);font-size:15px;margin:22px 0 10px;color:var(--muted);font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.card{display:flex;gap:12px;align-items:flex-start;text-align:start;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;cursor:pointer;transition:transform .15s,border-color .2s;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.card:hover{transform:translateY(-2px);border-color:rgba(var(--rgb),.35)}
+.card .ic{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);flex:none}
+.card b{display:block;font-weight:600;font-size:15px;margin-bottom:2px}
+.card span{display:block;font-size:12.5px;color:var(--muted);line-height:1.6}
+.card.new b::after{content:"جديد";font-size:10.5px;font-weight:600;color:#fff;background:linear-gradient(135deg,var(--a1),var(--a2));padding:1px 8px;border-radius:999px;margin-inline-start:6px;vertical-align:2px}
+.crumb{display:flex;align-items:center;gap:10px;margin:18px 0 12px}
+.crumb button{font:inherit;font-size:13.5px;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer}
+.crumb b{font-family:var(--display);font-size:17px}
+.headbtns{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.mini{padding:6px 14px!important;font-size:13px!important}
+/* quiz */
+.qwrap{max-width:720px;margin:0 auto}
+.qbar{height:6px;border-radius:999px;background:var(--line);overflow:hidden;margin:6px 0 16px}
+.qbar i{display:block;height:100%;background:linear-gradient(90deg,var(--a1),var(--a2));transition:width .3s}
+.qnum{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between}
+.qtext{font-family:var(--display);font-size:18px;line-height:1.6;margin:4px 0 14px;text-wrap:balance}
+.opts{display:grid;gap:10px}
+.opt{font:inherit;text-align:start;color:var(--ink);background:var(--bg2);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.opt i{font-style:normal;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:var(--bg);font-size:13px;font-weight:600;flex:none}
+.opt.right{border-color:#12b886;background:rgba(18,184,134,.1)}
+.opt.wrong{border-color:var(--flash);background:rgba(var(--rgb),.08)}
+.opt:disabled{cursor:default}
+.explain{margin-top:14px;padding:12px 14px;border-radius:14px;background:var(--accent-soft);font-size:14px}
+.score{display:grid;place-items:center;gap:6px;text-align:center;padding:10px 0}
+.ring{--p:0;width:130px;height:130px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--a1) calc(var(--p)*1%),var(--line) 0)}
+.ring b{width:104px;height:104px;border-radius:50%;background:var(--bg2);display:grid;place-items:center;font-family:var(--display);font-size:28px;font-variant-numeric:tabular-nums}
+/* history */
+.hlist{display:grid;gap:10px}
+.hitem{display:flex;gap:12px;align-items:center;text-align:start;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;cursor:pointer;width:100%}
+.hitem .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);flex:none}
+.hitem div{min-width:0;flex:1}
+.hitem b{display:block;font-weight:500;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hitem span{font-size:12px;color:var(--muted)}
+.empty{text-align:center;color:var(--muted);padding:40px 16px;border:1.5px dashed var(--line);border-radius:20px}
+.empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
+.viewer{max-width:640px;max-height:86vh;display:flex;flex-direction:column;padding:0!important;overflow:hidden}
+.viewer .vbody{overflow-y:auto;padding:16px 20px 20px}
+.viewer .vfoot{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;border-top:1px solid var(--line)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:12px}
+.toolbar input{max-width:280px}
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 18px;border-radius:999px;font-size:13.5px;z-index:40;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+/* welcome */
+.welcome{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px calc(24px + env(safe-area-inset-bottom,0px));text-align:center;
+  background-image:radial-gradient(30rem 22rem at 80% 0%,var(--glow1),transparent 60%),radial-gradient(28rem 20rem at 0% 100%,var(--glow2),transparent 60%)}
+.welcome .wlogo{width:96px;height:96px;filter:drop-shadow(0 14px 30px rgba(var(--rgb),.45))}
+@media (prefers-reduced-motion:no-preference){.welcome .wlogo{animation:pop .7s cubic-bezier(.2,1.4,.4,1) both}@keyframes pop{from{transform:scale(.6);opacity:0}}}
+.welcome h2{font-family:var(--display);font-size:30px;margin:18px 0 6px}
+.welcome .slide{max-width:420px;min-height:170px}
+.welcome .slide p{color:var(--muted);margin:0;font-size:15px}
+.welcome .feat{display:grid;gap:10px;margin-top:16px;text-align:start}
+.welcome .feat div{display:flex;gap:10px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:14px}
+.welcome .feat .ic{color:var(--accent);display:grid}
+.dots{display:flex;gap:6px;margin:18px 0}
+.dots i{width:8px;height:8px;border-radius:999px;background:var(--line);transition:width .2s}
+.dots i.on{width:22px;background:var(--accent)}
+.wbtns{display:flex;gap:10px;width:100%;max-width:420px}
+.wbtns .btn{flex:1}
+
+/* ---- offline kit ---- */
+.card.off .ic{background:rgba(18,184,134,.12);color:#0f9d74}
+.badge-off{display:inline-block;font-size:10.5px;font-weight:600;color:#0f9d74;background:rgba(18,184,134,.12);padding:1px 8px;border-radius:999px;margin-inline-start:6px;vertical-align:2px}
+.group-sub{font-size:12.5px;color:var(--muted);margin:-6px 0 10px}
+.offwrap{display:grid;gap:16px}
+.stats4{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.stat{background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.stat b{display:block;font-family:var(--display);font-size:22px;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--muted)}
+.meter{margin-top:10px}
+.meter .lbl{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.meter .bar{height:8px;border-radius:999px;background:var(--line);overflow:hidden;margin-top:4px}
+.meter .bar i{display:block;height:100%;border-radius:999px;background:#12b886;transition:width .2s}
+.meter.warn .bar i{background:#f59f00}.meter.over .bar i{background:var(--flash)}
+.tips{margin:10px 0 0;padding-inline-start:20px;font-size:13.5px}
+.tips li{margin-bottom:4px}
+.gl-item{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.gl-item b{font-weight:600}
+.gl-item i{font-style:normal;color:var(--muted);font-size:12.5px;margin-inline-start:6px}
+.gl-item p{margin:4px 0 0;font-size:14px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chipbtn{font:inherit;font-size:12.5px;padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:var(--bg2);color:var(--muted);cursor:pointer}
+.chipbtn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tpl pre{white-space:pre-wrap;font:inherit;font-size:14px;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0 0;max-height:420px;overflow:auto}
+.ck{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:var(--card);border:1px solid var(--line);border-radius:14px;cursor:pointer}
+.ck input{width:22px;height:22px;flex:none;margin-top:2px;accent-color:#12b886}
+.ck span{font-size:14.5px}
+.ck small{display:block;color:var(--muted);font-size:12.5px}
+.ck.done span{text-decoration:line-through;color:var(--muted)}
+.cklist{display:grid;gap:8px}
+.ckhead{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.ckhead .ring{width:90px;height:90px;--p:0;background:conic-gradient(#12b886 calc(var(--p)*1%),var(--line) 0)}
+.ckhead .ring b{width:70px;height:70px;font-size:20px}
+.range{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+.range input{flex:1;padding:0}
+.prompter{position:fixed;inset:0;z-index:60;background:#000;color:#fff;display:flex;flex-direction:column}
+.prompter .pview{flex:1;overflow:hidden;position:relative}
+.prompter .ptext{position:absolute;inset-inline:0;padding:45vh 7vw 60vh;font-family:var(--display);line-height:1.7;text-align:center;will-change:transform}
+.prompter.mirror .ptext{transform-origin:center}
+.prompter .guide{position:absolute;inset-inline:0;top:42%;height:16%;border-block:1px solid rgba(245,183,0,.7);background:rgba(245,183,0,.08);pointer-events:none}
+.prompter .pbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:#111;border-top:1px solid #222}
+.prompter .pbar button{font:inherit;font-size:13px;color:#fff;background:#222;border:1px solid #333;border-radius:12px;padding:8px 12px;cursor:pointer}
+.prompter .pbar .play{background:linear-gradient(135deg,var(--a1),var(--a2));border:0;font-weight:600;min-width:84px}
+.prompter .pbar label{margin:0;color:#aaa;font-size:12px;display:flex;align-items:center;gap:6px}
+.prompter .pbar input[type=range]{width:110px;padding:0}
+.countdown{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-size:120px;color:#fff;background:rgba(0,0,0,.6)}
+
+/* ================= v1.4 redesign layer ================= */
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg)!important;background-image:none!important;font-size:15px;line-height:1.7;padding-inline:16px;padding-block:0 calc(104px + env(safe-area-inset-bottom,0px));-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
+*{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+.wrap{max-width:1080px}
+button{touch-action:manipulation}
+/* app bar */
+header.appbar{position:sticky;top:0;z-index:12;margin:0 -16px;padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px;border:0;border-bottom:1px solid transparent;border-radius:0;background:var(--bg);display:flex;flex-wrap:nowrap;align-items:center;justify-content:space-between;gap:12px;transition:border-color .2s}
+header.appbar.scrolled{border-bottom-color:var(--line)}
+.appbar .brand{gap:10px}
+.appbar .logo{width:34px;height:34px;filter:none}
+.appbar h1{font-size:21px;font-weight:700}
+.appbar h1 span{font-size:13px;vertical-align:3px}
+.iconbtn{width:40px;height:40px;border-radius:13px;border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow)}
+.iconbtn:active{transform:scale(.94)}
+/* views */
+.enter{animation:enter .22s cubic-bezier(.2,.8,.2,1) both}
+@keyframes enter{from{opacity:0;transform:translateY(8px)}}
+@media (prefers-reduced-motion:reduce){.enter{animation:none}}
+/* home */
+.greet{margin-top:6px}
+.greet .hello{margin:0;color:var(--muted);font-size:14px}
+.greet h2{font-family:var(--display);font-weight:700;font-size:25px;line-height:1.35;margin:2px 0 14px;text-wrap:balance}
+.search{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:0 14px;box-shadow:var(--shadow)}
+.search:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.search .ico{color:var(--muted);width:20px;height:20px}
+.search input{border:0!important;background:none!important;box-shadow:none!important;padding:13px 0;font-size:15px}
+.statrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.statcard{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 12px 10px;box-shadow:var(--shadow);min-width:0}
+.statcard b{display:block;font-family:var(--display);font-size:21px;line-height:1.2;font-variant-numeric:tabular-nums}
+.statcard span{display:block;font-size:11.5px;color:var(--muted);line-height:1.4;margin-top:2px}
+.statcard.hi{background:linear-gradient(135deg,var(--a1),var(--a2));border:0;color:#fff}
+.statcard.hi span{color:rgba(255,255,255,.9)}
+.grp{margin-top:22px}
+.group-title{font-family:var(--display);font-weight:700;font-size:16px;color:var(--ink);margin:0}
+.group-sub{font-size:12.5px;color:var(--muted);margin:2px 0 0}
+.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+@media (min-width:640px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:980px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.card{position:relative;flex-direction:column;align-items:flex-start;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;min-height:132px;box-shadow:var(--shadow);transition:transform .12s ease,border-color .2s}
+.card:hover{transform:none;border-color:var(--line)}
+.card:active{transform:scale(.97)}
+.card .ic{width:42px;height:42px;border-radius:13px;color:var(--tint,var(--accent));background:var(--tint-bg,var(--accent-soft))}
+.card.off .ic{color:var(--tint);background:var(--tint-bg)}
+.card > span:last-child{min-width:0;width:100%}
+.card b{font-size:14.5px;line-height:1.45;margin:0}
+.card > span:last-child > span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;line-height:1.55;margin-top:3px}
+.card.new b::after{content:none}
+.card.new::before,.card .badge-off{position:absolute;top:14px;inset-inline-end:12px;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:999px;margin:0;line-height:1.5}
+.card.new::before{content:"جديد";color:#fff;background:linear-gradient(135deg,var(--a1),var(--a2))}
+.card .badge-off{color:#0f9d74;background:rgba(18,184,134,.12)}
+.nores{display:none;text-align:center;color:var(--muted);padding:30px 10px}
+/* page header */
+.crumb{margin:4px 0 14px;gap:12px}
+.crumb button{width:40px;height:40px;padding:0;border-radius:13px;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line);color:var(--ink);box-shadow:var(--shadow);font-size:0}
+.crumb button .ico{width:20px;height:20px}
+.crumb button:active{transform:scale(.94)}
+.crumb b{font-size:19px;font-weight:700}
+.crumb .cic{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:var(--tint,var(--accent));background:var(--tint-bg,var(--accent-soft))}
+.crumb .cic .ico{width:19px;height:19px}
+/* panels */
+.desk{gap:14px;align-items:start}
+.slip,.proof{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--shadow)}
+.slip h2,.proof h2{font-size:17.5px;font-weight:700}
+.lead{font-size:13.5px;line-height:1.7}
+label{font-weight:600;font-size:12.5px;margin-block:14px 6px}
+textarea,select,input{background:var(--surface2);border:1.5px solid transparent;border-radius:14px;padding:12px 14px;font-size:15px}
+textarea:focus,select:focus,input:focus{border-color:var(--accent);background:var(--surface);box-shadow:0 0 0 4px var(--accent-soft)}
+select{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:16px 52%,11px 52%;background-size:5px 5px;background-repeat:no-repeat;padding-left:30px}
+.btn{border-radius:14px;padding:12px 20px;font-size:14.5px;box-shadow:0 6px 16px -6px rgba(var(--rgb),.6);transition:transform .1s,opacity .2s}
+.btn:hover:not(:disabled){transform:none;box-shadow:0 6px 16px -6px rgba(var(--rgb),.6)}
+.btn:active:not(:disabled){transform:scale(.97)}
+.btn.ghost{background:var(--surface2);border:0;color:var(--ink);box-shadow:none}
+.mini{border-radius:11px!important}
+.method{background:var(--surface2);border-radius:16px}
+.proof-head{border-bottom-color:var(--line)}
+.chip{background:var(--surface2);border:0}
+.out{font-size:15px}
+.skel{display:grid;gap:12px;padding:4px 0}
+.skel i{display:block;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--surface2) 25%,var(--line) 50%,var(--surface2) 75%);background-size:200% 100%;animation:shim 1.1s linear infinite}
+.skel i:nth-child(1){width:55%;height:16px}.skel i:nth-child(2){width:95%}.skel i:nth-child(3){width:88%}.skel i:nth-child(4){width:70%}.skel i:nth-child(5){width:92%}
+.skel p{margin:4px 0 0;font-size:12.5px;color:var(--muted)}
+@keyframes shim{to{background-position:-200% 0}}
+.cached{font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:center;margin:-4px 0 12px;flex-wrap:wrap}
+.cached button{font:inherit;font-size:12px;color:var(--accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+/* bottom tab bar */
+#mainnav{position:fixed;inset-inline:0;margin:0 auto;bottom:calc(10px + env(safe-area-inset-bottom,0px));width:calc(100% - 24px);max-width:520px;z-index:15;display:flex;flex-wrap:nowrap;gap:2px;padding:6px;border-radius:22px;background:var(--surface);border:1px solid var(--line);box-shadow:0 10px 30px -10px rgba(10,10,30,.25)}
+#mainnav button{flex:1;flex-direction:column;gap:3px;padding:7px 4px;font-size:11.5px;line-height:1.2;border-radius:16px;color:var(--muted);background:none;box-shadow:none;font-weight:500}
+#mainnav button svg{width:22px;height:22px;padding:0;border-radius:10px}
+#mainnav button[aria-selected="true"]{background:var(--accent-soft);color:var(--accent);box-shadow:none;font-weight:600}
+#mainnav button:active{transform:scale(.95)}
+/* misc */
+.hitem{background:var(--surface);box-shadow:var(--shadow)}
+.hitem .ic{color:var(--tint,var(--accent));background:var(--tint-bg,var(--accent-soft))}
+.empty{background:var(--surface)}
+.gl-item,.ck{background:var(--surface)}
+.stat{background:var(--surface2);border:0}
+.toast{bottom:calc(100px + env(safe-area-inset-bottom,0px))}
+footer{margin-top:30px}
+@media (max-width:820px){
+  .desk{grid-template-columns:1fr}
+  .slip .actions .btn:not(.ghost){flex:1}
+  .slip,.proof{padding:16px;border-radius:18px}
+  .greet h2{font-size:22px}
+}
+
+/* ---- trusted-source verification ---- */
+.srcs{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.out a{color:var(--accent);text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+.out .srcdom{display:inline-block;font-size:11.5px;color:var(--muted);margin-inline-start:6px}
+.vlinks{margin-top:16px;padding:14px;border-radius:16px;background:var(--surface2)}
+.vlinks h4{margin:0 0 4px;font-family:var(--display);font-size:15px}
+.vlinks p{margin:0 0 10px;font-size:12.5px;color:var(--muted)}
+.vbtns{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.vbtns a{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;font-weight:500}
+.vbtns a:active{transform:scale(.97)}
+.vbtns a .ico{width:18px;height:18px;color:var(--accent);flex:none}
+.livesearch{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--accent);background:var(--accent-soft);padding:8px 12px;border-radius:12px;margin-bottom:12px}
+.livesearch i{width:8px;height:8px;border-radius:50%;background:var(--accent);flex:none;animation:pulse 1s ease-in-out infinite}
+.trustnote{font-size:12px;color:var(--muted);margin:10px 0 0}
+
+/* ================= v1.6 premium layer ================= */
+:root{--bg:#F5F5FA;--line:#E8E8F0}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0B0B11;--surface:#15151D;--surface2:#1D1D27;--line:#262633}}
+:root[data-theme="dark"]{--bg:#0B0B11;--surface:#15151D;--surface2:#1D1D27;--line:#262633}
+/* hero */
+.hhero{position:relative;overflow:hidden;margin-top:6px;padding:20px 18px 16px;border-radius:26px;color:#fff;
+  background:radial-gradient(110% 130% at 100% 0%,#3B82F6 0%,transparent 55%),radial-gradient(120% 120% at 0% 100%,#0B1B4D 0%,transparent 65%),linear-gradient(135deg,#1E3A8A,#2346B8);
+  box-shadow:0 18px 40px -18px rgba(30,58,138,.7)}
+.hhero::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.18) 1px,transparent 1.4px);background-size:16px 16px;mask-image:linear-gradient(200deg,#000 10%,transparent 65%);-webkit-mask-image:linear-gradient(200deg,#000 10%,transparent 65%);pointer-events:none}
+.hhero::after{content:"";position:absolute;width:220px;height:220px;border-radius:50%;inset-inline-start:-70px;top:-90px;border:26px solid rgba(245,183,0,.16);pointer-events:none}
+.hhero > *{position:relative}
+.hhero .hello{margin:0;font-size:13.5px;color:rgba(255,255,255,.88);display:flex;align-items:center;gap:6px}
+.hhero .hello .ico{width:16px;height:16px}
+.hhero h2{font-family:var(--display);font-weight:700;font-size:24px;line-height:1.35;margin:4px 0 14px;text-wrap:balance}
+.hhero .search{background:rgba(255,255,255,.96);border:0;box-shadow:0 8px 20px -10px rgba(0,0,0,.35)}
+.hhero .search input{color:#15151C}
+.hhero .search input::placeholder{color:#8a8a99}
+.hhero .search:focus-within{box-shadow:0 0 0 4px rgba(255,255,255,.35)}
+.hh-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:14px;background:rgba(0,0,0,.12);border-radius:16px;padding:10px 4px}
+.hh-stats div{text-align:center;min-width:0}
+.hh-stats div+div{border-inline-start:1px solid rgba(255,255,255,.22)}
+.hh-stats b{display:block;font-family:var(--display);font-size:20px;line-height:1.25;font-variant-numeric:tabular-nums}
+.hh-stats span{display:block;font-size:11px;color:rgba(255,255,255,.85)}
+/* quick actions */
+.quick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.qa{display:flex;flex-direction:column;align-items:center;gap:8px;font:inherit;font-size:12.5px;font-weight:600;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 6px 12px;cursor:pointer;box-shadow:var(--shadow)}
+.qa:active{transform:scale(.96)}
+.qa .ic{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--tint),var(--tint2));box-shadow:0 8px 16px -8px var(--tint)}
+.qa .ic .ico{width:23px;height:23px}
+/* tip */
+.tip{display:flex;gap:12px;align-items:flex-start;margin-top:14px;padding:14px;border-radius:18px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+.tip .ic{width:38px;height:38px;border-radius:12px;flex:none;display:grid;place-items:center;color:#f08c00;background:rgba(240,140,0,.13)}
+.tip b{display:block;font-size:12px;color:#f08c00;font-weight:600}
+.tip p{margin:2px 0 0;font-size:13.5px;line-height:1.7}
+/* recent */
+.recent{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:12px -16px 0;padding:2px 16px 6px;scrollbar-width:none}
+.recent::-webkit-scrollbar{display:none}
+.rc{flex:0 0 72%;max-width:260px;scroll-snap-align:start;text-align:start;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;cursor:pointer;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px;min-width:0}
+.rc:active{transform:scale(.97)}
+.rc .rh{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.rc .rh .ic{width:26px;height:26px;border-radius:9px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--tint),var(--tint2))}
+.rc .rh .ic .ico{width:15px;height:15px}
+.rc b{font-weight:500;font-size:14px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* group headers */
+.grp{margin-top:26px}
+.group-title{display:flex;align-items:center;gap:8px;font-size:16.5px}
+.group-title::before{content:"";width:6px;height:18px;border-radius:3px;background:linear-gradient(180deg,var(--a1),var(--a2))}
+.group-sub{margin:2px 0 0 0;padding-inline-start:14px}
+/* tiles: vivid gradient icons */
+.card{border-radius:20px;padding:14px 14px 13px;min-height:140px;overflow:hidden}
+.card::after{content:"";position:absolute;width:110px;height:110px;border-radius:50%;inset-inline-end:-40px;bottom:-50px;background:var(--tint);opacity:.07;pointer-events:none}
+.card .ic,.card.off .ic{width:44px;height:44px;border-radius:14px;color:#fff;background:linear-gradient(135deg,var(--tint),var(--tint2));box-shadow:0 8px 16px -9px var(--tint)}
+.card .ic .ico{width:22px;height:22px}
+.grid .card{animation:rise .35s cubic-bezier(.2,.8,.2,1) both}
+.grid .card:nth-child(2){animation-delay:.03s}.grid .card:nth-child(3){animation-delay:.06s}.grid .card:nth-child(4){animation-delay:.09s}.grid .card:nth-child(5){animation-delay:.12s}.grid .card:nth-child(6){animation-delay:.15s}
+@keyframes rise{from{opacity:0;transform:translateY(10px) scale(.98)}}
+@media (prefers-reduced-motion:reduce){.grid .card{animation:none}}
+/* tool page banner */
+.crumb{position:relative;overflow:hidden;align-items:center;gap:12px;margin:6px 0 14px;padding:14px;border-radius:22px;color:#fff;background:linear-gradient(135deg,var(--tint),var(--tint2));box-shadow:0 14px 30px -16px var(--tint)}
+.crumb::after{content:"";position:absolute;width:160px;height:160px;border-radius:50%;inset-inline-start:-50px;top:-70px;background:rgba(255,255,255,.1);pointer-events:none}
+.crumb > *{position:relative}
+.crumb button{background:rgba(255,255,255,.2);border:0;color:#fff;box-shadow:none}
+.crumb .cic{width:44px;height:44px;border-radius:14px;color:var(--tint);background:#fff;box-shadow:0 6px 14px -6px rgba(0,0,0,.25)}
+.crumb .cic .ico{width:22px;height:22px}
+.crumb .ctext{min-width:0;flex:1}
+.crumb b{display:block;font-size:18px;line-height:1.3;color:#fff}
+.crumb small{display:block;font-size:12px;color:rgba(255,255,255,.88);line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* segmented choices */
+.seg2{display:flex;flex-wrap:wrap;gap:6px}
+.seg2 button{font:inherit;font-size:13px;font-weight:500;color:var(--ink);background:var(--surface2);border:1.5px solid transparent;border-radius:12px;padding:8px 12px;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.seg2 button[aria-pressed="true"]{color:var(--accent);background:var(--accent-soft);border-color:var(--accent);font-weight:600}
+.seg2 button:active{transform:scale(.96)}
+.fieldset-seg{grid-column:1/-1}
+/* panels */
+.slip,.proof{border-radius:22px}
+.proof-head h2{display:flex;align-items:center;gap:8px}
+.proof-head h2::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px rgba(18,184,134,.15)}
+.method{display:flex;flex-direction:column;gap:2px;background:linear-gradient(135deg,var(--accent-soft),transparent);border:1px solid var(--line)}
+/* nav active indicator */
+#mainnav{padding:6px;border-radius:24px}
+#mainnav button[aria-selected="true"]{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;box-shadow:0 8px 18px -8px rgba(var(--rgb),.7)}
+/* sections in other views */
+.qwrap .slip,.offwrap .slip{border-radius:22px}
+
+/* ---- navy + gold palette accents ---- */
+.appbar h1 span,h1 span{background:none;-webkit-text-fill-color:currentColor;color:var(--gold)}
+.card.new::before{background:var(--gold);color:var(--gold-ink)}
+.hh-stats{background:rgba(0,0,0,.18)}
+.hh-stats b{color:#fff}
+#st-best{color:var(--gold)}
+.group-title::before{background:linear-gradient(180deg,var(--gold),#f08c00)}
+.tip .ic{color:#b07d00;background:rgba(245,183,0,.16)}
+.tip b{color:#b07d00}
+.welcome .dots i.on{background:var(--a2)}
+.ticker b{background:linear-gradient(90deg,var(--a1),var(--a2))}
+.proof-head h2::before{background:var(--gold);box-shadow:0 0 0 4px rgba(245,183,0,.18)}
+.ring{background:conic-gradient(var(--a2) calc(var(--p)*1%),var(--line) 0)}
+.lower b{background:linear-gradient(135deg,var(--a1),var(--a2))}
+.score h2{color:var(--accent)}
+.prompter .pbar .play{background:linear-gradient(135deg,var(--a1),var(--a2))}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tip .ic,:root:not([data-theme="light"]) .tip b{color:var(--gold)}}
+:root[data-theme="dark"] .tip .ic,:root[data-theme="dark"] .tip b{color:var(--gold)}
+</style>
+
+</head><body><div class="wrap">
+  <header class="appbar" id="appbar">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--a1)"/><stop offset="1" style="stop-color:var(--a2)"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#lg)"/><path d="M32 12 L45 31 Q41 42 34.5 51 L32 55 L29.5 51 Q23 42 19 31 Z" fill="#fff"/><circle cx="32" cy="33" r="3.6" style="fill:var(--a1)"/><path d="M32 36.6 V53" style="stroke:var(--a1)" stroke-width="1.8" stroke-linecap="round"/><path d="M49 8 L50.8 13.2 L56 15 L50.8 16.8 L49 22 L47.2 16.8 L42 15 L47.2 13.2 Z" fill="#F5B700"/></svg>
+      <h1>مِحبرة<span> AI</span></h1>
+    </div>
+    <button class="iconbtn" type="button" id="themeBtn" aria-label="تغيير المظهر"></button>
+  </header>
+
+  <nav id="mainnav" aria-label="التنقل"></nav>
+
+  <section id="homeView">
+    <div class="hhero">
+      <p class="hello"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M5 5l1.5 1.5M17.5 17.5L19 19M3 12h2M19 12h2M5 19l1.5-1.5M17.5 6.5L19 5"/></svg><span id="hello">أهلاً بيك</span> · <span id="hdate"></span></p>
+      <h2>تحب تشتغل على إيه النهارده؟</h2>
+      <label class="search" for="toolSearch" style="margin:0"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="toolSearch" type="search" placeholder="دوّر على أداة… (خبر، ترجمة، اختبار)" autocomplete="off" aria-label="دوّر على أداة"></label>
+      <div class="hh-stats">
+        <div><b>14</b><span>أداة</span></div>
+        <div><b id="st-count">—</b><span>نتيجة محفوظة</span></div>
+        <div><b id="st-best">—</b><span>أعلى درجة</span></div>
+      </div>
+    </div>
+    <div class="quick" id="quick"></div>
+    <div class="tip"><span class="ic"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z"/></svg></span><div><b>نصيحة اليوم</b><p id="tipText"></p></div></div>
+    <div class="grp" id="recentWrap" hidden><h3 class="group-title">كمّل من حيث وقفت</h3><div class="recent" id="recent"></div></div>
+    <div id="homeGroups"></div>
+    <p class="nores" id="nores">مالقيتش أداة بالاسم دا.</p>
+  </section>
+
+  <div class="crumb" id="crumb" hidden><button type="button" id="backHome" aria-label="رجوع للرئيسية"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button><span class="cic" id="crumbIcon"></span><span class="ctext"><b id="crumbTitle"></b><small id="crumbDesc"></small></span></div>
+
+  <section class="desk" id="mainDesk">
+    <form class="slip" id="form">
+      <h2 id="t-title"></h2>
+      <p class="lead" id="t-lead"></p>
+      <div id="fields"></div>
+      <div class="actions">
+        <button class="btn" type="submit" id="go">نفّذ</button>
+        <button class="btn ghost" type="button" id="stop" hidden>إيقاف</button>
+        <button class="btn ghost" type="button" id="clear">مسح المدخلات</button>
+      </div>
+      <div class="method" id="method"></div>
+    </form>
+
+    <article class="proof">
+      <div class="proof-head">
+        <h2>البروفة</h2>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="chip" id="status">مثال توضيحي</span>
+          <button class="btn ghost mini" type="button" id="copy">نسخ</button>
+          <button class="btn ghost mini" type="button" id="share">مشاركة</button>
+        </div>
+      </div>
+      <div class="out" id="out"></div>
+      <div id="extra"></div>
+      <p class="note" id="note"></p>
+    </article>
+  </section>
+
+  <section class="desk" id="studioDesk" hidden>
+    <form class="slip" id="studioForm">
+      <h2>المذيع الافتراضي</h2>
+      <p class="lead">اكتب الخبر أو الموضوع، والمذيع هيقراه بصوت عربي. <span class="chip" id="st-mode">صوت + صورة متحركة</span></p>
+      <label for="st-text">الخبر أو الموضوع</label>
+      <textarea id="st-text">افتتحت كلية الإعلام بجامعة القاهرة يوم الأحد معملاً جديداً للصحافة الرقمية بتكلفة 4 ملايين جنيه، يضم 40 جهاز كمبيوتر واستوديو بودكاست، ويخدم 1200 طالب سنوياً.</textarea>
+      <div class="row">
+        <div><label for="st-voice">الصوت</label>
+          <select id="st-voice">
+            <option value="ar-EG-SalmaNeural">سلمى (مصري، ست)</option>
+            <option value="ar-EG-ShakirNeural">شاكر (مصري، راجل)</option>
+            <option value="ar-SA-ZariyahNeural">زارية (فصحى، ست)</option>
+            <option value="ar-SA-HamedNeural">حامد (فصحى، راجل)</option>
+          </select></div>
+        <div><label for="st-len">طول النشرة</label>
+          <select id="st-len"><option value="40">قصيرة (~20 ثانية)</option><option value="80">متوسطة (~40 ثانية)</option><option value="130">طويلة (~1 دقيقة)</option></select></div>
+      </div>
+      <label>صورة المذيع</label>
+      <div class="presenters" id="presenters"></div>
+      <input type="file" id="st-photo" accept="image/jpeg,image/png" hidden>
+      <p class="small">استخدم صورتك أو صورة عندك إذن باستخدامها. ممنوع صور مشاهير أو أشخاص من غير موافقتهم.</p>
+      <label class="check"><input type="checkbox" id="st-rewrite" checked> خلّي الذكاء الاصطناعي يحوّله لنص نشرة الأول</label>
+      <div class="actions">
+        <button class="btn" type="submit" id="st-go">اعمل النشرة</button>
+        <button class="btn ghost" type="button" id="st-stop" hidden>إيقاف</button>
+        <button class="btn ghost" type="button" id="st-replay" hidden>إعادة</button>
+      </div>
+      <div class="method"><strong>للتعلّم: الكتابة للأذن</strong>نص النشرة بيتكتب للسمع مش للقراءة: جمل قصيرة، رقم واحد في الجملة، والمعلومة الأهم في الأول وتتكرر في الآخر.</div>
+    </form>
+
+    <article class="proof">
+      <div class="proof-head"><h2>الاستوديو</h2><span class="chip" id="st-status">جاهز</span></div>
+      <div class="screen" id="screen">
+        <img id="st-poster" alt="المذيع">
+        <video id="st-video" playsinline controls hidden></video>
+        <div class="onair"><span></span>مِحبرة نيوز</div>
+        <div class="ai-badge">مذيع افتراضي · AI</div>
+        <div class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <div class="caption" id="st-caption"></div>
+        <div class="lower"><b>عاجل</b><span id="st-headline">اكتب خبر واضغط «اعمل النشرة»</span></div>
+        <div class="progress" id="st-progress" hidden><i></i><p id="st-ptext">بيجهّز…</p></div>
+      </div>
+      <h3 class="scr-title">نص النشرة</h3>
+      <p class="script" id="st-script">النص اللي المذيع هيقوله هيظهر هنا.</p>
+      <p class="note" id="st-note"></p>
+      <div class="actions"><button class="btn ghost mini" type="button" id="st-share" hidden>مشاركة النص</button><a class="btn ghost mini" id="st-open" target="_blank" rel="noopener" hidden>افتح الفيديو / حمّله</a></div>
+    </article>
+  </section>
+
+  <section id="quizDesk" hidden>
+    <div class="qwrap">
+      <form class="slip" id="quizSetup">
+        <h2>اختبار تدريبي</h2>
+        <p class="lead">اختار الموضوع وجاوب. الأسئلة جاهزة جوه التطبيق وبتشتغل من غير نت، وكل إجابة معاها شرح.</p>
+        <label for="qz-topic">الموضوع</label>
+        <select id="qz-topic">
+          <option value="mix">خليط من كل المواضيع</option>
+          <option>أساسيات الخبر والهرم المقلوب</option>
+          <option>التحقق من الأخبار ومكافحة الشائعات</option>
+          <option>أخلاقيات العمل الإعلامي</option>
+          <option>فنون التحرير الصحفي (الخبر، التقرير، المقال، التحقيق)</option>
+          <option>الإعلام الرقمي والسوشيال ميديا</option>
+          <option>الإذاعة والتلفزيون والكتابة للأذن</option>
+          <option value="custom">موضوع تاني…</option>
+        </select>
+        <div id="qz-customWrap" hidden><label for="qz-custom">اكتب الموضوع</label><input id="qz-custom" type="text" placeholder="مثلاً: نظريات الاتصال"></div>
+        <div class="row">
+          <div id="qz-levelWrap" hidden><label for="qz-level">المستوى</label><select id="qz-level"><option>سهل</option><option selected>متوسط</option><option>صعب</option></select></div>
+          <div><label for="qz-count">عدد الأسئلة</label><select id="qz-count"><option>5</option><option selected>10</option></select></div>
+        </div>
+        <label class="check" id="qz-aiWrap"><input type="checkbox" id="qz-ai"> أسئلة جديدة بالذكاء الاصطناعي (محتاج نت)</label>
+        <div class="actions"><button class="btn" type="submit" id="qz-go">ابدأ الاختبار</button></div>
+        <p class="note" id="qz-note"></p>
+      </form>
+      <article class="proof" id="quizPlay" hidden></article>
+    </div>
+  </section>
+
+  <section id="offDesk" hidden><div class="offwrap" id="offBody"></div></section>
+
+  <section id="historyDesk" hidden>
+    <div class="toolbar">
+      <input id="h-search" type="search" placeholder="دوّر في السجل…" aria-label="بحث في السجل">
+      <button class="btn ghost mini" type="button" id="h-clear">مسح السجل</button>
+    </div>
+    <div class="hlist" id="hlist"></div>
+  </section>
+
+  <div class="sheet" id="viewer" hidden>
+    <div class="panel viewer" role="dialog" aria-modal="true">
+      <div class="legal-head"><b id="v-title" style="font-family:var(--display)"></b><button class="x" type="button" id="v-close" aria-label="إغلاق">✕</button></div>
+      <div class="vbody out" id="v-body"></div>
+      <div class="vfoot">
+        <button class="btn mini" type="button" id="v-share">مشاركة</button>
+        <button class="btn ghost mini" type="button" id="v-copy">نسخ</button>
+        <button class="btn ghost mini" type="button" id="v-del">حذف</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="welcome" id="welcome" hidden>
+    <svg class="wlogo" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="lg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--a1)"/><stop offset="1" style="stop-color:var(--a2)"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#lg2)"/><path d="M32 12 L45 31 Q41 42 34.5 51 L32 55 L29.5 51 Q23 42 19 31 Z" fill="#fff"/><circle cx="32" cy="33" r="3.6" style="fill:var(--a1)"/><path d="M32 36.6 V53" style="stroke:var(--a1)" stroke-width="1.8" stroke-linecap="round"/><path d="M49 8 L50.8 13.2 L56 15 L50.8 16.8 L49 22 L47.2 16.8 L42 15 L47.2 13.2 Z" fill="#F5B700"/></svg>
+    <div class="slide" id="w-slide"></div>
+    <div class="dots" id="w-dots"></div>
+    <div class="wbtns"><button class="btn ghost" type="button" id="w-skip">تخطّي</button><button class="btn" type="button" id="w-next">التالي</button></div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <div class="sheet" id="legal" hidden>
+    <div class="panel legal" role="dialog" aria-modal="true" aria-labelledby="legalTitle">
+      <div class="legal-head">
+        <div class="seg" role="tablist">
+          <button type="button" id="lg-privacy" aria-selected="true">سياسة الخصوصية</button>
+          <button type="button" id="lg-terms" aria-selected="false">الشروط والأحكام</button>
+        </div>
+        <button class="x" type="button" id="closeLegal" aria-label="إغلاق">✕</button>
+      </div>
+      <div class="legal-body" id="legalBody"></div>
+    </div>
+  </div>
+  <footer>
+    <div class="flinks"><button type="button" id="openPrivacy">سياسة الخصوصية</button><span>·</span><button type="button" id="openTerms">الشروط والأحكام</button><span>·</span><button type="button" id="openTour">جولة في التطبيق</button></div>
+    <p>مِحبرة · نسخة 1.6 · المحتوى من إنتاج الذكاء الاصطناعي وممكن يحتوي أخطاء. راجع أي معلومة أو رقم من مصدره قبل النشر.</p>
+    <p>© 2026 مِحبرة. جميع الحقوق محفوظة.</p>
+  </footer>
+</div>
+
+<script src="config.js"></script>
+<script>
+const TOOLS = {
+  news: {
+    name: "كتابة خبر",
+    desc: "من المعلومات الخام لخبر بالهرم المقلوب",
+    title: "من المعلومات الخام لخبر جاهز",
+    lead: "حط الحقائق اللي عندك، والأداة تبني الخبر بأسلوب الهرم المقلوب مع عناوين بديلة.",
+    fields: [
+      {id:"facts", label:"المعلومات الخام", type:"textarea", value:"افتتحت كلية الإعلام بجامعة القاهرة يوم الأحد معملاً جديداً للصحافة الرقمية بتكلفة 4 ملايين جنيه. المعمل يضم 40 جهاز كمبيوتر واستوديو بودكاست. عميد الكلية قال إن المعمل هيخدم 1200 طالب سنوياً. التدريب يبدأ الشهر الجاي."},
+      {id:"kind", label:"نوع المادة", type:"select", options:["خبر قصير","خبر موسّع","تقرير إخباري"]},
+      {id:"outlet", label:"منصة النشر", type:"select", options:["موقع إخباري","صحيفة مطبوعة","نشرة إذاعية"]}
+    ],
+    method: "<strong>الطريقة: الهرم المقلوب</strong>أهم معلومة في الأول، والتفاصيل الأقل أهمية في الآخر. المقدمة لازم تجاوب على: مين؟ عمل إيه؟ فين؟ إمتى؟ وليه؟",
+    prompt: v => `أنت محرر صحفي خبير ومدرّب لطلاب الإعلام. اكتب ${v.kind} لـ${v.outlet} باللغة العربية الفصحى من المعلومات التالية فقط، بدون اختراع أي معلومة أو رقم أو اقتباس غير موجود.
+
+المعلومات:
+${v.facts}
+
+اكتب الرد بهذا الشكل بالضبط (عناوين بعلامة ###):
+### العنوان الرئيسي
+### عناوين بديلة
+(3 عناوين بأساليب مختلفة: مباشر، تشويقي، رقمي)
+### المقدمة (Lead)
+### متن الخبر
+### ملاحظة تعليمية
+اشرح للطالب باختصار (بالعامية المصرية) ليه رتبت المعلومات كدا، وإيه الأسئلة الخمسة اللي اتجاوبت، وإيه المعلومات الناقصة اللي المفروض يسأل عنها مصادره.`,
+    example: `### العنوان الرئيسي
+إعلام القاهرة تفتتح معملاً للصحافة الرقمية بتكلفة 4 ملايين جنيه
+
+### عناوين بديلة
+- 1200 طالب سنوياً يتدربون في معمل الصحافة الرقمية الجديد
+- استوديو بودكاست و40 جهازاً.. ماذا ينتظر طلاب إعلام القاهرة؟
+
+### المقدمة (Lead)
+افتتحت كلية الإعلام بجامعة القاهرة، الأحد، معملاً جديداً للصحافة الرقمية بتكلفة 4 ملايين جنيه، يخدم 1200 طالب سنوياً.
+
+### ملاحظة تعليمية
+المقدمة جاوبت على مين وعمل إيه وإمتى، والرقم الأكبر دخل فيها عشان يشد القارئ. ناقصك "ليه" — اسأل العميد عن هدف المعمل.`
+  },
+  verify: {
+    name: "التحقق من الأخبار",
+    desc: "تحقق من الخبر في المصادر الرسمية والموثوقة",
+    title: "اتحقق من الخبر في المصادر الموثوقة",
+    lead: "الصق الخبر أو البوست، والأداة تدوّر عليه في المواقع الرسمية ووكالات الأنباء ومنصات تدقيق المعلومات، وتقولك لقت إيه بالمصادر.",
+    search: true,
+    fields: [
+      {id:"claim", label:"نص الخبر أو البوست", type:"textarea", value:"عاجل جداً!! وزارة التعليم قررت إلغاء امتحانات الثانوية العامة السنة دي نهائياً والنجاح بالتقييم المستمر. انشر قبل ما يتحذف!!! المصدر: مسؤول كبير رفض ذكر اسمه"},
+      {id:"source", label:"مصدره (اختياري)", type:"input", value:"صفحة فيسبوك اسمها «أخبار التعليم لحظة بلحظة»"}
+    ],
+    method: "<strong>القاعدة الذهبية: ارجع للمصدر الرسمي</strong>أي قرار حكومي لازم يكون منشور على الموقع أو الصفحة الرسمية للجهة نفسها، أو في وكالة أنباء موثوقة. لو مش موجود هناك، اعتبره غير مؤكد لحد ما يثبت العكس.",
+    prompt: (v,live) => live ? `أنت مدقق معلومات محترف (Fact-checker) ومدرّب لطلاب الإعلام. تاريخ اليوم: ${new Date().toLocaleDateString("ar-EG",{year:"numeric",month:"long",day:"numeric"})}.
+استخدم أداة البحث للتحقق من الادعاء التالي في المصادر الموثوقة المتاحة لك فقط (المواقع الحكومية الرسمية، وكالات الأنباء، الصحف الكبرى، منصات تدقيق المعلومات). ابحث بالعربي وبالإنجليزي لو مفيد، وابحث عن نفي رسمي كمان.
+
+الادعاء:
+${v.claim}
+
+المصدر المذكور: ${v.source || "غير محدد"}
+
+قواعد صارمة:
+- اعتمد فقط على نتايج البحث. ممنوع تخترع أي مصدر أو رابط أو تصريح أو تاريخ.
+- لو مالقيتش أي تأكيد أو نفي في المصادر الموثوقة، قول كدا بوضوح ("لم أجد تأكيداً في المصادر الموثوقة").
+- فرّق بين اللي المصدر قاله فعلاً واللي هو استنتاج منك.
+
+اكتب بالعامية المصرية الواضحة، بهذا الشكل (عناوين بعلامة ###):
+### الحكم
+(اختر واحد بالظبط: مؤكد من مصدر رسمي / نفته جهة رسمية / غير مؤكد — لم يُنشر في المصادر الموثوقة / متضارب) + سطر تبرير
+### المصادر قالت إيه
+(نقاط: اسم المصدر — اللي قاله باختصار — التاريخ لو ظاهر)
+### علامات الإنذار في النص
+(نقاط مع اقتباس الجزء من النص)
+### الخلاصة للطالب
+(تنشر ولا لأ؟ ولو هتنشر، تكتبها إزاي بدقة)
+### ملاحظة تعليمية` : `أنت مدقق معلومات محترف (Fact-checker) ومدرّب لطلاب الإعلام. حلّل الادعاء التالي. لا تستطيع تصفح الإنترنت الآن، فلا تدّعِ أبداً أنك تحققت من مصادر خارجية، ولا تذكر روابط؛ ركّز على تحليل النص ومنهجية التحقق.
+
+الادعاء:
+${v.claim}
+
+المصدر المذكور: ${v.source || "غير محدد"}
+
+اكتب بالعامية المصرية الواضحة، بهذا الشكل (عناوين بعلامة ###):
+### التقييم المبدئي
+(اختر واحد: يبدو موثوقاً / يحتاج تحقق / مؤشرات تضليل قوية) مع سطر تبرير، ووضّح إن ده تحليل للنص من غير بحث مباشر
+### علامات الإنذار
+(نقاط مع اقتباس الجزء من النص)
+### فين تتأكد
+(أنهي جهة رسمية بالاسم ممكن تأكد أو تنفي الخبر دا، وإيه الكلمات اللي تدوّر بيها)
+### ملاحظة تعليمية`,
+    example: `### الحكم
+**غير مؤكد — لم يُنشر في المصادر الموثوقة.** قرار بالحجم دا لازم يطلع في بيان رسمي من الوزارة، مش من "مسؤول رفض ذكر اسمه".
+
+### علامات الإنذار في النص
+- **استعجال مصطنع:** "انشر قبل ما يتحذف"
+- **مصدر مجهول** في قرار رسمي كبير
+- **علامات تعجب كتير** ولغة عاطفية
+
+### الخلاصة للطالب
+ماتنشرش الخبر. لو عايز تكتب عنه، اكتب إنه "شائعة منتشرة لم تؤكدها الوزارة" بعد ما تراجع صفحتها الرسمية.`
+  },
+  content: {
+    name: "سكريبتات وبوستات",
+    desc: "ريلز، تقرير تلفزيوني، بودكاست، وبوستات",
+    title: "حوّل الموضوع لمحتوى",
+    lead: "سكريبت فيديو قصير، بودكاست، تقرير تلفزيوني، أو بوستات سوشيال ميديا.",
+    fields: [
+      {id:"topic", label:"الموضوع أو الفكرة", type:"textarea", value:"إزاي الطالب يفرّق بين الخبر الحقيقي والإشاعة على السوشيال ميديا في 3 خطوات"},
+      {id:"format", label:"الشكل", type:"select", options:["سكريبت ريلز/تيك توك (60 ثانية)","سكريبت تقرير تلفزيوني","حلقة بودكاست (مخطط)","بوستات لفيسبوك وإنستجرام وX"]},
+      {id:"tone", label:"الأسلوب", type:"select", options:["عامية مصرية خفيفة","فصحى مبسطة","رسمي إخباري"]}
+    ],
+    method: "<strong>الطريقة: الخطّاف ثم القيمة</strong>أول 3 ثواني (أو أول سطر) هي اللي بتقرر إذا الجمهور هيكمّل. ابدأ بسؤال أو مفاجأة، وبعدين قدّم المعلومة، واختم بدعوة لفعل.",
+    prompt: v => `أنت كاتب محتوى إعلامي محترف ومدرّب لطلاب الإعلام. اكتب ${v.format} عن الموضوع التالي بأسلوب ${v.tone}.
+
+الموضوع:
+${v.topic}
+
+القواعد: لا تخترع إحصائيات أو أسماء مصادر. لو احتجت رقم، اكتب [رقم من مصدر موثوق].
+للسكريبتات: قسّم إلى مشاهد/مقاطع، ولكل مقطع: (الصورة/اللقطة) و(النص المنطوق) والتوقيت التقريبي.
+للبوستات: اكتب نسخة لكل منصة مع هاشتاجات مناسبة.
+
+استخدم عناوين بعلامة ### لكل جزء، واختم بـ:
+### ملاحظة تعليمية
+اشرح بالعامية المصرية ليه اخترت الخطّاف دا، وإزاي الطالب يطوّر السكريبت.`,
+    example: `### الخطّاف (0–3 ث)
+**اللقطة:** موبايل عليه بوست مكتوب "عاجل!!!"
+**النص:** "قبل ما تعمل شير.. اسأل نفسك 3 أسئلة."
+
+### المقطع الأول (3–20 ث)
+**النص:** "أول سؤال: مين اللي قال؟ لو المصدر مجهول، استنى."
+
+### ملاحظة تعليمية
+بدأنا بموقف الجمهور بيعيشه كل يوم، عشان يحس إن الكلام عنه.`
+  },
+  interview: {
+    name: "تلخيص وأسئلة حوار",
+    desc: "لخّص النص وجهّز أسئلة مقابلتك",
+    title: "لخّص وجهّز أسئلتك",
+    lead: "الصق نص (تقرير، بيان، سيرة ضيف) واختار: تلخيص، أسئلة حوار، أو الاتنين.",
+    fields: [
+      {id:"text", label:"النص أو معلومات عن الضيف", type:"textarea", value:"د. سارة محمود، أستاذة الإعلام الرقمي، نشرت دراسة على 800 طالب جامعي بتقول إن 68% منهم بيعتمدوا على تيك توك كمصدر أساسي للأخبار، وإن 30% بس بيتأكدوا من الخبر قبل مشاركته. الدراسة أوصت بإدخال مادة التربية الإعلامية في السنة الأولى بكل الكليات."},
+      {id:"task", label:"المطلوب", type:"select", options:["تلخيص + أسئلة حوار","تلخيص فقط","أسئلة حوار فقط"]},
+      {id:"style", label:"نوع الحوار", type:"select", options:["حوار صحفي مكتوب","مقابلة تلفزيونية","حلقة بودكاست"]}
+    ],
+    method: "<strong>الطريقة: من المفتوح للمحدد</strong>ابدأ بأسئلة مفتوحة تخلّي الضيف يحكي، وبعدها أسئلة متابعة دقيقة، وسيب السؤال الصعب للنص بعد ما يرتاح.",
+    prompt: v => `أنت صحفي محاور خبير ومدرّب لطلاب الإعلام. المطلوب: ${v.task}، استعداداً لـ${v.style}.
+
+النص:
+${v.text}
+
+اكتب بهذا الشكل (عناوين بعلامة ###)، واحذف الأجزاء غير المطلوبة:
+### الملخص
+(5 نقاط بحد أقصى، مع الأرقام الواردة في النص فقط)
+### أسئلة افتتاحية
+### أسئلة العمق والمتابعة
+### السؤال الصعب
+(سؤال جريء لكن مهني، مع نصيحة لطريقة طرحه)
+### سؤال الختام
+### ملاحظة تعليمية
+اشرح بالعامية المصرية ترتيب الأسئلة، وإزاي الطالب يتعامل لو الضيف هرب من سؤال.`,
+    example: `### الملخص
+- دراسة على 800 طالب جامعي.
+- 68% بيعتمدوا على تيك توك كمصدر أساسي للأخبار.
+- 30% بس بيتأكدوا قبل المشاركة.
+
+### أسئلة افتتاحية
+1. إيه اللي خلاكي تختاري تيك توك تحديداً كمحور للدراسة؟
+
+### السؤال الصعب
+عيّنة 800 طالب، هل تكفي إننا نعمّم النتيجة على كل الجامعات؟`
+  },
+  opinion: {
+    name: "مقال رأي وتقرير",
+    desc: "مقال رأي، تقرير، تحقيق، أو قصة إنسانية من فكرة",
+    title: "من الفكرة لمادة صحفية كاملة",
+    lead: "اكتب الفكرة واختار نوع المادة، والأداة تبنيها بهيكل احترافي.",
+    fields: [
+      {id:"idea", label:"الفكرة أو الموضوع", type:"textarea", value:"اعتماد طلاب الجامعة على تيك توك كمصدر أساسي للأخبار، وخطورة دا على وعيهم."},
+      {id:"type", label:"نوع المادة", type:"select", options:["مقال رأي","تقرير صحفي","تحقيق صحفي (مخطط وأسئلة)","قصة إنسانية (فيتشر)"]},
+      {id:"len", label:"الطول", type:"select", options:["قصير (~300 كلمة)","متوسط (~600 كلمة)"]},
+      {id:"angle", label:"الزاوية أو الموقف (اختياري)", type:"input", value:""}
+    ],
+    method: "<strong>الطريقة: فكرة واحدة + دليل</strong>المادة القوية بتدور حول فكرة واحدة واضحة. كل فقرة فيها حجة ودليل، والمقال الجيد بيرد على الرأي المخالف بدل ما يتجاهله.",
+    prompt: v => `أنت كاتب صحفي محترف ومدرّب لطلاب الإعلام. اكتب ${v.type} بطول ${v.len} باللغة العربية الفصحى عن:
+${v.idea}
+${v.angle ? "الزاوية/الموقف المطلوب: " + v.angle : ""}
+
+القواعد: لا تخترع أرقاماً أو أسماء أو اقتباسات. لو المادة محتاجة رقم أو تصريح، اكتب مكانه [رقم من مصدر موثوق] أو [تصريح من مسؤول/خبير].
+لو النوع "تحقيق": اكتب مخطط التحقيق (الفرضية، المصادر، الأسئلة، الوثائق المطلوبة) بدل نص كامل.
+
+اكتب بهذا الشكل (عناوين بعلامة ###):
+### العنوان
+### المقدمة
+### المتن
+(بعناوين فرعية لو المادة طويلة)
+### الخاتمة
+### بيانات ومصادر محتاج تجيبها
+### ملاحظة تعليمية
+اشرح بالعامية المصرية هيكل المادة، وإزاي الطالب يقويها.`,
+    example: `### العنوان
+جيل "الفيد": حين يصبح تيك توك نشرة الأخبار
+
+### المقدمة
+لم يعد طالب الجامعة ينتظر نشرة التاسعة؛ فالخبر يصله في خمس عشرة ثانية بين مقطعين للطبخ والكوميديا.
+
+### بيانات ومصادر محتاج تجيبها
+- [نسبة الطلاب اللي بيعتمدوا على تيك توك من دراسة موثقة]
+- [تصريح من أستاذ إعلام عن التربية الإعلامية]
+
+### ملاحظة تعليمية
+بدأنا بصورة من حياة القارئ اليومية، وبعدين هنطلع للفكرة الأساسية. وسبنا أماكن للأرقام بدل ما نخترعها.`
+  },
+  proof: {
+    name: "التدقيق اللغوي",
+    desc: "تصحيح الإملاء والنحو مع شرح كل تصحيح",
+    title: "دقّق نصك قبل النشر",
+    lead: "الصق النص، والأداة تصححه وتشرحلك كل غلطة عشان ماتتكررش.",
+    fields: [
+      {id:"text", label:"النص", type:"textarea", value:"انتهت الاجتماع الذي عقده المحافظ مع الاهالى امس، و اكد ان المشروع سوف يتم إفتتاحه خلال شهرين، مشيرا الي ان التكلفة بلغت خمسون مليون جنية."},
+      {id:"level", label:"المطلوب", type:"select", options:["تصحيح إملائي ونحوي فقط","تصحيح + تحسين الأسلوب الصحفي"]}
+    ],
+    method: "<strong>أشهر 3 أخطاء في الصحافة</strong>الهمزات (إلى/الى)، والتاء المربوطة والهاء (جنيه/جنية)، ورفع ونصب الأرقام بعد «بلغ» و«أصبح».",
+    prompt: v => `أنت مدقق لغوي محترف في جريدة عربية ومدرّب لطلاب الإعلام. المطلوب: ${v.level}.
+
+النص:
+${v.text}
+
+اكتب بهذا الشكل (عناوين بعلامة ###):
+### النص بعد التدقيق
+### التصحيحات
+(قائمة: كل سطر بالشكل: **الخطأ** ← **الصواب**: السبب باختصار)
+### ملاحظات أسلوبية
+(لو المطلوب يشمل تحسين الأسلوب)
+### ملاحظة تعليمية
+قاعدة أو اتنين بالعامية المصرية يساعدوا الطالب مايكررش الأخطاء دي.`,
+    example: `### النص بعد التدقيق
+انتهى الاجتماع الذي عقده المحافظ مع الأهالي أمس، وأكد أن المشروع سيُفتتح خلال شهرين، مشيرًا إلى أن التكلفة بلغت خمسين مليون جنيه.
+
+### التصحيحات
+- **انتهت الاجتماع** ← **انتهى الاجتماع**: الاجتماع مذكر.
+- **الاهالى** ← **الأهالي**: همزة القطع والياء.
+- **الي** ← **إلى**: حرف جر بهمزة تحت الألف.
+- **خمسون** ← **خمسين**: مفعول به لـ«بلغت» منصوب بالياء.
+- **جنية** ← **جنيه**: آخرها هاء أصلية.
+
+### ملاحظة تعليمية
+«سوف يتم افتتاحه» تطويل؛ الأقوى «سيُفتتح». الصحافة بتحب الفعل المباشر.`
+  },
+  translate: {
+    name: "الترجمة الصحفية",
+    desc: "ترجمة الأخبار بين العربي والإنجليزي بأسلوب صحفي",
+    title: "ترجم الخبر بأسلوب صحفي",
+    lead: "مش ترجمة حرفية: الأداة بتعيد صياغة الخبر بأسلوب اللغة التانية وتشرح المصطلحات.",
+    fields: [
+      {id:"text", label:"النص", type:"textarea", value:"The Ministry of Health announced on Monday that a new vaccination campaign will reach 2 million children in rural areas by the end of the year."},
+      {id:"dir", label:"الاتجاه", type:"select", options:["إنجليزي ← عربي","عربي ← إنجليزي"]},
+      {id:"style", label:"الأسلوب", type:"select", options:["خبري رسمي","مبسط للسوشيال ميديا"]}
+    ],
+    method: "<strong>الترجمة الصحفية ≠ الترجمة الحرفية</strong>الخبر الإنجليزي بيبدأ غالباً بالفاعل، والعربي بالفعل. وانتبه للمصطلحات اللي ليها ترجمة متعارف عليها في وكالات الأنباء.",
+    prompt: v => `أنت مترجم صحفي محترف في وكالة أنباء ومدرّب لطلاب الإعلام. ترجم النص التالي (${v.dir}) بأسلوب ${v.style}، مع الالتزام بالمعنى والأرقام بدقة.
+
+النص:
+${v.text}
+
+اكتب بهذا الشكل (عناوين بعلامة ###):
+### الترجمة
+### مصطلحات مهمة
+(قائمة: المصطلح ← ترجمته المعتمدة: ملاحظة قصيرة)
+### ملاحظة تعليمية
+بالعامية المصرية: إيه الفرق في بناء الجملة بين اللغتين في النص دا.`,
+    example: `### الترجمة
+أعلنت وزارة الصحة، الاثنين، أن حملة تطعيم جديدة ستصل إلى مليوني طفل في المناطق الريفية بحلول نهاية العام.
+
+### مصطلحات مهمة
+- **vaccination campaign** ← **حملة تطعيم**: أدق من «حملة تلقيح» في الإعلام المصري.
+- **rural areas** ← **المناطق الريفية**
+
+### ملاحظة تعليمية
+في الإنجليزي بدأنا بـ«The Ministry»، وفي العربي بدأنا بالفعل «أعلنت». و«2 million» بقت «مليوني» لأنها مثنى مجرور.`
+  }
+};
+
+const $ = id => document.getElementById(id);
+let current = "news", ctl = null;
+const drafts = {};
+
+try { $("today").textContent = new Date().toLocaleDateString("ar-EG",{weekday:"long",year:"numeric",month:"long",day:"numeric"}); } catch(e){}
+
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function inline(s){return esc(s).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,(m,t,u)=>`<a href="${u}" target="_blank" rel="noopener">${t}</a><span class="srcdom">${(u.match(/^https?:\/\/(?:www\.)?([^\/]+)/)||[])[1]||""}</span>`);}
+function md(src){
+  const lines = src.split("\n"); let html="", list=null;
+  const close=()=>{ if(list){ html+=`</${list}>`; list=null; } };
+  for(const raw of lines){
+    const l = raw.trim();
+    if(!l){ close(); continue; }
+    let m;
+    if((m=l.match(/^#{1,4}\s+(.*)/))){ close(); html+=`<h3>${inline(m[1])}</h3>`; }
+    else if((m=l.match(/^[-*•]\s+(.*)/))){ if(list!=="ul"){close(); html+="<ul>"; list="ul";} html+=`<li>${inline(m[1])}</li>`; }
+    else if((m=l.match(/^[\d٠-٩]+[.)]\s+(.*)/))){ if(list!=="ol"){close(); html+="<ol>"; list="ol";} html+=`<li>${inline(m[1])}</li>`; }
+    else { close(); html+=`<p>${inline(l)}</p>`; }
+  }
+  close(); return html;
+}
+
+const ICONS={
+  home:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
+  news:'<rect x="3" y="4" width="15" height="16" rx="2"/><path d="M18 8h3v10a2 2 0 0 1-2 2"/><path d="M7 8h7M7 12h7M7 16h4"/>',
+  opinion:'<path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/>',
+  content:'<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9l5 3-5 3z"/>',
+  proof:'<path d="M4 18L9 6l5 12"/><path d="M6 14h6"/><path d="M15 15l2.5 2.5L22 12"/>',
+  translate:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/>',
+  verify:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/>',
+  interview:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+  studio:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M8 3l4 3 4-3"/><circle cx="12" cy="12" r="2.5"/>',
+  quiz:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14"/><path d="M12 17.5h.01"/>',
+  history:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  prompter:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/><path d="M12 21v-3"/>',
+  counter:'<path d="M5 7h14M5 12h10M5 17h6"/><circle cx="18" cy="17" r="3"/><path d="M18 15.5V17l1 1"/>',
+  glossary:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M9 8h6"/>',
+  templates:'<rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><path d="M13 17h8M17 13v8"/>',
+  checklist:'<path d="M9 6h11M9 12h11M9 18h11"/><path d="M3.5 6l1.2 1.2L7 5M3.5 12l1.2 1.2L7 11M3.5 18l1.2 1.2L7 17"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon:'<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>'
+};
+const ico=(k,cls="ico")=>`<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]||ICONS.news}</svg>`;
+const EXTRA={studio:{name:"المذيع الافتراضي",desc:"مذيع بيقرا النشرة بصوت عربي"},quiz:{name:"اختبار تدريبي",desc:"أكتر من 35 سؤال بدرجة وشرح",off:true},
+  prompter:{name:"التلقين (أوتوكيو)",desc:"النص بيتحرك قدامك وانت بتقرا للكاميرا",off:true},
+  counter:{name:"عدّاد الكلمات والوقت",desc:"كلمات، وقت الإلقاء، وطول العنوان",off:true},
+  glossary:{name:"قاموس المصطلحات",desc:"أهم مصطلحات الإعلام بالعربي والإنجليزي",off:true},
+  templates:{name:"قوالب جاهزة",desc:"خبر، بيان صحفي، تقرير، سكريبت، وحوار",off:true},
+  checklist:{name:"قبل ما تنشر",desc:"قايمة تحقق من 12 خطوة قبل النشر",off:true}};
+const OFF=["prompter","counter","glossary","templates","checklist"];
+const GROUPS=[
+  {title:"عُدّة الصحفي",sub:"بتشتغل من غير إنترنت ومن غير ذكاء اصطناعي",items:["prompter","counter","templates","glossary","checklist","quiz"]},
+  {title:"الكتابة والتحرير بالذكاء الاصطناعي",items:["news","opinion","content","proof","translate"]},
+  {title:"التحقق والتحضير",items:["verify","interview"]},
+  {title:"الاستوديو",items:["studio"]}
+];
+const NEWBIES=["opinion","proof","translate"];
+const TINT={news:"#2563EB",opinion:"#f76707",content:"#ae3ec9",proof:"#0b7285",translate:"#0ca678",verify:"#f08c00",interview:"#7048e8",studio:"#d6336c",quiz:"#12b886",prompter:"#228be6",counter:"#1098ad",glossary:"#845ef7",templates:"#fd7e14",checklist:"#37b24d",history:"#868e96",home:"#1E3A8A"};
+function tintEl(e,k){ const h=TINT[k]||"#2563EB"; const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16); e.style.setProperty("--tint",h); e.style.setProperty("--tint-bg",`rgba(${r},${g},${b},.13)`); const L=x=>Math.round(x+(255-x)*.32); e.style.setProperty("--tint2",`rgb(${L(r)},${L(g)},${L(b)})`); }
+const NAV=[["home","الرئيسية"],["studio","المذيع"],["quiz","الاختبار"],["history","السجل"]];
+let view="home", offTool="counter";
+function toolMeta(k){ return TOOLS[k]||EXTRA[k]; }
+function buildHome(){
+  const box=$("homeGroups"); box.innerHTML="";
+  for(const g of GROUPS){
+    const wrap=document.createElement("div"); wrap.className="grp";
+    const h=document.createElement("h3"); h.className="group-title"; h.textContent=g.title; wrap.append(h);
+    if(g.sub){ const sp=document.createElement("p"); sp.className="group-sub"; sp.textContent=g.sub; wrap.append(sp); }
+    const grid=document.createElement("div"); grid.className="grid";
+    for(const k of g.items){ const m=toolMeta(k); const c=document.createElement("button"); c.type="button"; c.className="card"+(NEWBIES.includes(k)?" new":"")+(m.off?" off":""); c.id="card-"+k; c.dataset.q=(m.name+" "+m.desc).toLowerCase();
+      c.innerHTML=`<span class="ic">${ico(k)}</span><span><b></b><span></span></span>`; c.querySelector("b").textContent=m.name; c.querySelector("span span").textContent=m.desc;
+      if(m.off){ const bd=document.createElement("em"); bd.className="badge-off"; bd.textContent="بدون نت"; bd.style.fontStyle="normal"; c.append(bd); }
+      tintEl(c,k); c.onclick=()=>open(k); grid.append(c); }
+    wrap.append(grid); box.append(wrap);
+  }
+  updateStats(); buildQuick();
+}
+function filterTools(){
+  const q=$("toolSearch").value.trim().toLowerCase(); let any=false;
+  document.querySelectorAll("#homeGroups .grp").forEach(g=>{ let vis=0; g.querySelectorAll(".card").forEach(c=>{ const ok=!q||c.dataset.q.includes(q); c.hidden=!ok; if(ok) vis++; }); g.hidden=!vis; if(vis) any=true; });
+  $("nores").style.display=any?"none":"block";
+  const hide=!!q; ["quick","recentWrap"].forEach(id=>{ const e=$(id); if(id==="recentWrap") e.hidden = hide || !loadH().length; else e.style.display=hide?"none":""; }); document.querySelector(".tip").style.display=hide?"none":"";
+}
+$("toolSearch").addEventListener("input",filterTools);
+const QUICK=["news","verify","studio"];
+function buildQuick(){ const q=$("quick"); q.innerHTML=""; for(const k of QUICK){ const m=toolMeta(k); const b=document.createElement("button"); b.type="button"; b.className="qa"; b.id="qa-"+k; b.innerHTML=`<span class="ic">${ico(k)}</span><span></span>`; b.querySelector("span:last-child").textContent=m.name.replace("المذيع الافتراضي","المذيع").replace("التحقق من الأخبار","تحقّق من خبر"); tintEl(b,k); b.onclick=()=>open(k); q.append(b); } }
+const TIPS=["الخبر الجيد بيجاوب على مين وعمل إيه وفين وإمتى في أول جملة.","قبل ما تنشر أي رقم، ارجع لمصدره الأصلي مش للي نقله.","الجملة في نشرة الأخبار الأفضل تكون أقل من 20 كلمة.","«مسؤول رفض ذكر اسمه» مش مصدر كفاية لقرار رسمي كبير.","العنوان الصادق أقوى من العنوان المثير على المدى الطويل.","اسمع الطرف التاني قبل ما تنشر أي اتهام. ده اسمه حق الرد.","صورة قديمة في سياق جديد = تضليل، حتى لو الصورة حقيقية.","أول 3 ثواني في الفيديو هي اللي بتقرر المشاهد هيكمّل ولا لأ.","ابدأ الحوار بسؤال مفتوح، وسيب السؤال الصعب للنص.","الفعل المبني للمعلوم أقوى وأوضح في الصحافة من «تم» و«يتم».","المقال الجيد بيرد على الرأي المخالف بدل ما يتجاهله.","لو مش متأكد، اكتب «لم يتسنَّ التأكد» بدل ما تخمّن.","في الترجمة الصحفية، الخبر العربي غالباً بيبدأ بالفعل.","دوّر على الخبر في الموقع الرسمي للجهة قبل أي صفحة على السوشيال.","الاقتباس المباشر لازم يكون بنص الكلام، من غير تعديل.","استخدم البحث العكسي عن الصور قبل ما تنشر أي صورة منتشرة."];
+function dayIndex(){ const d=new Date(); return Math.floor((d-new Date(d.getFullYear(),0,0))/864e5); }
+$("tipText").textContent=TIPS[dayIndex()%TIPS.length];
+try{ $("hdate").textContent=new Date().toLocaleDateString("ar-EG",{weekday:"long",day:"numeric",month:"long"}); }catch(e){}
+function buildRecent(){ const a=loadH().slice(0,6), box=$("recent"); $("recentWrap").hidden=!a.length; box.innerHTML="";
+  for(const it of a){ const b=document.createElement("button"); b.type="button"; b.className="rc"; b.innerHTML=`<span class="rh"><span class="ic">${ico(it.tool)}</span><span></span></span><b></b>`;
+    b.querySelector(".rh span:last-child").textContent=(toolMeta(it.tool)?.name||"")+" · "+fmtDate(it.at); b.querySelector("b").textContent=it.title; tintEl(b,it.tool); b.onclick=()=>openViewer(it.id); box.append(b); } }
+(function(){ const h=new Date().getHours(); $("hello").textContent = h>=5&&h<12 ? "صباح الخير" : h<17&&h>=12 ? "نهارك سعيد" : "مساء الخير"; })();
+window.addEventListener("scroll",()=>$("appbar").classList.toggle("scrolled",scrollY>4),{passive:true});
+function buildNav(){
+  const nav=$("mainnav"); nav.innerHTML="";
+  for(const [k,label] of NAV){ const b=document.createElement("button"); b.type="button"; b.id="nav-"+k;
+    const active = k==="home" ? (view==="home"||view==="tool"||view==="off") : view===k;
+    b.setAttribute("aria-selected",active); b.innerHTML=ico(k)+"<span></span>"; b.querySelector("span").textContent=label;
+    b.onclick=()=>open(k); nav.append(b); }
+}
+function open(k){
+  if(view==="tool") saveDraft();
+  if(window.stopPrompter) stopPrompter();
+  if(k==="home"||k==="history"||k==="studio"||k==="quiz") view=k; else if(OFF.includes(k)){ view="off"; offTool=k; } else { view="tool"; current=k; }
+  $("homeView").hidden=view!=="home"; $("mainDesk").hidden=view!=="tool"; $("studioDesk").hidden=view!=="studio";
+  $("quizDesk").hidden=view!=="quiz"; $("historyDesk").hidden=view!=="history"; $("offDesk").hidden=view!=="off";
+  $("crumb").hidden=view==="home";
+  $("crumbTitle").textContent = view==="tool"?TOOLS[current].name : view==="history"?"السجل" : view==="off"?EXTRA[offTool].name : toolMeta(view)?.name||"";
+  if(view==="off") renderOff(offTool);
+  if(view==="tool") render(); if(view==="history") renderHistory(); if(view==="home"){ updateStats(); buildRecent(); }
+  const key = view==="tool"?current : view==="off"?offTool : view;
+  $("crumbIcon").innerHTML=ico(key); tintEl($("crumb"),key); $("crumbDesc").textContent = view==="history" ? "كل نتايجك محفوظة هنا" : (toolMeta(key)?.desc||"");
+  const sec={home:"homeView",tool:"mainDesk",studio:"studioDesk",quiz:"quizDesk",history:"historyDesk",off:"offDesk"}[view];
+  [$(sec),$("crumb")].forEach(e=>{ e.classList.remove("enter"); void e.offsetWidth; e.classList.add("enter"); });
+  buildNav(); window.scrollTo(0,0);
+}
+function showDesk(){}
+$("backHome").onclick=()=>open("home");
+function saveDraft(){
+  const d={}; for(const f of TOOLS[current].fields){ const el=$("f-"+current+"-"+f.id); if(el) d[f.id]=el.value; }
+  drafts[current]=d;
+}
+function render(){
+  const t=TOOLS[current];
+  $("t-title").textContent=t.title; $("t-lead").textContent=t.lead; $("method").innerHTML=t.method;
+  const box=$("fields"); box.innerHTML="";
+  const selects=[];
+  for(const f of t.fields){
+    const id="f-"+current+"-"+f.id;
+    const wrap=document.createElement("div");
+    const lab=document.createElement("label"); lab.htmlFor=id; lab.textContent=f.label; wrap.append(lab);
+    let el;
+    if(f.type==="textarea"){ el=document.createElement("textarea"); }
+    else if(f.type==="select"){ el=document.createElement("select"); for(const o of f.options){ const op=document.createElement("option"); op.textContent=o; el.append(op);} }
+    else { el=document.createElement("input"); el.type="text"; }
+    el.id=id;
+    const saved=drafts[current]?.[f.id];
+    el.value = saved ?? (f.value ?? (f.options? f.options[0] : ""));
+    wrap.append(el);
+    if(f.type==="select" && f.options.length<=4){
+      el.hidden=true; const seg=document.createElement("div"); seg.className="seg2"; seg.setAttribute("role","group"); seg.setAttribute("aria-label",f.label);
+      f.options.forEach(o=>{ const b=document.createElement("button"); b.type="button"; b.textContent=o; b.setAttribute("aria-pressed",String(el.value===o));
+        b.onclick=()=>{ el.value=o; seg.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b))); }; seg.append(b); });
+      lab.htmlFor=""; lab.id=id+"-lbl"; wrap.append(seg); box.append(wrap);
+    }
+    else if(f.type==="select") selects.push(wrap); else box.append(wrap);
+  }
+  if(selects.length){ const row=document.createElement("div"); row.className="row"; selects.forEach(s=>row.append(s)); box.append(row); }
+  renderExtra(current);
+  const res = results[current];
+  if(res){ $("out").innerHTML=md(res); setStatus("النتيجة","live"); }
+  else { $("out").innerHTML=md(t.example); setStatus("مثال توضيحي"); }
+}
+const results={};
+function setStatus(txt,cls){ const s=$("status"); s.textContent=txt; s.className="chip"+(cls?" "+cls:""); }
+
+const ERR = {
+  rate_limited:"طلبات كتير ورا بعض. استنى دقيقة وجرب تاني.",
+  refused:"الطلب دا اترفض. جرّب تعدّل النص.",
+  prompt_too_large:"النص طويل جداً. قصّره وجرب تاني.",
+  empty_completion:"مفيش رد. بسّط الطلب وجرب تاني."
+};
+
+
+// ===== Trusted sources =====
+const TRUSTED=[
+  {name:"الجهات الرسمية المصرية", sites:["cabinet.gov.eg","sis.gov.eg","presidency.eg","mohp.gov.eg","moe.gov.eg","mohesr.gov.eg"]},
+  {name:"وكالات وصحف موثوقة", sites:["mena.org.eg","ahram.org.eg","youm7.com","almasryalyoum.com","shorouknews.com","reuters.com","bbc.com/arabic","skynewsarabia.com"]},
+  {name:"منصات تدقيق المعلومات", sites:["misbar.com","fatabyyano.net","factuel.afp.com"]}
+];
+const STOP=new Set(["عاجل","جدا","جداً","انشر","قبل","ما","يتحذف","المصدر","الآن","دلوقتي","خبر","خطير","شير","يا","جماعة","السنة","دي","ده","دا","و","في","من","على","إن","ان"]);
+function keywords(t){ return t.replace(/[!؟?،,.:;"'«»()\[\]\-–—…#@*_\/\\|]+/g," ").split(/\s+/).filter(w=>w.length>1 && !STOP.has(w)).slice(0,9).join(" "); }
+function renderExtra(tool,v){
+  const box=$("extra"); if(!box) return;
+  if(tool!=="verify"){ box.innerHTML=""; return; }
+  const claim=(v&&v.claim)||($("f-verify-claim")?.value)||""; const kw=keywords(claim);
+  const g=TRUSTED.map(gr=>({name:gr.name,url:"https://www.google.com/search?q="+encodeURIComponent(kw+" ("+gr.sites.map(x=>"site:"+x).join(" OR ")+")")}));
+  g.push({name:"أداة جوجل لتدقيق الحقائق",url:"https://toolbox.google.com/factcheck/explorer/search/"+encodeURIComponent(kw)+";hl=ar"});
+  box.innerHTML=`<div class="vlinks"><h4>اتأكد بنفسك في المصادر الموثوقة</h4><p>كل زرار بيدوّر على الخبر في نوع واحد من المصادر الموثوقة، ويفتح النتايج في المتصفح.</p><div class="vbtns">${g.map(x=>`<a href="${x.url}" target="_blank" rel="noopener">${ico("verify")}<span>${esc(x.name)}</span></a>`).join("")}</div>
+  <p class="trustnote">${CFG.server?"الأداة بتدوّر لوحدها في المصادر الموثوقة وبتعرضلك الروابط اللي راجعتها.":"في النسخة المجانية الأداة بتحلل النص بس. البحث التلقائي في المصادر بيشتغل لما تربط التطبيق بالسيرفر الخاص."}</p></div>`;
+}
+
+// ===== AI engine =====
+const CFG=Object.assign({server:"",token:"",contact:""},window.MIHBARA_CONFIG||{});
+CFG.server=(CFG.server||"").replace(/\/+$/,"");
+const store={get:k=>{try{return localStorage.getItem(k)||""}catch(e){return ""}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+async function readSSE(r,onDelta,signal,onEv){
+  const ct=(r.headers.get("content-type")||"");
+  if(!ct.includes("event-stream")){
+    const raw=await r.text(); let t=raw;
+    try{ const j=JSON.parse(raw); t=j.choices?.[0]?.message?.content ?? j.content?.[0]?.text ?? j.text ?? raw; }catch(e){}
+    onDelta(String(t)); return;
+  }
+  const reader=r.body.getReader(), dec=new TextDecoder(); let buf="";
+  for(;;){
+    const {done,value}=await reader.read(); if(done) break;
+    buf+=dec.decode(value,{stream:true});
+    let i; while((i=buf.indexOf("\n"))>=0){
+      const line=buf.slice(0,i).trim(); buf=buf.slice(i+1);
+      if(!line.startsWith("data:")) continue;
+      const data=line.slice(5).trim(); if(data==="[DONE]") return;
+      let ev; try{ ev=JSON.parse(data); }catch(e){ continue; }
+      if(ev.type==="content_block_delta"&&ev.delta?.type==="text_delta") onDelta(ev.delta.text);
+      else if(ev.type==="error") throw {code:"upstream_error"};
+      else if(onEv && ev.type==="content_block_start" && ev.content_block){
+        const cb=ev.content_block;
+        if(cb.type==="server_tool_use") onEv({type:"searching",index:ev.index});
+        else if(cb.type==="web_search_tool_result"){ const items=Array.isArray(cb.content)?cb.content.filter(x=>x&&x.url).map(x=>({url:x.url,title:x.title||x.url})):[]; onEv({type:"results",items}); }
+      }
+      else if(onEv && ev.type==="content_block_delta" && ev.delta?.type==="input_json_delta") onEv({type:"query",index:ev.index,part:ev.delta.partial_json||""});
+      else if(onEv && ev.type==="content_block_delta" && ev.delta?.type==="citations_delta" && ev.delta.citation?.url) onEv({type:"cite",url:ev.delta.citation.url,title:ev.delta.citation.title||ev.delta.citation.url});
+      else { const d=ev.choices?.[0]?.delta?.content; if(d) onDelta(d); }
+    }
+  }
+}
+async function viaServer(prompt,signal,onDelta,opts={}){
+  const r=await fetch(CFG.server+"/ai",{method:"POST",signal,headers:{"content-type":"application/json","x-app-token":CFG.token},body:JSON.stringify({prompt,search:!!opts.search})});
+  if(!r.ok) throw {code:r.status===429?"rate_limited":"server_down"};
+  await readSSE(r,onDelta,signal,opts.onEvent);
+}
+async function viaFree(prompt,signal,onDelta){
+  let r;
+  try{ r=await fetch("https://text.pollinations.ai/openai",{method:"POST",signal,headers:{"content-type":"application/json"},body:JSON.stringify({model:"openai",stream:true,private:true,messages:[{role:"user",content:prompt}]})}); }
+  catch(e){ if(e.name==="AbortError") throw e; r=null; }
+  if((!r||!r.ok) && prompt.length<1800){
+    r=await fetch("https://text.pollinations.ai/"+encodeURIComponent(prompt)+"?private=true",{signal});
+  }
+  if(!r||!r.ok) throw {code:r&&r.status===429?"rate_limited":"free_down"};
+  await readSSE(r,onDelta,signal);
+}
+async function sample(prompt,{signal,onText,search,onEvent,fallbackPrompt}={}){
+  let text=""; const inner=new AbortController(); let slow=false; let usedLive=false;
+  if(signal){ if(signal.aborted) inner.abort(); else signal.addEventListener("abort",()=>inner.abort(),{once:true}); }
+  let timer=setTimeout(()=>{ slow=true; inner.abort(); },20000);
+  const onDelta=d=>{ if(timer){ clearTimeout(timer); timer=null; } text+=d; onText&&onText({text}); };
+  const onEv=e=>{ if(timer){ clearTimeout(timer); timer=null; } usedLive=true; onEvent&&onEvent(e); };
+  try{
+    if(CFG.server){
+      try{ await viaServer(prompt,inner.signal,onDelta,{search,onEvent:onEv}); if(search) usedLive=true; }
+      catch(e){ if(e?.name==="AbortError"||text) throw e; usedLive=false; await viaFree(fallbackPrompt||prompt,inner.signal,onDelta); }
+    } else await viaFree(fallbackPrompt||prompt,inner.signal,onDelta);
+  }catch(e){
+    if(timer) clearTimeout(timer);
+    if(slow && !text) throw {code:"slow"};
+    if(e&&e.code) throw Object.assign(e,{text:text||undefined});
+    throw {code:e?.name==="AbortError"?(signal?.aborted?"cancelled":"slow"):"network",text:text||undefined};
+  }
+  if(timer) clearTimeout(timer);
+  if(!text.trim()) throw {code:"empty_completion"};
+  return {text,truncated:false,live:usedLive};
+}
+Object.assign(ERR,{network:"مفيش اتصال بالإنترنت. اتأكد من النت وجرب تاني.",free_down:"الخدمة مشغولة دلوقتي. جرّب كمان دقيقة.",server_down:"السيرفر مش بيرد. جرّب كمان شوية.",upstream_error:"حصل خطأ مؤقت. جرب تاني.",slow:"الخدمة بطيئة دلوقتي. جرّب كمان شوية، أو استخدم أدوات «عُدّة الصحفي» اللي بتشتغل فوراً من غير نت."});
+function refreshKeyState(){ $("note").textContent=""; }
+
+// ===== Legal =====
+const LEGAL={
+privacy:`<p class="upd">آخر تحديث: 10 أكتوبر 2026</p>
+<p>توضح هذه السياسة كيف يتعامل تطبيق «مِحبرة» مع بياناتك. باستخدامك للتطبيق فأنت توافق على ما ورد فيها.</p>
+<h3>1. البيانات التي لا نجمعها</h3>
+<ul><li>لا يتطلب التطبيق إنشاء حساب، ولا نطلب اسمك أو بريدك أو رقم هاتفك.</li><li>لا نستخدم إعلانات ولا أدوات تتبّع أو تحليلات.</li><li>لا نبيع أي بيانات ولا نشاركها لأغراض تسويقية.</li></ul>
+<h3>2. البيانات التي تُعالَج عند الاستخدام</h3>
+<ul><li><b>النصوص التي تكتبها:</b> تُرسل إلى مزوّد خدمة ذكاء اصطناعي خارجي لتوليد النتيجة، ثم تُعرض لك. لا يحتفظ التطبيق بنسخة منها على أي خادم تابع له.</li><li><b>صورة المذيع:</b> عند استخدام وضع الفيديو، تُرسل الصورة والنص إلى مزوّد خدمة توليد فيديو خارجي لإنتاج المقطع.</li><li><b>التحقق من الأخبار:</b> عند استخدام أداة التحقق، يُبحث عن نص الخبر في مواقع الجهات الرسمية ووكالات الأنباء ومنصات تدقيق المعلومات للوصول لمصادر موثوقة.</li><li><b>الصوت:</b> في الوضع المجاني تُقرأ النشرة بمحرّك الصوت المثبّت على جهازك.</li></ul>
+<p>لا تُدخل في التطبيق معلومات شخصية حساسة أو بيانات لا تملك حق مشاركتها.</p>
+<h3>3. ما يُحفظ على جهازك</h3>
+<p>يحفظ التطبيق على جهازك فقط بعض التفضيلات، وصورة المذيع التي اخترتها، وسجل نتائجك ودرجات الاختبارات. لا يُرفع أي منها إلى خوادمنا. يمكنك حذفها في أي وقت من إعدادات الهاتف ← التطبيقات ← مِحبرة ← مسح البيانات.</p>
+<h3>4. مزوّدو الخدمات الخارجيون</h3>
+<p>تخضع معالجة البيانات لدى مزوّدي خدمات الذكاء الاصطناعي وتوليد الفيديو لسياسات الخصوصية الخاصة بهم.</p>
+<h3>5. الأطفال</h3>
+<p>التطبيق موجّه لطلاب الجامعات ومن في حكمهم. لا يُنصح باستخدامه لمن هم دون 13 عامًا إلا تحت إشراف ولي الأمر أو المعلّم.</p>
+<h3>6. التعديلات</h3>
+<p>قد نحدّث هذه السياسة من وقت لآخر، ويظهر تاريخ آخر تحديث في أعلاها.</p>
+<h3>7. التواصل</h3>
+<p>${CFG.contact?`لأي استفسار عن الخصوصية: <span dir="ltr">${CFG.contact}</span>`:"لأي استفسار، تواصل مع فريق مِحبرة."}</p>`,
+terms:`<p class="upd">آخر تحديث: 8 أكتوبر 2026</p>
+<p>باستخدامك تطبيق «مِحبرة» فأنت توافق على الشروط التالية.</p>
+<h3>1. الغرض من التطبيق</h3>
+<p>مِحبرة أداة تعليمية تساعد طلاب الإعلام على التدرّب على كتابة الأخبار والتحقق منها والتدقيق اللغوي والترجمة وإعداد المحتوى والحوارات، والتدرّب عبر الاختبارات.</p>
+<h3>2. دقة المحتوى</h3>
+<ul><li>المحتوى من إنتاج الذكاء الاصطناعي وقد يحتوي على أخطاء أو معلومات غير دقيقة.</li><li>أنت مسؤول عن مراجعة أي معلومة أو رقم أو اقتباس من مصدره الأصلي قبل نشره أو الاعتماد عليه.</li><li>نتيجة أداة «التحقق من الأخبار» مبنية على ما هو منشور في المصادر الموثوقة وقت البحث، وهي استرشادية ولا تُعدّ حكمًا نهائيًا. ارجع دائمًا للروابط الأصلية بنفسك.</li></ul>
+<h3>3. الاستخدام المقبول</h3>
+<p>يُمنع استخدام التطبيق في:</p>
+<ul><li>إنتاج أو نشر أخبار كاذبة أو مضللة أو شائعات.</li><li>انتحال شخصية أي شخص أو جهة، أو إيهام الجمهور بأن المذيع الافتراضي شخص حقيقي.</li><li>استخدام صورة أي شخص دون إذنه، أو صور المشاهير والشخصيات العامة.</li><li>المحتوى المسيء أو المحرّض على الكراهية أو العنف أو المخالف للقانون.</li></ul>
+<h3>4. المذيع الافتراضي</h3>
+<p>عند نشر أي مقطع من إنتاج المذيع الافتراضي، يجب الإفصاح بوضوح أنه مُنتَج بالذكاء الاصطناعي، وعدم إزالة علامة «مذيع افتراضي · AI».</p>
+<h3>5. ملكية المحتوى</h3>
+<p>المحتوى الذي تنتجه باستخدام التطبيق ملك لك، وتتحمّل وحدك مسؤولية استخدامه ونشره. اسم «مِحبرة» وشعارها وتصميمها مملوكة لأصحاب التطبيق.</p>
+<h3>6. توفر الخدمة</h3>
+<p>يُقدَّم التطبيق «كما هو» دون أي ضمانات. قد تتوقف بعض الخدمات أو تتغيّر أو تبطئ في أي وقت.</p>
+<h3>7. حدود المسؤولية</h3>
+<p>لا يتحمّل أصحاب التطبيق أي مسؤولية عن أضرار ناتجة عن استخدام المحتوى المُنتَج أو الاعتماد عليه.</p>
+<h3>8. التعديلات</h3>
+<p>قد نعدّل هذه الشروط في أي وقت، واستمرارك في استخدام التطبيق بعد التعديل يعني موافقتك عليها.</p>`};
+function openLegal(which){
+  $("legalBody").innerHTML=LEGAL[which]; $("legalBody").scrollTop=0;
+  $("lg-privacy").setAttribute("aria-selected",which==="privacy"); $("lg-terms").setAttribute("aria-selected",which==="terms");
+  $("legal").hidden=false;
+}
+$("openPrivacy").onclick=()=>openLegal("privacy"); $("openTerms").onclick=()=>openLegal("terms");
+$("lg-privacy").onclick=()=>openLegal("privacy"); $("lg-terms").onclick=()=>openLegal("terms");
+$("closeLegal").onclick=()=>{$("legal").hidden=true;};
+$("legal").addEventListener("click",e=>{ if(e.target.id==="legal") $("legal").hidden=true; });
+
+const CKEY="mihbara-cache";
+function cacheGet(k){ try{ return (JSON.parse(store.get(CKEY)||"{}"))[k]||null; }catch(e){ return null; } }
+function cacheSet(k,v){ let c; try{ c=JSON.parse(store.get(CKEY)||"{}"); }catch(e){ c={}; } c[k]=v; const keys=Object.keys(c); if(keys.length>40) delete c[keys[0]]; store.set(CKEY,JSON.stringify(c)); }
+const SKEL='<div class="skel"><i></i><i></i><i></i><i></i><i></i><p>بيكتب… النتيجة هتبدأ تظهر حالاً</p></div>';
+let forceNew=false;
+function showResultArea(){ if(innerWidth<820){ const pr=$("out").closest(".proof"); const y=pr.getBoundingClientRect().top+scrollY-70; window.scrollTo({top:y,behavior:"smooth"}); } }
+$("form").addEventListener("submit", async e=>{
+  e.preventDefault();
+  saveDraft();
+  const t=TOOLS[current], v=drafts[current], tool=current;
+  const main = t.fields[0].id;
+  if(!v[main] || !v[main].trim()){ $("note").textContent="اكتب "+t.fields[0].label+" الأول."; $("f-"+tool+"-"+main).focus(); return; }
+  const live=!!(t.search && CFG.server);
+  const prompt=t.prompt(v,live), key=tool+"|"+prompt;
+  renderExtra(tool,v);
+  const hit=!forceNew && cacheGet(key); forceNew=false;
+  if(hit){
+    results[tool]=hit; $("out").innerHTML='<div class="cached">النتيجة دي اتعملت قبل كدا وظهرت فوراً. <button type="button" id="regen">اكتب نسخة جديدة</button></div>'+md(hit);
+    setStatus("النتيجة","live"); $("note").textContent=""; $("regen").onclick=()=>{ forceNew=true; $("form").requestSubmit(); }; showResultArea(); return;
+  }
+  ctl=new AbortController();
+  $("go").disabled=true; $("stop").hidden=false; $("note").textContent="";
+  $("out").innerHTML=SKEL; $("out").classList.add("streaming"); setStatus("جاري الكتابة","live"); showResultArea();
+  let raf=0, latest="", found=[], cited=[], queries={}, qShown="";
+  const live_html=()=> qShown?`<div class="livesearch"><i></i><span>بيدوّر في المصادر الموثوقة: «${esc(qShown)}»</span></div>`:"";
+  const paint=()=>{ if(current!==tool) return; $("out").innerHTML = latest ? live_html()+md(latest) : (qShown? live_html()+SKEL : SKEL); };
+  const onEvent=e=>{
+    if(e.type==="query"){ queries[e.index]=(queries[e.index]||"")+e.part; try{ const q=JSON.parse(queries[e.index]).query; if(q){ qShown=q; paint(); } }catch(_){ } }
+    else if(e.type==="searching"){ if(!qShown){ qShown="…"; paint(); } }
+    else if(e.type==="results"){ for(const it of e.items) if(!found.some(x=>x.url===it.url)) found.push(it); }
+    else if(e.type==="cite"){ if(!cited.some(x=>x.url===e.url)) cited.push({url:e.url,title:e.title}); }
+  };
+  try{
+    const r = await sample(prompt, { signal:ctl.signal, search:t.search, onEvent, fallbackPrompt: t.search? t.prompt(v,false):undefined,
+      onText:({text})=>{ latest=text; if(!raf) raf=requestAnimationFrame(()=>{ raf=0; qShown=""; paint(); }); } });
+    cancelAnimationFrame(raf);
+    if(t.search){
+      if(r.live){
+        const list=[...cited, ...found.filter(f=>!cited.some(c=>c.url===f.url))].slice(0,8);
+        r.text += list.length ? "\n\n### المصادر اللي اتراجعت\n"+list.map(x=>`- [${x.title.replace(/[\[\]]/g,"")}](${x.url})`).join("\n")
+                              : "\n\n### المصادر اللي اتراجعت\nمالقيتش نتايج عن الخبر دا في المصادر الموثوقة.";
+      } else {
+        r.text += "\n\n_تنبيه: التحليل دا من غير بحث مباشر في المصادر. استخدم الأزرار اللي تحت عشان تتأكد بنفسك._".replace(/_/g,"");
+      }
+    }
+    results[tool]=r.text; cacheSet(key,r.text);
+    addHistory(tool, v[main], r.text);
+    if(current===tool){ $("out").innerHTML=md(r.text); setStatus("النتيجة","live"); }
+  }catch(err){
+    cancelAnimationFrame(raf);
+    if(err && err.text) { results[tool]=err.text; if(current===tool) $("out").innerHTML=md(err.text); }
+    else if(current===tool && !results[tool]) { $("out").innerHTML=md(t.example); setStatus("مثال توضيحي"); }
+    if(err?.code!=="cancelled") { $("note").textContent = ERR[err?.code] || "حصل خطأ مؤقت. جرب تاني."; $("note").classList.add("err"); }
+  }finally{
+    $("go").disabled=false; $("stop").hidden=true; $("out").classList.remove("streaming");
+    setTimeout(()=>$("note").classList.remove("err"),6000);
+  }
+});
+$("stop").onclick=()=>ctl?.abort();
+$("fields").addEventListener("input",e=>{ if(current==="verify" && e.target.id==="f-verify-claim") renderExtra("verify"); });
+$("clear").onclick=()=>{ for(const f of TOOLS[current].fields){ const el=$("f-"+current+"-"+f.id); if(el && f.type!=="select") el.value=""; } $("f-"+current+"-"+TOOLS[current].fields[0].id).focus(); };
+$("copy").onclick=async()=>{
+  const txt=$("out").innerText;
+  try{ await navigator.clipboard.writeText(txt); $("copy").textContent="اتنسخ ✓"; }
+  catch(e){ const r=document.createRange(); r.selectNodeContents($("out")); const s=getSelection(); s.removeAllRanges(); s.addRange(r); $("copy").textContent="حدّد واعمل نسخ"; }
+  setTimeout(()=>$("copy").textContent="نسخ",2000);
+};
+
+buildHome(); open("home");
+// ===== Virtual anchor =====
+const DEFAULT_PRESENTER="https://d-id-public-bucket.s3.us-west-2.amazonaws.com/alice.jpg";
+let videoMode=false, busy=false, ttsCtl=null, lastScript="";
+async function checkServer(){
+  if(!CFG.server) return;
+  try{ const r=await fetch(CFG.server+"/status",{headers:{"x-app-token":CFG.token}}); const j=await r.json(); videoMode=!!j.did; }catch(e){ videoMode=false; }
+  $("st-mode").textContent=videoMode?"فيديو بحركة شفايف":"صوت + صورة متحركة";
+}
+async function didFetch(path,opts={}){
+  let r; try{ r=await fetch(CFG.server+"/did"+path,Object.assign({},opts,{headers:Object.assign({"x-app-token":CFG.token},opts.headers||{})})); }catch(e){ throw {code:"network"}; }
+  if(r.ok) return r.json();
+  throw {code:r.status===402?"did_credits":r.status===451?"did_moderation":"did_error"};
+}
+function presenterSrc(){ return store.get("mihbara-photo")||DEFAULT_PRESENTER; }
+function renderPresenters(){
+  const box=$("presenters"); box.innerHTML=""; const mine=store.get("mihbara-photo"); const cur=presenterSrc();
+  const opts=[{src:DEFAULT_PRESENTER,label:"المذيعة الافتراضية",val:""}]; if(mine) opts.push({src:mine,label:"صورتك",val:mine});
+  for(const o of opts){ const b=document.createElement("button"); b.type="button"; b.className="pres"; b.title=o.label; b.setAttribute("aria-label",o.label);
+    b.style.backgroundImage=`url("${o.src}")`; b.setAttribute("aria-pressed",o.src===cur);
+    b.onclick=()=>{ if(o.val) store.set("mihbara-photo",o.val); else { store.set("mihbara-photo-keep",store.get("mihbara-photo")); store.set("mihbara-photo",""); } setPoster(presenterSrc()); renderPresenters(); }; box.append(b); }
+  const keep=store.get("mihbara-photo-keep");
+  if(!mine && keep){ const b=document.createElement("button"); b.type="button"; b.className="pres"; b.title="صورتك"; b.style.backgroundImage=`url("${keep}")`; b.setAttribute("aria-pressed","false"); b.onclick=()=>{ store.set("mihbara-photo",keep); setPoster(keep); renderPresenters(); }; box.append(b); }
+  const up=document.createElement("button"); up.type="button"; up.className="pres"; up.textContent="+"; up.title="ارفع صورة"; up.setAttribute("aria-label","ارفع صورة");
+  up.onclick=()=>$("st-photo").click(); box.append(up);
+}
+function setPoster(u){ $("st-poster").src=u; $("st-poster").hidden=false; $("st-video").hidden=true; }
+function shrink(dataUrl,max){ return new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>{ const c=document.createElement("canvas"); const k=Math.min(1,max/Math.max(im.width,im.height)); c.width=Math.round(im.width*k); c.height=Math.round(im.height*k); c.getContext("2d").drawImage(im,0,0,c.width,c.height); res(c.toDataURL("image/jpeg",.88)); }; im.onerror=rej; im.src=dataUrl; }); }
+$("st-photo").onchange=async e=>{
+  const f=e.target.files[0]; if(!f) return; e.target.value="";
+  try{
+    const raw=await new Promise(res=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.readAsDataURL(f); });
+    const small=await shrink(raw,900);
+    store.set("mihbara-photo",small); store.set("mihbara-photo-did",""); setPoster(small); renderPresenters(); $("st-note").textContent="الصورة اتحطت ✓";
+  }catch(err){ $("st-note").textContent="الصورة دي مش شغالة. جرّب صورة JPG أو PNG فيها وش واضح."; }
+};
+async function didSource(){
+  const mine=store.get("mihbara-photo"); if(!mine) return DEFAULT_PRESENTER;
+  const cached=store.get("mihbara-photo-did"); if(cached) return cached;
+  const blob=await (await fetch(mine)).blob(); const fd=new FormData(); fd.append("image",blob,"anchor.jpg");
+  const j=await didFetch("/images",{method:"POST",body:fd}); store.set("mihbara-photo-did",j.url); return j.url;
+}
+const DIDERR={did_credits:"رصيد خدمة الفيديو خلص.",did_moderation:"الصورة أو النص اترفضوا (ممكن صورة شخص مشهور أو محتوى ممنوع). غيّرهم وجرّب.",did_error:"خدمة الفيديو مش متاحة دلوقتي. هيتقري بالصوت بدلها.",no_tts:"الموبايل محتاج صوت عربي. افتح الإعدادات ← تحويل النص إلى كلام ← نزّل اللغة العربية.",network:"مفيش اتصال بالإنترنت."};
+function prog(on,t){ $("st-progress").hidden=!on; if(t) $("st-ptext").textContent=t; }
+function splitSentences(t){ return t.replace(/\s+/g," ").split(/(?<=[.!؟?،:])\s+/).reduce((a,x)=>{ if(a.length && (a[a.length-1].length<40)) a[a.length-1]+=" "+x; else a.push(x); return a; },[]).filter(x=>x.trim()); }
+// --- TTS: Android bridge or browser speechSynthesis
+const ttsWaiters={};
+window.__tts=(ev,id)=>{ const w=ttsWaiters[id]; if(!w) return; if(ev==="done"){ delete ttsWaiters[id]; w.res(); } else if(ev==="error"){ delete ttsWaiters[id]; w.rej({code:"no_tts"}); } };
+function speakOne(text,i,voice){
+  const male=/Shakir|Hamed/.test(voice), lang=/ar-EG/.test(voice)?"ar-EG":"ar-SA";
+  return new Promise((res,rej)=>{
+    if(window.MihbaraTTS){ const id="u"+Date.now()+"_"+i; ttsWaiters[id]={res,rej}; if(!window.MihbaraTTS.speak(text,lang,id,male?0.82:1.08,0.95)){ delete ttsWaiters[id]; rej({code:"no_tts"}); } return; }
+    if(!("speechSynthesis" in window)) return rej({code:"no_tts"});
+    const u=new SpeechSynthesisUtterance(text); u.lang=lang; u.pitch=male?0.8:1.1; u.rate=0.95;
+    const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.startsWith("ar")); if(v) u.voice=v;
+    u.onend=()=>res(); u.onerror=e=>{ e.error==="interrupted"||e.error==="canceled"?res():rej({code:"no_tts"}); };
+    speechSynthesis.speak(u);
+  });
+}
+function stopSpeech(){ if(ttsCtl) ttsCtl.stopped=true; try{ window.MihbaraTTS?window.MihbaraTTS.stop():speechSynthesis.cancel(); }catch(e){} for(const k in ttsWaiters){ ttsWaiters[k].res(); delete ttsWaiters[k]; } }
+async function performAudio(script){
+  stopSpeech(); const ctl=ttsCtl={stopped:false};
+  const parts=splitSentences(script); $("screen").classList.add("talking"); $("st-stop").hidden=false; $("st-status").textContent="على الهوا"; $("st-status").className="chip live";
+  try{ for(let i=0;i<parts.length&&!ctl.stopped;i++){ $("st-caption").textContent=parts[i]; await speakOne(parts[i],i,$("st-voice").value); } }
+  finally{ $("screen").classList.remove("talking"); $("st-caption").textContent=""; $("st-stop").hidden=true; if(ttsCtl===ctl){ $("st-status").textContent="خلصت"; } $("st-replay").hidden=false; }
+}
+$("st-stop").onclick=()=>{ stopSpeech(); const v=$("st-video"); if(!v.hidden) v.pause(); };
+$("st-replay").onclick=()=>{ const v=$("st-video"); if(!v.hidden){ v.currentTime=0; v.play().catch(()=>{}); } else if(lastScript) performAudio(lastScript).catch(e=>{ $("st-note").textContent=DIDERR[e.code]||"الصوت مش شغال."; }); };
+$("studioForm").addEventListener("submit",async e=>{
+  e.preventDefault(); if(busy) return;
+  const raw=$("st-text").value.trim(); if(!raw){ $("st-note").textContent="اكتب الخبر الأول."; return; }
+  const words=+$("st-len").value; busy=true; stopSpeech(); $("st-go").disabled=true; $("st-note").textContent=""; $("st-open").hidden=true; $("st-replay").hidden=true;
+  $("st-status").textContent="جاري التجهيز"; $("st-status").className="chip live"; setPoster(presenterSrc());
+  try{
+    let script=raw, headline=raw.split(/[.،\n]/)[0].slice(0,90);
+    if($("st-rewrite").checked){
+      prog(true,"بيكتب نص النشرة…");
+      const j=await sampleJSON(`أنت محرر نشرات أخبار. حوّل المادة التالية إلى نص نشرة يقرأه مذيع بصوت عالٍ، بالعربية الفصحى المبسطة، في حدود ${words} كلمة. ابدأ بتحية قصيرة باسم «مِحبرة نيوز». جمل قصيرة، بدون رموز أو عناوين أو تنسيق، وبدون أي معلومة غير موجودة في المادة. ثم اكتب عنواناً قصيراً للشريط الإخباري (أقل من 10 كلمات).
+
+المادة:
+${raw}
+
+رد بـ JSON فقط بهذا الشكل: {"script":"...","headline":"..."}`);
+      script=String(j.script||"").trim()||raw; headline=String(j.headline||headline).trim();
+    }
+    lastScript=script; $("st-script").textContent=script; $("st-headline").textContent=headline; $("st-share").hidden=false;
+    addHistory("studio", headline, "### "+headline+"\n"+script);
+    if(videoMode){
+      try{
+        prog(true,"المذيع بيسجّل… (ممكن ياخد دقيقة)");
+        const src=await didSource();
+        const t=await didFetch("/talks",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({source_url:src,script:{type:"text",input:script.slice(0,3000),provider:{type:"microsoft",voice_id:$("st-voice").value}},config:{stitch:true}})});
+        let r,tries=0;
+        do{ await new Promise(z=>setTimeout(z,3000)); r=await didFetch("/talks/"+t.id); tries++; prog(true,r.status==="started"?"بيحرّك الوش ويركّب الصوت…":"في الطابور…"); }
+        while(r.status!=="done"&&r.status!=="error"&&r.status!=="rejected"&&tries<100);
+        if(r.status!=="done") throw {code:"did_error"};
+        const v=$("st-video"); v.src=r.result_url; v.hidden=false; $("st-poster").hidden=true; prog(false);
+        $("st-open").href=r.result_url; $("st-open").hidden=false; $("st-replay").hidden=false; $("st-status").textContent="على الهوا"; try{ await v.play(); }catch(_){ }
+        return;
+      }catch(err){ if(err?.code==="did_moderation"){ throw err; } $("st-note").textContent=DIDERR[err?.code]||DIDERR.did_error; }
+    }
+    prog(false);
+    await performAudio(script);
+  }catch(err){
+    prog(false); $("st-status").textContent="جاهز"; $("st-status").className="chip";
+    $("st-note").textContent=DIDERR[err?.code]||ERR[err?.code]||"حصل خطأ. جرّب تاني.";
+  }finally{ busy=false; $("st-go").disabled=false; }
+});
+async function sampleJSON(prompt){
+  const {text}=await sample(prompt);
+  const a=text.indexOf("{"), b=text.lastIndexOf("}");
+  try{ return JSON.parse(text.slice(a,b+1)); }catch(e){ return {script:text.replace(/[{}"]/g,"")}; }
+}
+setPoster(presenterSrc()); renderPresenters(); checkServer();
+
+
+// ===== Toast, share, copy =====
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>t.hidden=true,2200); }
+async function copyText(txt){ try{ await navigator.clipboard.writeText(txt); toast("اتنسخ ✓"); return true; }catch(e){ try{ const ta=document.createElement("textarea"); ta.value=txt; document.body.append(ta); ta.select(); document.execCommand("copy"); ta.remove(); toast("اتنسخ ✓"); return true; }catch(_){ toast("مقدرتش أنسخ"); return false; } } }
+async function shareText(txt,title){
+  const body=(title?title+"\n\n":"")+txt.trim()+"\n\n— من تطبيق مِحبرة";
+  if(window.MihbaraShare){ try{ window.MihbaraShare.share(body); return; }catch(e){} }
+  if(navigator.share){ try{ await navigator.share({text:body}); return; }catch(e){ if(e.name==="AbortError") return; } }
+  copyText(body);
+}
+$("share").onclick=()=>shareText($("out").innerText, TOOLS[current]?.name);
+$("st-share").onclick=()=>shareText($("st-headline").textContent+"\n\n"+$("st-script").textContent,"نشرة مِحبرة نيوز");
+
+// ===== History =====
+const HKEY="mihbara-history";
+function loadH(){ try{ return JSON.parse(store.get(HKEY)||"[]"); }catch(e){ return []; } }
+function saveH(a){ store.set(HKEY, JSON.stringify(a.slice(0,60))); }
+function addHistory(tool,input,text){
+  const title=String(input||"").replace(/\s+/g," ").trim().slice(0,80)||toolMeta(tool)?.name||"";
+  const a=loadH(); a.unshift({id:Date.now()+"_"+Math.random().toString(36).slice(2,6),tool,title,text,at:Date.now()}); saveH(a);
+}
+function fmtDate(t){ try{ return new Date(t).toLocaleString("ar-EG",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"}); }catch(e){ return ""; } }
+let clearArmed=false;
+function renderHistory(){
+  const q=$("h-search").value.trim(); const box=$("hlist"); box.innerHTML="";
+  const a=loadH().filter(x=>!q||x.title.includes(q)||x.text.includes(q));
+  $("h-clear").hidden=!loadH().length;
+  if(!a.length){ box.innerHTML=`<div class="empty"><b>${q?"مفيش نتايج للبحث دا":"السجل فاضي"}</b>${q?"جرّب كلمة تانية.":"أي نتيجة تطلعها من الأدوات هتتحفظ هنا لوحدها، وتقدر ترجعلها وتشاركها."}</div>`; return; }
+  for(const it of a){ const b=document.createElement("button"); b.type="button"; b.className="hitem";
+    b.innerHTML=`<span class="ic">${ico(it.tool)}</span><div><b></b><span></span></div>`; tintEl(b,it.tool);
+    b.querySelector("b").textContent=it.title; b.querySelector("div span").textContent=(toolMeta(it.tool)?.name||"")+" · "+fmtDate(it.at);
+    b.onclick=()=>openViewer(it.id); box.append(b); }
+}
+$("h-search").addEventListener("input",renderHistory);
+$("h-clear").onclick=()=>{ if(!clearArmed){ clearArmed=true; $("h-clear").textContent="متأكد؟ اضغط تاني"; setTimeout(()=>{clearArmed=false;$("h-clear").textContent="مسح السجل";},3000); return; } saveH([]); clearArmed=false; $("h-clear").textContent="مسح السجل"; renderHistory(); toast("السجل اتمسح"); };
+let viewing=null, delArmed=false;
+function openViewer(id){
+  const it=loadH().find(x=>x.id===id); if(!it) return; viewing=it; delArmed=false; $("v-del").textContent="حذف";
+  $("v-title").textContent=toolMeta(it.tool)?.name||"نتيجة"; $("v-body").innerHTML=md(it.text); $("v-body").scrollTop=0; $("viewer").hidden=false;
+}
+$("v-close").onclick=()=>$("viewer").hidden=true;
+$("viewer").addEventListener("click",e=>{ if(e.target.id==="viewer") $("viewer").hidden=true; });
+$("v-copy").onclick=()=>copyText($("v-body").innerText);
+$("v-share").onclick=()=>shareText($("v-body").innerText,$("v-title").textContent);
+$("v-del").onclick=()=>{ if(!delArmed){ delArmed=true; $("v-del").textContent="متأكد؟"; return; } saveH(loadH().filter(x=>x.id!==viewing.id)); $("viewer").hidden=true; renderHistory(); toast("اتحذفت"); };
+function updateStats(){ const n=loadH().length; $("st-count").textContent=n?n.toLocaleString("ar-EG"):"—"; const b=store.get("mihbara-best"); $("st-best").textContent=b?(+b).toLocaleString("ar-EG")+"٪":"—"; }
+
+// ===== Theme =====
+function effectiveDark(){ const t=document.documentElement.dataset.theme; return t? t==="dark" : matchMedia("(prefers-color-scheme: dark)").matches; }
+function applyTheme(t){ if(t) document.documentElement.dataset.theme=t; else delete document.documentElement.dataset.theme; $("themeBtn").innerHTML=ico(effectiveDark()?"sun":"moon"); $("themeBtn").setAttribute("aria-label",effectiveDark()?"الوضع النهاري":"الوضع الليلي"); try{ window.MihbaraUI&&window.MihbaraUI.setDark(effectiveDark()); }catch(e){} }
+$("themeBtn").onclick=()=>{ const t=effectiveDark()?"light":"dark"; store.set("mihbara-theme",t); applyTheme(t); };
+applyTheme(store.get("mihbara-theme"));
+try{ matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>applyTheme(store.get("mihbara-theme"))); }catch(e){}
+
+// ===== Welcome =====
+const SLIDES=[
+  {h:"أهلاً بيك في مِحبرة",p:"مساعدك الصحفي الذكي. معمول لطلاب الإعلام عشان تتدرب على شغل غرفة الأخبار الحقيقي."},
+  {h:"14 أداة في مكان واحد",p:"",feat:[["news","اكتب خبر أو مقال أو سكريبت، ودقّق وترجم"],["verify","اكشف الشائعات وجهّز أسئلة حوارك"],["prompter","عُدّة صحفي كاملة بتشتغل من غير نت"]]},
+  {h:"اتعلّم وانت بتشتغل",p:"",feat:[["studio","مذيع افتراضي بيقرا نشرتك بصوت"],["quiz","أكتر من 35 سؤال تدريبي بدرجة وشرح"],["history","كل نتايجك محفوظة وتقدر تشاركها"]]}
+];
+let wi=0;
+function renderWelcome(){
+  const s=SLIDES[wi]; const box=$("w-slide");
+  box.innerHTML=`<h2></h2>${s.p?"<p></p>":""}${s.feat?'<div class="feat">'+s.feat.map(f=>`<div><span class="ic">${ico(f[0])}</span><span></span></div>`).join("")+"</div>":""}`;
+  box.querySelector("h2").textContent=s.h; if(s.p) box.querySelector("p").textContent=s.p;
+  if(s.feat) box.querySelectorAll(".feat div > span:last-child").forEach((el,i)=>el.textContent=s.feat[i][1]);
+  $("w-dots").innerHTML=SLIDES.map((_,i)=>`<i class="${i===wi?"on":""}"></i>`).join("");
+  $("w-next").textContent= wi===SLIDES.length-1 ? "يلا نبدأ" : "التالي"; $("w-skip").hidden = wi===SLIDES.length-1;
+}
+function closeWelcome(){ $("welcome").hidden=true; store.set("mihbara-welcomed","1"); }
+$("w-next").onclick=()=>{ if(wi<SLIDES.length-1){ wi++; renderWelcome(); } else closeWelcome(); };
+$("w-skip").onclick=closeWelcome;
+$("openTour").onclick=()=>{ wi=0; renderWelcome(); $("welcome").hidden=false; };
+if(!store.get("mihbara-welcomed")){ renderWelcome(); $("welcome").hidden=false; }
+
+// ===== Quiz =====
+const BANK=[
+  {t:"b",q:"إيه المقصود بأسلوب «الهرم المقلوب» في كتابة الخبر؟",options:["ترتيب المعلومات من الأهم للأقل أهمية","ترتيب الأحداث حسب وقت حدوثها","البدء بخلفية الحدث ثم الجديد","البدء برأي الكاتب ثم الوقائع"],answer:0,explain:"القارئ ممكن يوقف في أي سطر، فلازم أهم معلومة تكون في الأول."},
+  {t:"b",q:"أي من دول مش من الأسئلة الأساسية اللي بيجاوب عليها الخبر؟",options:["مين؟","إمتى؟","إيه رأي المحرر؟","فين؟"],answer:2,explain:"الخبر بينقل الوقائع: مين، عمل إيه، فين، إمتى، ليه، وإزاي. رأي المحرر مكانه المقال."},
+  {t:"e",q:"عبارة «مسؤول رفض ذكر اسمه» مثال على:",options:["مصدر رسمي معلن","مصدر مُجهَّل","شاهد عيان","وثيقة رسمية"],answer:1,explain:"المصدر المجهّل مقبول في حالات محدودة، بس لازم الصحفي يتحقق منه ويقلل الاعتماد عليه."},
+  {t:"v",q:"«التحقق الجانبي» (Lateral Reading) معناه:",options:["قراءة الخبر كله بتركيز","مقارنة العنوان بالصورة","الخروج من الصفحة والبحث عن الناشر ومصادر تانية","سؤال الأصدقاء عن رأيهم"],answer:2,explain:"المدققين المحترفين مابيحكموش على الخبر من جوّه، بيطلعوا برّه يشوفوا مين الناشر ومين نقل الخبر."},
+  {t:"v",q:"أي من دول من علامات الأخبار المضللة؟",options:["ذكر اسم المصدر ومنصبه","وجود رابط لبيان رسمي","عبارات زي «انشر قبل ما يتحذف»","تاريخ نشر واضح"],answer:2,explain:"الاستعجال المصطنع بيضغط عليك تشارك من غير تفكير، ودي من أشهر حيل الشائعات."},
+  {t:"f",q:"الفرق الأساسي بين الخبر ومقال الرأي:",options:["الخبر أطول دايماً","الخبر بينقل الوقائع من غير رأي الكاتب","المقال مابيحتاجش أدلة","مافيش فرق"],answer:1,explain:"الخبر محايد وبينقل الوقائع، والمقال بيعبّر عن رأي لكن لازم يكون مدعوم بأدلة."},
+  {t:"v",q:"البحث العكسي عن الصور بيستخدم عشان:",options:["تحسين جودة الصورة","معرفة أول ظهور للصورة وسياقها الأصلي","تغيير مقاس الصورة","إضافة علامة مائية"],answer:1,explain:"صور كتير بتتنشر في غير سياقها. البحث العكسي بيوريك الصورة اتنشرت فين وإمتى لأول مرة."},
+  {t:"r",q:"لما تكتب للإذاعة (الكتابة للأذن)، الأفضل:",options:["جمل طويلة مليانة أرقام","جمل قصيرة ورقم واحد في الجملة","استخدام اختصارات كتير","الاعتماد على الجداول"],answer:1,explain:"المستمع مايقدرش يرجع يقرا تاني، فالجملة لازم تكون قصيرة وواضحة من أول مرة."},
+  {t:"e",q:"«حق الرد» في أخلاقيات الإعلام معناه:",options:["حق الصحفي في الرد على النقد","إتاحة الفرصة لمن يُتهم أو يُنتقد إنه يرد","حق الجمهور في التعليق","حق الجريدة في رفض الردود"],answer:1,explain:"العدالة المهنية بتفرض إنك تسمع الطرف التاني قبل النشر، وتنشر رده."},
+  {t:"d",q:"«الخطّاف» (Hook) في الفيديو القصير هو:",options:["آخر جملة في الفيديو","أول ثواني بتشد المشاهد يكمّل","الموسيقى الخلفية","الهاشتاجات"],answer:1,explain:"أغلب المشاهدين بيقرروا يكملوا ولا لأ في أول 3 ثواني، عشان كدا الخطّاف أهم جزء."}
+,
+  {t:"b",q:"الـ «Lead» أو مقدمة الخبر هي:",options:["آخر فقرة في الخبر","أول فقرة وبتلخص أهم ما في الخبر","عنوان الخبر","تعليق الصورة"],answer:1,explain:"المقدمة لازم تجاوب على أهم الأسئلة في جملة أو اتنين، عشان القارئ يفهم الخبر حتى لو ماكملش."},
+  {t:"b",q:"«الحداثة» كقيمة إخبارية معناها:",options:["الحدث جديد وقريب زمنياً","الحدث في مكان بعيد","الحدث فيه شخصية مشهورة","الحدث غريب"],answer:0,explain:"كل ما الحدث أحدث، كل ما زادت قيمته الإخبارية. خبر النهارده أهم من خبر الأسبوع اللي فات."},
+  {t:"b",q:"قيمة «القرب» في الأخبار معناها:",options:["الخبر قصير","الحدث قريب من الجمهور جغرافياً أو نفسياً","الصحفي قريب من المصدر","الخبر اتنشر بسرعة"],answer:1,explain:"الناس بتهتم أكتر بالأحداث اللي في بلدها أو اللي بتمس حياتها مباشرة."},
+  {t:"b",q:"العنوان الجيد للخبر:",options:["طويل وفيه كل التفاصيل","قصير ودقيق وغالباً فيه فعل","فيه علامات تعجب كتير","بيحتوي على رأي الصحفي"],answer:1,explain:"العنوان بيلخص الخبر بدقة في كلمات قليلة، والفعل بيديله حيوية."},
+  {t:"b",q:"الفرق بين الخبر الصحفي والإعلان:",options:["مافيش فرق","الخبر هدفه الإعلام، والإعلان مدفوع للترويج","الإعلان دايماً أصدق","الخبر لازم يكون فيه صورة"],answer:1,explain:"لازم يكون فيه فصل واضح بين التحرير والإعلان، والمحتوى المدفوع لازم يتكتب عليه إنه إعلان."},
+  {t:"v",q:"أول حاجة تعملها لما يوصلك خبر صادم على واتساب:",options:["تشاركه بسرعة","تتأكد من مصدره قبل ما تشاركه","تصدّقه لو صاحبك اللي باعته","تمسحه من غير ما تقراه"],answer:1,explain:"الثقة في اللي بعتلك الخبر مش دليل على صحته. دوّر على المصدر الأصلي الأول."},
+  {t:"v",q:"«التزييف العميق» (Deepfake) هو:",options:["خبر قديم","فيديو أو صوت معدّل بالذكاء الاصطناعي عشان يبان حقيقي","صورة بجودة ضعيفة","تعليق ساخر"],answer:1,explain:"علاماته أحياناً: حركة شفايف مش متطابقة، رمش غريب، أو إضاءة غير طبيعية. والأهم: دوّر على المصدر."},
+  {t:"v",q:"صورة قديمة اتنشرت على إنها من حدث النهارده تعتبر:",options:["خبر صحيح","تضليل بإخراج المحتوى من سياقه","سبق صحفي","أرشيف مسموح"],answer:1,explain:"الصورة نفسها حقيقية، بس استخدامها في سياق غلط بيضلل الجمهور."},
+  {t:"e",q:"نشر صور واضحة لضحايا حادث من غير إذن:",options:["سبق صحفي مطلوب","مخالفة لاحترام الخصوصية والكرامة الإنسانية","حق الجمهور الكامل","مسموح في كل الأحوال"],answer:1,explain:"المواثيق المهنية بتطلب مراعاة مشاعر الضحايا وأسرهم وعدم استغلال الألم."},
+  {t:"e",q:"مثال على «تضارب المصالح» عند الصحفي:",options:["إنه يكتب عن شركة بيشتغل فيها أو بياخد منها هدايا","إنه يكتب في الرياضة","إنه يعمل حوار مع وزير","إنه يغطي حدث في مدينته"],answer:0,explain:"أي مصلحة شخصية ممكن تأثر على حيادك لازم تفصح عنها أو تبعد عن التغطية."},
+  {t:"e",q:"لو اكتشفت غلطة في خبر اتنشر، الصح:",options:["تسيبه زي ما هو","تمسحه من غير ما تقول","تنشر تصحيح واضح","تلوم المصدر"],answer:2,explain:"التصحيح العلني بيحافظ على ثقة الجمهور، وده جزء أساسي من المهنية."},
+  {t:"e",q:"نسب كلام لشخص ماقالوش يعتبر:",options:["إعادة صياغة","تلفيق","تلخيص","اقتباس غير مباشر"],answer:1,explain:"التلفيق من أخطر الأخطاء المهنية، وممكن ينهي مستقبل الصحفي."},
+  {t:"e",q:"«حماية المصادر» معناها:",options:["عدم كشف هوية المصدر اللي طلب إخفاء اسمه","نشر رقم تليفون المصدر","عدم الكلام مع أي مصدر","تسجيل المكالمات من غير علمه"],answer:0,explain:"الوعد للمصدر أمانة. ومن غير الحماية دي، المصادر مش هتثق في الصحفيين."},
+  {t:"f",q:"التحقيق الاستقصائي بيتميز بـ:",options:["السرعة في النشر","البحث العميق وكشف معلومات مخفية بالأدلة","إنه دايماً قصير","إنه بيعبّر عن رأي الكاتب"],answer:1,explain:"التحقيق بياخد وقت طويل، وبيعتمد على وثائق ومصادر متعددة عشان يكشف حاجة مستخبية."},
+  {t:"f",q:"«الفيتشر» أو القصة الإنسانية بتركز على:",options:["الأرقام والإحصاءات فقط","الجانب الإنساني والتفاصيل","التصريحات الرسمية","الإعلانات"],answer:1,explain:"الفيتشر بيقرّب القضية للقارئ من خلال قصة شخص وتفاصيل حياته."},
+  {t:"f",q:"التقرير الصحفي مقارنة بالخبر:",options:["أقصر","أوسع، وفيه خلفيات وتفاصيل وآراء مصادر","مافيهوش مصادر","مابيتنشرش"],answer:1,explain:"الخبر بيقول إيه اللي حصل، والتقرير بيشرح الحدث بعمق أكبر ويجيب آراء متعددة."},
+  {t:"f",q:"الحوار الصحفي الناجح بيبدأ غالباً بـ:",options:["أصعب سؤال","أسئلة مفتوحة تخلي الضيف يحكي","سؤال شخصي محرج","أسئلة بإجابة نعم أو لا"],answer:1,explain:"البداية المريحة بتبني ثقة مع الضيف، والأسئلة الصعبة بتيجي في النص."},
+  {t:"f",q:"عمود الرأي بيعبّر عن:",options:["رأي الجريدة الرسمي دايماً","رأي كاتبه الشخصي","الأخبار العاجلة","بيانات الحكومة"],answer:1,explain:"عشان كدا بيتنشر باسم كاتبه، وبيتفصل عن صفحات الأخبار."},
+  {t:"d",q:"الـ SEO في الصحافة الرقمية معناه:",options:["تصميم الموقع","تحسين ظهور المحتوى في محركات البحث","عدد المتابعين","نوع من الإعلانات"],answer:1,explain:"عنوان واضح وكلمات مفتاحية مناسبة بيساعدوا القراء يلاقوا خبرك."},
+  {t:"d",q:"الـ «Clickbait» هو:",options:["عنوان مبالغ فيه لجذب النقرات ومش بيعكس المحتوى","عنوان قصير ودقيق","رابط لمصدر رسمي","صورة الخبر"],answer:0,explain:"بيجيب نقرات بسرعة، بس بيخسّرك ثقة الجمهور على المدى الطويل."},
+  {t:"d",q:"الصحافة متعددة الوسائط (Multimedia) معناها:",options:["الكتابة في أكتر من جريدة","تقديم القصة بنص وصورة وفيديو وجرافيك","الترجمة لأكتر من لغة","النشر في أكتر من بلد"],answer:1,explain:"كل وسيط بيضيف بُعد: الفيديو للمشهد، الجرافيك للأرقام، والنص للتفاصيل."},
+  {t:"d",q:"«الترند» على السوشيال ميديا هو:",options:["موضوع منتشر بكثافة في وقت معين","خبر رسمي","إعلان مدفوع","حساب موثّق"],answer:0,explain:"الصحفي بيتابع الترند، بس لازم يتحقق منه قبل ما يبني عليه خبر."},
+  {t:"d",q:"«صحافة المواطن» معناها:",options:["صحافة الحكومة","نشر الأفراد العاديين للأخبار والصور من موقع الحدث","صحافة رياضية","جرائد مطبوعة فقط"],answer:1,explain:"مصدر مهم وسريع، بس محتواها محتاج تحقق قبل الاعتماد عليه."},
+  {t:"r",q:"الـ «ساوند بايت» (Sound bite) هو:",options:["موسيقى النشرة","مقطع قصير من تصريح بصوت المصدر","مؤثر صوتي","إعلان إذاعي"],answer:1,explain:"بيدي التقرير مصداقية وحيوية، لأن الجمهور بيسمع المصدر بنفسه."},
+  {t:"r",q:"الـ «ستاند أب» في التقرير التلفزيوني هو:",options:["ظهور المراسل قدام الكاميرا في موقع الحدث","وقوف المذيع في الاستوديو","فاصل إعلاني","نهاية النشرة"],answer:0,explain:"بيأكد إن المراسل موجود في المكان، وبيستخدم غالباً للانتقال بين أجزاء التقرير."},
+  {t:"r",q:"جهاز «التلقين» أو الأوتوكيو (Teleprompter):",options:["بيسجل الصوت","بيعرض النص قدام المذيع عشان يقراه وهو باصص للكاميرا","بيضبط الإضاءة","بيعدّل الصور"],answer:1,explain:"جرّبه بنفسك من أداة «التلقين» في عُدّة الصحفي."},
+  {t:"r",q:"معدل القراءة المريح في النشرة العربية تقريباً:",options:["50 كلمة في الدقيقة","حوالي 120 كلمة في الدقيقة","300 كلمة في الدقيقة","500 كلمة في الدقيقة"],answer:1,explain:"يعني حوالي كلمتين في الثانية. استخدم «عدّاد الكلمات والوقت» عشان تحسب مدة نشرتك."},
+  {t:"r",q:"الـ «فويس أوفر» (Voice over) هو:",options:["صوت المذيع على صور من غير ما يظهر","ظهور الضيف","الموسيقى التصويرية","تصفيق الجمهور"],answer:0,explain:"بيستخدم كتير في التقارير: الصورة بتحكي، والصوت بيشرح."}
+];
+let quiz=null;
+function qzUI(){ const custom=$("qz-topic").value==="custom"; $("qz-customWrap").hidden=!custom; $("qz-aiWrap").hidden=custom; $("qz-levelWrap").hidden=!(custom||$("qz-ai").checked); }
+$("qz-topic").onchange=qzUI; $("qz-ai").onchange=qzUI;
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function validQs(a){ return Array.isArray(a)&&a.filter(x=>x&&typeof x.q==="string"&&Array.isArray(x.options)&&x.options.length>=2&&Number.isInteger(+x.answer)&&+x.answer<x.options.length).map(x=>({q:x.q,options:x.options.map(String),answer:+x.answer,explain:String(x.explain||"")})); }
+$("quizSetup").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const topic=$("qz-topic").value==="custom"?$("qz-custom").value.trim():$("qz-topic").value;
+  if(!topic){ $("qz-note").textContent="اكتب الموضوع الأول."; return; }
+  const n=+$("qz-count").value, lvl=$("qz-level").value;
+  $("qz-go").disabled=true; $("qz-note").textContent="بيجهّز الأسئلة… (ممكن ياخد لحظات)";
+  let qs=null, offline=false;
+  const TOPICMAP={"أساسيات الخبر والهرم المقلوب":"b","التحقق من الأخبار ومكافحة الشائعات":"v","أخلاقيات العمل الإعلامي":"e","فنون التحرير الصحفي (الخبر، التقرير، المقال، التحقيق)":"f","الإعلام الرقمي والسوشيال ميديا":"d","الإذاعة والتلفزيون والكتابة للأذن":"r"};
+  const useAI = $("qz-topic").value==="custom" || $("qz-ai").checked;
+  if(!useAI){
+    const tag=TOPICMAP[topic]; let pool=shuffle(tag?BANK.filter(x=>x.t===tag):BANK);
+    if(pool.length<n) pool=pool.concat(shuffle(BANK.filter(x=>!pool.includes(x))));
+    quiz={topic:topic==="mix"?"خليط من كل المواضيع":topic,qs:pool.slice(0,n),i:0,score:0,answered:false,offline:true};
+    $("qz-go").disabled=false; $("qz-note").textContent=""; $("quizSetup").hidden=true; $("quizPlay").hidden=false; renderQ(); return;
+  }
+  try{
+    const {text}=await sample(`أنشئ اختباراً من ${n} أسئلة جديدة اختيار من متعدد لطلاب كلية الإعلام عن: ${topic}. المستوى: ${lvl}.
+لكل سؤال 4 اختيارات وإجابة صحيحة واحدة فقط، ونوّع مكان الإجابة الصحيحة. اكتب الأسئلة والاختيارات بالعربية الفصحى المبسطة، والشرح جملة أو اتنين بالعامية المصرية.
+رد بـ JSON فقط بدون أي كلام تاني، بهذا الشكل:
+[{"q":"السؤال","options":["أ","ب","ج","د"],"answer":0,"explain":"الشرح"}]
+حيث answer هو رقم الاختيار الصحيح (يبدأ من 0).`);
+    const a=text.indexOf("["), b=text.lastIndexOf("]"); qs=validQs(JSON.parse(text.slice(a,b+1)));
+    if(!qs||qs.length<3) throw 0;
+    qs=qs.slice(0,n);
+  }catch(err){
+    if($("qz-topic").value==="custom"){ $("qz-go").disabled=false; $("qz-note").textContent="مقدرتش أجهّز أسئلة دلوقتي. جرّب تاني أو اختار موضوع من القايمة."; return; }
+    qs=shuffle(TOPICMAP[topic]?BANK.filter(x=>x.t===TOPICMAP[topic]):BANK).slice(0,n); offline=true; toast("مافيش نت، استخدمت الأسئلة الجاهزة");
+  }
+  quiz={topic:topic==="mix"?"خليط من كل المواضيع":topic,qs,i:0,score:0,answered:false,offline};
+  $("qz-go").disabled=false; $("qz-note").textContent=""; $("quizSetup").hidden=true; $("quizPlay").hidden=false; renderQ();
+});
+function renderQ(){
+  const box=$("quizPlay"), q=quiz.qs[quiz.i], L="أبجد";
+  box.innerHTML=`<div class="qnum"><span>سؤال ${(quiz.i+1).toLocaleString("ar-EG")} من ${quiz.qs.length.toLocaleString("ar-EG")}</span><span>${quiz.offline?"":"أسئلة جديدة بالذكاء الاصطناعي"}</span></div>
+  <div class="qbar"><i style="width:${(quiz.i/quiz.qs.length)*100}%"></i></div><p class="qtext"></p><div class="opts"></div><div class="explain" hidden></div>
+  <div class="actions"><button class="btn" type="button" id="qz-next" hidden>${quiz.i===quiz.qs.length-1?"شوف النتيجة":"السؤال اللي بعده"}</button><button class="btn ghost" type="button" id="qz-quit">إنهاء</button></div>`;
+  box.querySelector(".qtext").textContent=q.q;
+  const opts=box.querySelector(".opts");
+  q.options.forEach((o,k)=>{ const b=document.createElement("button"); b.type="button"; b.className="opt"; b.innerHTML=`<i>${L[k]||k+1}</i><span></span>`; b.querySelector("span").textContent=o;
+    b.onclick=()=>{ if(quiz.answered) return; quiz.answered=true; const ok=k===q.answer; if(ok) quiz.score++;
+      opts.querySelectorAll(".opt").forEach((x,j)=>{ x.disabled=true; if(j===q.answer) x.classList.add("right"); else if(j===k) x.classList.add("wrong"); });
+      const ex=box.querySelector(".explain"); ex.hidden=false; ex.textContent=(ok?"إجابة صح ✓ ":"مش دي ✗ ")+q.explain; $("qz-next").hidden=false; $("qz-next").focus(); };
+    opts.append(b); });
+  $("qz-next").onclick=()=>{ quiz.i++; quiz.answered=false; if(quiz.i<quiz.qs.length) renderQ(); else finishQuiz(); };
+  $("qz-quit").onclick=resetQuiz;
+}
+function finishQuiz(){
+  const pct=Math.round(quiz.score/quiz.qs.length*100), best=+store.get("mihbara-best")||0;
+  if(pct>best) store.set("mihbara-best",String(pct));
+  const msg=pct>=90?"ممتاز! انت جاهز للشغل في غرفة الأخبار.":pct>=70?"شغل كويس جداً، راجع الأسئلة اللي غلطت فيها.":pct>=50?"بداية حلوة، محتاج مراجعة شوية.":"ولا يهمك، راجع الشرح وجرّب تاني.";
+  const summary=`نتيجة اختبار: ${quiz.topic}\nالدرجة: ${quiz.score} من ${quiz.qs.length} (${pct}%)\n\n`+quiz.qs.map((q,i)=>`${i+1}. ${q.q}\nالإجابة: ${q.options[q.answer]}`).join("\n\n");
+  addHistory("quiz",`اختبار: ${quiz.topic} — ${pct}%`,summary);
+  const box=$("quizPlay");
+  box.innerHTML=`<div class="score"><div class="ring" style="--p:${pct}"><b>${pct.toLocaleString("ar-EG")}٪</b></div><h2 style="font-family:var(--display);margin:6px 0 0"></h2><p class="lead" style="margin:0"></p></div>
+  <div class="actions" style="justify-content:center"><button class="btn" type="button" id="qz-again">اختبار جديد</button><button class="btn ghost" type="button" id="qz-share">شارك النتيجة</button></div>`;
+  box.querySelector("h2").textContent=`${quiz.score.toLocaleString("ar-EG")} من ${quiz.qs.length.toLocaleString("ar-EG")}`; box.querySelector(".lead").textContent=msg;
+  $("qz-again").onclick=resetQuiz; $("qz-share").onclick=()=>shareText(`جبت ${pct}% في اختبار «${quiz.topic}» على مِحبرة! 🎯`);
+}
+function resetQuiz(){ quiz=null; $("quizPlay").hidden=true; $("quizSetup").hidden=false; }
+
+
+// ===== Offline kit =====
+const GLOSSARY=[
+ ["الهرم المقلوب","Inverted Pyramid","ترتيب معلومات الخبر من الأهم للأقل أهمية.","تحرير"],
+ ["المقدمة","Lead","أول فقرة في الخبر، وبتلخص أهم ما فيه.","تحرير"],
+ ["العنوان","Headline","سطر قصير يلخص الخبر ويشد القارئ.","تحرير"],
+ ["العنوان الفرعي","Subheadline","سطر تحت العنوان الرئيسي بيكمّل المعنى.","تحرير"],
+ ["المتن","Body","باقي الخبر بعد المقدمة، وفيه التفاصيل.","تحرير"],
+ ["القيم الإخبارية","News Values","المعايير اللي بتحدد أهمية الخبر: الحداثة، القرب، الأهمية، الشهرة، الغرابة، الصراع.","تحرير"],
+ ["السبق الصحفي","Scoop","نشر خبر مهم قبل أي وسيلة تانية.","تحرير"],
+ ["الحصري","Exclusive","مادة منشورة عند وسيلة واحدة بس.","تحرير"],
+ ["المصدر المُجهّل","Anonymous Source","مصدر بيدي معلومات بشرط عدم ذكر اسمه.","مصادر"],
+ ["المصدر الرسمي","Official Source","جهة أو مسؤول بيتكلم بصفة رسمية.","مصادر"],
+ ["خارج التسجيل","Off the record","معلومة يقولها المصدر بشرط عدم نشرها.","مصادر"],
+ ["التحقق الجانبي","Lateral Reading","الخروج من الصفحة للبحث عن الناشر ومصادر تانية.","تحقق"],
+ ["البحث العكسي عن الصور","Reverse Image Search","البحث بالصورة نفسها لمعرفة أول ظهور ليها وسياقها.","تحقق"],
+ ["المعلومات المضللة","Misinformation","معلومة غلط بتنتشر من غير قصد.","تحقق"],
+ ["التضليل المتعمّد","Disinformation","معلومة كاذبة بتتنشر عن قصد للخداع.","تحقق"],
+ ["التزييف العميق","Deepfake","فيديو أو صوت معدّل بالذكاء الاصطناعي عشان يبان حقيقي.","تحقق"],
+ ["تدقيق المعلومات","Fact-checking","مراجعة الأرقام والتصريحات والوقائع قبل أو بعد النشر.","تحقق"],
+ ["حق الرد","Right of Reply","حق أي شخص اتنشر عنه اتهام أو نقد إنه يرد.","أخلاقيات"],
+ ["تضارب المصالح","Conflict of Interest","وجود مصلحة شخصية ممكن تأثر على حياد الصحفي.","أخلاقيات"],
+ ["الانتحال","Plagiarism","نقل شغل غيرك من غير ما تنسبه له.","أخلاقيات"],
+ ["التلفيق","Fabrication","اختراع معلومات أو تصريحات مش حقيقية.","أخلاقيات"],
+ ["التصحيح","Correction","إعلان واضح بتصحيح خطأ في مادة منشورة.","أخلاقيات"],
+ ["التقرير","Report","مادة أوسع من الخبر فيها خلفيات وتفاصيل وآراء.","فنون"],
+ ["التحقيق الاستقصائي","Investigative Report","بحث عميق بيكشف معلومات مخفية بالأدلة والوثائق.","فنون"],
+ ["القصة الإنسانية","Feature","مادة بتركز على الجانب الإنساني والتفاصيل.","فنون"],
+ ["مقال الرأي","Op-Ed","مقال بيعبّر عن رأي كاتبه.","فنون"],
+ ["الافتتاحية","Editorial","مقال بيعبّر عن رأي الجريدة نفسها.","فنون"],
+ ["البيان الصحفي","Press Release","نص بتصدره جهة لإعلان خبر لوسائل الإعلام.","فنون"],
+ ["الساوند بايت","Sound Bite","مقطع قصير من تصريح بصوت المصدر.","إذاعة وتلفزيون"],
+ ["الستاند أب","Stand-up","ظهور المراسل قدام الكاميرا في موقع الحدث.","إذاعة وتلفزيون"],
+ ["الفويس أوفر","Voice Over","صوت المذيع أو المراسل على صور من غير ما يظهر.","إذاعة وتلفزيون"],
+ ["الأوتوكيو","Teleprompter","جهاز بيعرض النص قدام المذيع وهو باصص للكاميرا.","إذاعة وتلفزيون"],
+ ["اللقطات التكميلية","B-roll","لقطات بتتعرض مع الصوت عشان توضّح القصة.","إذاعة وتلفزيون"],
+ ["الشريط الإخباري","News Ticker","شريط نصي متحرك في أسفل الشاشة بالأخبار العاجلة.","إذاعة وتلفزيون"],
+ ["الكتابة للأذن","Writing for the ear","أسلوب كتابة النشرات: جمل قصيرة وواضحة من أول سمعة.","إذاعة وتلفزيون"],
+ ["تحسين محركات البحث","SEO","تحسين ظهور المحتوى في نتايج البحث.","رقمي"],
+ ["الطُعم الإلكتروني","Clickbait","عنوان مبالغ فيه لجذب النقرات.","رقمي"],
+ ["صحافة المواطن","Citizen Journalism","نشر الأفراد العاديين للأخبار من موقع الحدث.","رقمي"],
+ ["صحافة البيانات","Data Journalism","استخدام البيانات والأرقام لبناء القصة وعرضها.","رقمي"],
+ ["الإنفوجرافيك","Infographic","عرض المعلومات والأرقام بشكل بصري.","رقمي"],
+ ["الخوارزمية","Algorithm","النظام اللي بيحدد إيه اللي يظهر لك على المنصات.","رقمي"],
+ ["فقاعة الترشيح","Filter Bubble","إنك تشوف بس المحتوى اللي بيوافق آراءك بسبب الخوارزميات.","رقمي"]
+];
+const TEMPLATES=[
+ {k:"news",name:"خبر (هرم مقلوب)",text:`العنوان: [فعل + الفاعل + أهم معلومة]
+
+المقدمة:
+[مين] [عمل إيه] [فين] [إمتى]، [وليه أو إزاي في جملة قصيرة].
+
+الفقرة الثانية:
+[أهم تفصيلة بعد المقدمة + رقم أو تصريح].
+
+الفقرة الثالثة:
+"[اقتباس مباشر]"، قال [الاسم]، [المنصب].
+
+الخلفية:
+[معلومة عن سياق الحدث أو أحداث سابقة مرتبطة].
+
+المصدر: [اسم المصدر / الجهة]`},
+ {k:"press",name:"بيان صحفي",text:`للنشر الفوري
+
+[العنوان: الخبر الأساسي في سطر]
+[عنوان فرعي يوضح الأهمية]
+
+[المدينة]، [التاريخ] — [الجهة] تعلن عن [الخبر] بهدف [الهدف].
+
+[فقرة بالتفاصيل: إمتى، فين، مين المستفيد، أرقام مهمة].
+
+"[تصريح من مسؤول الجهة]"، قال/قالت [الاسم]، [المنصب].
+
+[فقرة إضافية: خطوات تالية أو معلومات للجمهور].
+
+نبذة عن [الجهة]:
+[سطرين عن الجهة ونشاطها].
+
+للتواصل الإعلامي:
+[الاسم] — [الهاتف] — [البريد]`},
+ {k:"report",name:"تقرير صحفي",text:`العنوان: [عنوان جذاب ودقيق]
+
+المدخل:
+[مشهد أو رقم لافت أو سؤال يشد القارئ].
+
+الفكرة الأساسية:
+[الفقرة اللي بتوضح القضية وليه مهمة دلوقتي].
+
+المحور الأول: [عنوان فرعي]
+[تفاصيل + مصدر 1].
+
+المحور الثاني: [عنوان فرعي]
+[تفاصيل + مصدر 2 برأي مختلف].
+
+المحور الثالث: [عنوان فرعي]
+[أرقام / بيانات + رأي خبير].
+
+الخاتمة:
+[إيه اللي جاي؟ أو سؤال مفتوح للقارئ].
+
+المصادر: [1] [2] [3]`},
+ {k:"reel",name:"سكريبت ريلز 60 ثانية",text:`الخطّاف (0–3 ث)
+اللقطة: [لقطة لافتة]
+النص: "[سؤال أو معلومة صادمة]"
+
+المشكلة (3–15 ث)
+اللقطة: [ ]
+النص: "[ليه الموضوع يهمك]"
+
+المعلومة (15–45 ث)
+اللقطة: [ ]
+النص: "[النقطة 1]... [النقطة 2]... [النقطة 3]"
+
+الخلاصة (45–55 ث)
+النص: "[جملة تلخّص]"
+
+الدعوة لفعل (55–60 ث)
+النص: "[تابعنا / شارك / علّق]"
+النص على الشاشة: [ ]   الهاشتاجات: # # #`},
+ {k:"interview",name:"أسئلة حوار",text:`الضيف: [الاسم — المنصب]
+موضوع الحوار: [ ]
+الهدف: [إيه اللي عايز الجمهور يطلع بيه]
+
+تمهيد / كسر الجليد:
+1. [سؤال خفيف عن الضيف أو المناسبة]
+
+أسئلة مفتوحة:
+2. [إزاي...؟]
+3. [إيه اللي خلاك...؟]
+
+أسئلة العمق والمتابعة:
+4. [سؤال عن رقم أو قرار محدد]
+5. [طيب وإيه رأيك في اللي بيقولوا...؟]
+
+السؤال الصعب:
+6. [سؤال جريء بصيغة مهنية]
+
+الختام:
+7. [رسالة أخيرة للجمهور؟]
+
+ملاحظات: [معلومات لازم أتأكد منها قبل الحوار]`},
+ {k:"tv",name:"تقرير تلفزيوني",text:`عنوان التقرير: [ ]      المدة: [ ] دقيقة
+
+| الصورة | الصوت |
+|---|---|
+| [لقطة افتتاحية] | فويس أوفر: [جملة افتتاحية] |
+| [لقطات تكميلية B-roll] | فويس أوفر: [المعلومة الأساسية] |
+| [ضيف 1 — اسم ومنصب على الشاشة] | ساوند بايت: "[ ]" |
+| [لقطات] | فويس أوفر: [ ] |
+| [ضيف 2] | ساوند بايت: "[ ]" |
+| [المراسل في الموقع] | ستاند أب: [ ] |
+| [لقطة ختامية] | فويس أوفر: [الخاتمة] |
+
+[اسم المراسل] — [القناة] — [المكان]`}
+];
+const CHECKS=[
+ ["المصدر معروف وموثوق","تعرف مين قال المعلومة وصفته إيه"],
+ ["اتأكدت من مصدرين مستقلين على الأقل","خصوصاً في الأخبار الحساسة"],
+ ["راجعت كل الأرقام والإحصاءات","ورجعت للمصدر الأصلي للرقم"],
+ ["الأسماء والمناصب مكتوبة صح",""],
+ ["التاريخ والمكان مظبوطين",""],
+ ["الصور والفيديوهات في سياقها الصحيح","عملت بحث عكسي عن الصور"],
+ ["الاقتباسات منسوبة لأصحابها بدقة","من غير تحريف أو اقتطاع"],
+ ["سمعت الطرف التاني (حق الرد)","لو الخبر فيه اتهام أو نقد"],
+ ["العنوان بيعكس المحتوى بأمانة","مش مبالغ فيه"],
+ ["مافيش انتهاك لخصوصية حد",""],
+ ["عملت مراجعة لغوية",""],
+ ["أفصحت عن أي محتوى معمول بالذكاء الاصطناعي",""]
+];
+function el(tag,attrs={},html=""){ const e=document.createElement(tag); for(const k in attrs){ if(k==="text") e.textContent=attrs[k]; else e.setAttribute(k,attrs[k]); } if(html) e.innerHTML=html; return e; }
+function fmtSec(sec){ sec=Math.round(sec); const m=Math.floor(sec/60), x=sec%60; return (m?m.toLocaleString("ar-EG")+" د ":"")+x.toLocaleString("ar-EG")+" ث"; }
+function textStats(t){
+  const words=(t.match(/[^\s]+/g)||[]).length, chars=t.replace(/\s/g,"").length;
+  const sentences=t.split(/[.!؟?\n]+/).map(x=>x.trim()).filter(Boolean);
+  const paras=t.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean).length;
+  const longest=sentences.reduce((m,x)=>Math.max(m,(x.match(/[^\s]+/g)||[]).length),0);
+  return {words,chars,sentences:sentences.length,paras,longest};
+}
+function renderOff(k){
+  const box=$("offBody"); box.innerHTML="";
+  ({prompter:offPrompter,counter:offCounter,glossary:offGlossary,templates:offTemplates,checklist:offChecklist})[k](box);
+}
+function offCounter(box){
+  const card=el("div",{class:"slip"});
+  card.innerHTML=`<h2>عدّاد الكلمات والوقت</h2><p class="lead">اكتب أو الصق نصك، وشوف عدد الكلمات ومدة إلقائه في النشرة. أول سطر بيتحسب كعنوان.</p>
+  <label for="cn-text">النص</label><textarea id="cn-text" style="min-height:200px"></textarea>`;
+  const res=el("div",{class:"proof"}); res.innerHTML=`<div class="stats4" id="cn-stats"></div><div id="cn-meters"></div><ul class="tips" id="cn-tips"></ul>`;
+  box.append(card,res);
+  const ta=card.querySelector("#cn-text"); ta.value=store.get("mihbara-counter")||"إعلام القاهرة تفتتح معملاً للصحافة الرقمية\nافتتحت كلية الإعلام بجامعة القاهرة، الأحد، معملاً جديداً للصحافة الرقمية بتكلفة 4 ملايين جنيه، يضم 40 جهاز كمبيوتر واستوديو بودكاست، ويخدم 1200 طالب سنوياً.";
+  const upd=()=>{ const t=ta.value; store.set("mihbara-counter",t); const st=textStats(t); const head=(t.split("\n")[0]||"").trim();
+    res.querySelector("#cn-stats").innerHTML=[["كلمة",st.words.toLocaleString("ar-EG")],["حرف",st.chars.toLocaleString("ar-EG")],["جملة",st.sentences.toLocaleString("ar-EG")],["فقرة",st.paras.toLocaleString("ar-EG")],["وقت القراءة",fmtSec(st.words/200*60)],["وقت الإلقاء في النشرة",fmtSec(st.words/120*60)]].map(([a,b])=>`<div class="stat"><b>${b}</b><span>${a}</span></div>`).join("");
+    const meter=(label,n,max)=>{ const r=n/max; const cls=r>1?"over":r>.85?"warn":""; return `<div class="meter ${cls}"><div class="lbl"><span>${label}</span><span>${n.toLocaleString("ar-EG")} / ${max.toLocaleString("ar-EG")}</span></div><div class="bar"><i style="width:${Math.min(100,r*100)}%"></i></div></div>`; };
+    res.querySelector("#cn-meters").innerHTML=meter("طول العنوان (مناسب لمحركات البحث)",head.length,60)+meter("بوست على X (حروف)",t.length,280)+meter("ريلز 60 ثانية (كلمات)",st.words,120);
+    const tips=[]; if(st.longest>25) tips.push(`أطول جملة فيها ${st.longest.toLocaleString("ar-EG")} كلمة. للنشرة، خلّي الجملة أقل من 20 كلمة.`);
+    if(head.length>60) tips.push("العنوان طويل. حاول تختصره لأقل من 60 حرف.");
+    if(/!{2,}|؟{2,}/.test(t)) tips.push("علامات التعجب أو الاستفهام المتكررة بتقلل مصداقية الخبر.");
+    if(!tips.length && st.words) tips.push("النص في الحدود المناسبة ✓");
+    res.querySelector("#cn-tips").innerHTML=tips.map(x=>`<li>${esc(x)}</li>`).join(""); };
+  ta.addEventListener("input",upd); upd();
+}
+function offGlossary(box){
+  const cats=["الكل",...new Set(GLOSSARY.map(g=>g[3]))]; let cat="الكل";
+  const head=el("div",{class:"slip"}); head.innerHTML=`<h2>قاموس المصطلحات</h2><p class="lead">${GLOSSARY.length.toLocaleString("ar-EG")} مصطلح إعلامي بالعربي والإنجليزي.</p><input id="gl-q" type="search" placeholder="دوّر على مصطلح… (عربي أو إنجليزي)" aria-label="بحث"><div class="chips" id="gl-cats" style="margin-top:10px"></div>`;
+  const list=el("div",{class:"cklist",id:"gl-list"}); box.append(head,list);
+  const chips=head.querySelector("#gl-cats");
+  const draw=()=>{ const q=head.querySelector("#gl-q").value.trim().toLowerCase();
+    chips.innerHTML=""; cats.forEach(c=>{ const b=el("button",{type:"button",class:"chipbtn","aria-pressed":String(c===cat),text:c}); b.onclick=()=>{cat=c;draw();}; chips.append(b); });
+    const items=GLOSSARY.filter(g=>(cat==="الكل"||g[3]===cat)&&(!q||g[0].includes(q)||g[1].toLowerCase().includes(q)||g[2].includes(q)));
+    list.innerHTML= items.length? "" : `<div class="empty"><b>مالقيتش المصطلح دا</b>جرّب كلمة تانية.</div>`;
+    items.forEach(g=>{ const d=el("div",{class:"gl-item"}); d.innerHTML=`<b></b><i dir="ltr"></i><p></p>`; d.querySelector("b").textContent=g[0]; d.querySelector("i").textContent=g[1]; d.querySelector("p").textContent=g[2]; list.append(d); }); };
+  head.querySelector("#gl-q").addEventListener("input",draw); draw();
+}
+function offTemplates(box){
+  let cur=TEMPLATES[0].k;
+  const head=el("div",{class:"slip tpl"}); head.innerHTML=`<h2>قوالب جاهزة</h2><p class="lead">اختار القالب، انسخه، واملا الأماكن اللي بين [ ].</p><div class="chips" id="tp-chips"></div><pre id="tp-body"></pre><div class="actions"><button class="btn" type="button" id="tp-copy">نسخ القالب</button><button class="btn ghost" type="button" id="tp-share">مشاركة</button></div>`;
+  box.append(head);
+  const draw=()=>{ const t=TEMPLATES.find(x=>x.k===cur); const ch=head.querySelector("#tp-chips"); ch.innerHTML="";
+    TEMPLATES.forEach(x=>{ const b=el("button",{type:"button",class:"chipbtn","aria-pressed":String(x.k===cur),text:x.name}); b.onclick=()=>{cur=x.k;draw();}; ch.append(b); });
+    head.querySelector("#tp-body").textContent=t.text; };
+  head.querySelector("#tp-copy").onclick=()=>copyText(TEMPLATES.find(x=>x.k===cur).text);
+  head.querySelector("#tp-share").onclick=()=>{ const t=TEMPLATES.find(x=>x.k===cur); shareText(t.text,"قالب: "+t.name); };
+  draw();
+}
+function offChecklist(box){
+  let done; try{ done=JSON.parse(store.get("mihbara-checks")||"[]"); }catch(e){ done=[]; }
+  const head=el("div",{class:"slip"}); head.innerHTML=`<div class="ckhead"><div class="ring" id="ck-ring"><b id="ck-pct"></b></div><div style="flex:1;min-width:200px"><h2>قبل ما تنشر</h2><p class="lead" id="ck-msg" style="margin:0"></p></div></div>`;
+  const list=el("div",{class:"cklist"}); const foot=el("div",{class:"actions"}); foot.innerHTML=`<button class="btn ghost" type="button" id="ck-reset">ابدأ من جديد</button>`;
+  box.append(head,list,foot);
+  const draw=()=>{ list.innerHTML=""; CHECKS.forEach((c,i)=>{ const on=done.includes(i); const l=el("label",{class:"ck"+(on?" done":"")}); l.innerHTML=`<input type="checkbox" id="ck-${i}" ${on?"checked":""}><span></span>`; l.querySelector("span").textContent=c[0]; if(c[1]){ const sm=el("small",{text:c[1]}); l.querySelector("span").append(sm);} l.querySelector("input").onchange=e=>{ done=e.target.checked?[...done,i]:done.filter(x=>x!==i); store.set("mihbara-checks",JSON.stringify(done)); draw(); }; list.append(l); });
+    const pct=Math.round(done.length/CHECKS.length*100); head.querySelector("#ck-ring").style.setProperty("--p",pct); head.querySelector("#ck-pct").textContent=pct.toLocaleString("ar-EG")+"٪";
+    head.querySelector("#ck-msg").textContent= pct===100?"كله تمام ✓ الخبر جاهز للنشر.": `فاضل ${(CHECKS.length-done.length).toLocaleString("ar-EG")} خطوة قبل ما الخبر يبقى جاهز.`; };
+  foot.querySelector("#ck-reset").onclick=()=>{ done=[]; store.set("mihbara-checks","[]"); draw(); };
+  draw();
+}
+// --- Teleprompter
+let prompterState=null;
+function offPrompter(box){
+  const card=el("div",{class:"slip"});
+  card.innerHTML=`<h2>التلقين (أوتوكيو)</h2><p class="lead">اكتب نصك ودوس «ابدأ». النص هيتحرك على الشاشة وانت بتقراه، زي المذيعين بالظبط. حط الموبايل جنب الكاميرا أو فوقها.</p>
+  <label for="pr-text">النص</label><textarea id="pr-text" style="min-height:200px"></textarea>
+  <div class="row"><div><label for="pr-speed">السرعة</label><div class="range"><span>بطيء</span><input type="range" id="pr-speed" min="1" max="10" value="4"><span>سريع</span></div></div>
+  <div><label for="pr-size">حجم الخط</label><div class="range"><span>صغير</span><input type="range" id="pr-size" min="24" max="80" value="44"><span>كبير</span></div></div></div>
+  <label class="check" style="margin-top:12px"><input type="checkbox" id="pr-mirror"> عكس النص (للأوتوكيو الحقيقي بالمراية)</label>
+  <p class="small" id="pr-est"></p>
+  <div class="actions"><button class="btn" type="button" id="pr-start">ابدأ التلقين</button><button class="btn ghost" type="button" id="pr-use">استخدم نص النشرة</button></div>`;
+  box.append(card);
+  const ta=card.querySelector("#pr-text");
+  ta.value=store.get("mihbara-prompter")||"مساء الخير، وأهلاً بكم في نشرة مِحبرة نيوز.\n\nافتتحت كلية الإعلام بجامعة القاهرة معملاً جديداً للصحافة الرقمية.\n\nيضم المعمل أربعين جهاز كمبيوتر، واستوديو للبودكاست.\n\nويخدم المعمل ألفاً ومئتي طالب سنوياً.\n\nكانت هذه أبرز الأخبار، شكراً لمتابعتكم.";
+  const est=()=>{ store.set("mihbara-prompter",ta.value); card.querySelector("#pr-est").textContent="المدة المتوقعة للقراءة: "+fmtSec(textStats(ta.value).words/120*60); };
+  ta.addEventListener("input",est); est();
+  card.querySelector("#pr-use").onclick=()=>{ if(lastScript){ ta.value=lastScript; est(); toast("حطيت نص النشرة"); } else toast("اعمل نشرة من «المذيع الافتراضي» الأول"); };
+  card.querySelector("#pr-start").onclick=()=>startPrompter(ta.value,+card.querySelector("#pr-speed").value,+card.querySelector("#pr-size").value,card.querySelector("#pr-mirror").checked);
+}
+function startPrompter(text,speed,size,mirror){
+  if(!text.trim()){ toast("اكتب النص الأول"); return; }
+  const o=el("div",{class:"prompter"+(mirror?" mirror":"")}); o.innerHTML=`<div class="pview"><div class="ptext"></div><div class="guide"></div><div class="countdown"></div></div>
+  <div class="pbar"><button type="button" class="play">إيقاف مؤقت</button><button type="button" data-a="back">⏪ رجوع</button>
+  <label>السرعة <input type="range" min="1" max="10" value="${speed}"></label><label>الخط <input type="range" min="24" max="80" value="${size}"></label><button type="button" data-a="close">إغلاق ✕</button></div>`;
+  document.body.append(o);
+  const pt=o.querySelector(".ptext"), view=o.querySelector(".pview"), cd=o.querySelector(".countdown");
+  pt.textContent=text; pt.style.fontSize=size+"px";
+  const [spR,szR]=o.querySelectorAll("input[type=range]");
+  const st=prompterState={o,y:0,playing:false,speed,last:0,raf:0,lock:null};
+  const tf=()=>{ pt.style.transform=`translateY(${-st.y}px)`+(mirror?" scaleX(-1)":""); };
+  const step=t=>{ if(!st.playing){ st.last=0; return; } if(st.last) st.y+= (t-st.last)/1000 * st.speed*14; st.last=t; const max=pt.scrollHeight-view.clientHeight*0.5; if(st.y>=max){ st.y=max; setPlay(false); } tf(); st.raf=requestAnimationFrame(step); };
+  const playBtn=o.querySelector(".play");
+  const setPlay=p=>{ st.playing=p; playBtn.textContent=p?"إيقاف مؤقت":"تشغيل"; if(p){ st.last=0; st.raf=requestAnimationFrame(step); } };
+  playBtn.onclick=()=>setPlay(!st.playing);
+  view.onclick=()=>{ if(cd.hidden) setPlay(!st.playing); };
+  o.querySelector('[data-a="back"]').onclick=()=>{ st.y=Math.max(0,st.y-200); tf(); };
+  o.querySelector('[data-a="close"]').onclick=stopPrompter;
+  spR.oninput=()=>st.speed=+spR.value; szR.oninput=()=>{ pt.style.fontSize=szR.value+"px"; };
+  try{ navigator.wakeLock?.request("screen").then(l=>st.lock=l).catch(()=>{}); }catch(e){}
+  try{ o.requestFullscreen?.().catch(()=>{}); }catch(e){}
+  tf(); let n=3; cd.textContent=n.toLocaleString("ar-EG"); playBtn.textContent="تشغيل";
+  const tick=setInterval(()=>{ n--; if(n<=0){ clearInterval(tick); cd.hidden=true; setPlay(true); } else cd.textContent=n.toLocaleString("ar-EG"); },900);
+  st.tick=tick;
+}
+window.stopPrompter=function(){ const st=prompterState; if(!st) return; st.playing=false; cancelAnimationFrame(st.raf); clearInterval(st.tick); try{ st.lock?.release(); }catch(e){} try{ if(document.fullscreenElement) document.exitFullscreen(); }catch(e){} st.o.remove(); prompterState=null; };
+
+if(view==="home"){ updateStats(); buildRecent(); }
+refreshKeyState();
+</script>
+
+</body></html>

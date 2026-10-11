@@ -7,3 +7,5 @@ window.MIHBARA_CONFIG = {
   token: "",
   contact: ""
 };
+// تحميل أداة التحقق التلقائي من الأخبار
+document.write('<script src="verify.js"><\/script>');

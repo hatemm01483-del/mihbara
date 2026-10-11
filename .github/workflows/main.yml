@@ -21,13 +21,13 @@ jobs:
 
       - name: Build APK
         run: |
-          FILE=$(find . -name settings.gradle -not -path "./.git/*" | head -1)
+          if [ -f settings.gradle ]; then FILE=./settings.gradle; else FILE=$(find . -name settings.gradle -not -path "./.git/*" | head -1); fi
           if [ -z "$FILE" ]; then
-            echo "❌ ملفات المشروع مش مرفوعة. ارفع محتويات فولدر Mihbara الأول."
+            echo "Project files not found"
             exit 1
           fi
           cd "$(dirname "$FILE")"
-          echo "✅ لقيت المشروع في: $(pwd)"
+          echo "Building project in: $(pwd)"
           gradle assembleDebug --no-daemon
           cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/Mihbara.apk"
 

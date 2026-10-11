@@ -70,6 +70,7 @@ public class MainActivity extends Activity {
         webView.addJavascriptInterface(new TtsBridge(), "MihbaraTTS");
         webView.addJavascriptInterface(new ShareBridge(), "MihbaraShare");
         webView.addJavascriptInterface(new UiBridge(), "MihbaraUI");
+        webView.addJavascriptInterface(new NetBridge(), "MihbaraNet");
 
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
@@ -137,6 +138,39 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void stop() {
             if (tts != null) tts.stop();
+        }
+    }
+
+    // بيجيب نتايج البحث من أخبار جوجل (بس) لأداة التحقق
+    private class NetBridge {
+        @JavascriptInterface
+        public void get(final String url, final String id) {
+            final String safeId = id == null ? "" : id.replaceAll("[^A-Za-z0-9_]", "");
+            new Thread(() -> {
+                boolean ok = false;
+                String b64 = "";
+                try {
+                    Uri u = Uri.parse(url);
+                    if (!"https".equals(u.getScheme()) || !"news.google.com".equals(u.getHost())) throw new Exception("blocked");
+                    java.net.HttpURLConnection c = (java.net.HttpURLConnection) new java.net.URL(url).openConnection();
+                    c.setConnectTimeout(10000);
+                    c.setReadTimeout(12000);
+                    c.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android) Mihbara/1.7");
+                    int code = c.getResponseCode();
+                    java.io.InputStream in = c.getInputStream();
+                    java.io.ByteArrayOutputStream bo = new java.io.ByteArrayOutputStream();
+                    byte[] buf = new byte[8192];
+                    int n, total = 0;
+                    while ((n = in.read(buf)) > 0 && total < 3000000) { bo.write(buf, 0, n); total += n; }
+                    in.close();
+                    b64 = android.util.Base64.encodeToString(bo.toByteArray(), android.util.Base64.NO_WRAP);
+                    ok = code == 200;
+                } catch (Exception e) {
+                    ok = false;
+                }
+                final String js = "window.__net && window.__net('" + safeId + "'," + ok + ",'" + b64 + "')";
+                webView.post(() -> webView.evaluateJavascript(js, null));
+            }).start();
         }
     }
 

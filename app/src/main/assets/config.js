@@ -9,3 +9,4 @@ window.MIHBARA_CONFIG = {
 };
 // تحميل أداة التحقق التلقائي من الأخبار
 document.write('<script src="verify.js"><\/script>');
+document.write('<script src="features.js"><\/script>');

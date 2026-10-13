@@ -19,6 +19,19 @@ jobs:
         with:
           gradle-version: '8.9'
 
+      - name: Insert server token
+        env:
+          MIHBARA_TOKEN: ${{ secrets.MIHBARA_TOKEN }}
+        run: |
+          if [ -n "$MIHBARA_TOKEN" ]; then
+            find . -path ./.git -prune -o -name config.js -path '*assets*' -print | while read f; do
+              sed -i "s|token: \"\"|token: \"$MIHBARA_TOKEN\"|" "$f"
+              echo "token inserted in $f"
+            done
+          else
+            echo "No MIHBARA_TOKEN secret set"
+          fi
+
       - name: Build APK
         run: |
           if [ -f settings.gradle ]; then FILE=./settings.gradle; else FILE=$(find . -name settings.gradle -not -path "./.git/*" | head -1); fi

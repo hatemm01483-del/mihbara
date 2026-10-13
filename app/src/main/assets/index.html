@@ -689,7 +689,7 @@ footer{margin-top:30px}
   </div>
   <footer>
     <div class="flinks"><button type="button" id="openPrivacy">سياسة الخصوصية</button><span>·</span><button type="button" id="openTerms">الشروط والأحكام</button><span>·</span><button type="button" id="openTour">جولة في التطبيق</button></div>
-    <p>مِحبرة · نسخة 1.6 · المحتوى من إنتاج الذكاء الاصطناعي وممكن يحتوي أخطاء. راجع أي معلومة أو رقم من مصدره قبل النشر.</p>
+    <p>مِحبرة · نسخة 1.7 · المحتوى من إنتاج الذكاء الاصطناعي وممكن يحتوي أخطاء. راجع أي معلومة أو رقم من مصدره قبل النشر.</p>
     <p>© 2026 مِحبرة. جميع الحقوق محفوظة.</p>
   </footer>
 </div>
@@ -1205,12 +1205,13 @@ async function viaFree(prompt,signal,onDelta){
     r=await fetch("https://text.pollinations.ai/"+encodeURIComponent(prompt)+"?private=true",{signal});
   }
   if(!r||!r.ok) throw {code:r&&r.status===429?"rate_limited":"free_down"};
+  if((r.headers.get("content-type")||"").includes("json")){ const raw=await r.clone().text(); if(/"error"/.test(raw) && !/"choices"/.test(raw)) throw {code:"free_down"}; }
   await readSSE(r,onDelta,signal);
 }
 async function sample(prompt,{signal,onText,search,onEvent,fallbackPrompt}={}){
   let text=""; const inner=new AbortController(); let slow=false; let usedLive=false;
   if(signal){ if(signal.aborted) inner.abort(); else signal.addEventListener("abort",()=>inner.abort(),{once:true}); }
-  let timer=setTimeout(()=>{ slow=true; inner.abort(); },20000);
+  let timer=setTimeout(()=>{ slow=true; inner.abort(); }, CFG.server?25000:12000);
   const onDelta=d=>{ if(timer){ clearTimeout(timer); timer=null; } text+=d; onText&&onText({text}); };
   const onEv=e=>{ if(timer){ clearTimeout(timer); timer=null; } usedLive=true; onEvent&&onEvent(e); };
   try{
@@ -1228,7 +1229,7 @@ async function sample(prompt,{signal,onText,search,onEvent,fallbackPrompt}={}){
   if(!text.trim()) throw {code:"empty_completion"};
   return {text,truncated:false,live:usedLive};
 }
-Object.assign(ERR,{network:"مفيش اتصال بالإنترنت. اتأكد من النت وجرب تاني.",free_down:"الخدمة مشغولة دلوقتي. جرّب كمان دقيقة.",server_down:"السيرفر مش بيرد. جرّب كمان شوية.",upstream_error:"حصل خطأ مؤقت. جرب تاني.",slow:"الخدمة بطيئة دلوقتي. جرّب كمان شوية، أو استخدم أدوات «عُدّة الصحفي» اللي بتشتغل فوراً من غير نت."});
+Object.assign(ERR,{network:"مفيش اتصال بالإنترنت. اتأكد من النت وجرب تاني.",free_down:"خدمة الذكاء الاصطناعي المجانية واقفة دلوقتي من عندهم. أدوات «عُدّة الصحفي» شغالة عادي، والأدوات الذكية هتشتغل بسرعة لما نربط السيرفر الخاص.",server_down:"السيرفر مش بيرد. جرّب كمان شوية.",upstream_error:"حصل خطأ مؤقت. جرب تاني.",slow:"الخدمة بطيئة دلوقتي. جرّب كمان شوية، أو استخدم أدوات «عُدّة الصحفي» اللي بتشتغل فوراً من غير نت."});
 function refreshKeyState(){ $("note").textContent=""; }
 
 // ===== Legal =====

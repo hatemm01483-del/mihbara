@@ -1,9 +1,9 @@
 // إعدادات مِحبرة
 // server: لينك السيرفر الخاص بيك (Cloudflare Worker). سيبه فاضي عشان يشتغل بالخدمة المجانية.
-// token:  نفس الكلمة السرية اللي حطيتها في السيرفر باسم APP_TOKEN (اختياري).
+// token:  بيتحط تلقائياً وقت البناء من سر GitHub اسمه MIHBARA_TOKEN (متكتبهوش هنا لأن المشروع عام).
 // contact: بريد التواصل اللي يظهر في سياسة الخصوصية (اختياري).
 window.MIHBARA_CONFIG = {
-  server: "",
+  server: "https://mihbara.hatem-m01483.workers.dev",
   token: "",
   contact: ""
 };

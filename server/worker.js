@@ -1,6 +1,8 @@
 // سيرفر مِحبرة — Cloudflare Worker
 // المتغيرات (Settings → Variables and Secrets):
-//   ANTHROPIC_API_KEY  (Secret)  مفتاح الذكاء الاصطناعي
+//   GEMINI_API_KEY     (Secret)  مفتاح جوجل Gemini المجاني (من aistudio.google.com) — لو موجود بيتستخدم هو
+//   GEMINI_MODEL       (Text)    موديل جوجل (اختياري، السيرفر بيختار أحدث موديل flash لوحده)
+//   ANTHROPIC_API_KEY  (Secret)  مفتاح Claude (لما تحب تحوّل له بعدين؛ امسح GEMINI_API_KEY)
 //   DID_API_KEY        (Secret)  مفتاح D-ID للمذيع بالفيديو (اختياري)
 //   APP_TOKEN          (Secret)  كلمة سرية، نفسها في config.js (اختياري)
 //   MODEL              (Text)    الموديل للأدوات العادية، مثلاً claude-haiku-5-5 (الأسرع والأرخص)
@@ -41,6 +43,92 @@ async function pickModel(env) {
   return cachedModel;
 }
 
+
+// ---------- Gemini (جوجل) ----------
+const GBASE = "https://generativelanguage.googleapis.com/v1beta";
+let cachedGemini = null;
+async function pickGemini(env) {
+  if (env.GEMINI_MODEL) return env.GEMINI_MODEL.replace(/^models\//, "");
+  if (cachedGemini) return cachedGemini;
+  try {
+    const r = await fetch(GBASE + "/models?pageSize=200", { headers: { "x-goog-api-key": env.GEMINI_API_KEY } });
+    const list = ((await r.json()).models || [])
+      .filter((m) => (m.supportedGenerationMethods || []).includes("generateContent"))
+      .map((m) => m.name.replace(/^models\//, ""))
+      .filter((n) => /^gemini-[\d.]+-flash$/.test(n));
+    const ver = (n) => parseFloat(n.split("-")[1]) || 0;
+    list.sort((a, b) => ver(b) - ver(a));
+    cachedGemini = list[0] || "gemini-flash-latest";
+  } catch (e) { cachedGemini = "gemini-flash-latest"; }
+  return cachedGemini;
+}
+// بيحوّل رد جوجل لنفس شكل الأحداث اللي التطبيق بيفهمها
+function geminiToEvents(upBody) {
+  const enc = new TextEncoder(), dec = new TextDecoder();
+  const send = (c, o) => c.enqueue(enc.encode("data: " + JSON.stringify(o) + "\n\n"));
+  let buf = "", sentResults = false;
+  const reader = upBody.getReader();
+  return new ReadableStream({
+    async pull(c) {
+      for (;;) {
+      const before = c.desiredSize;
+      const { done, value } = await reader.read();
+      if (done) {
+        send(c, { type: "message_stop" });
+        c.enqueue(enc.encode("data: [DONE]\n\n"));
+        c.close();
+        return;
+      }
+      buf += dec.decode(value, { stream: true });
+      let i;
+      while ((i = buf.indexOf("\n")) >= 0) {
+        const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
+        if (!line.startsWith("data:")) continue;
+        let ev; try { ev = JSON.parse(line.slice(5).trim()); } catch { continue; }
+        if (ev.error) { send(c, { type: "error" }); continue; }
+        const cand = (ev.candidates || [])[0] || {};
+        for (const p of (cand.content && cand.content.parts) || []) {
+          if (p.text && !p.thought) send(c, { type: "content_block_delta", index: 0, delta: { type: "text_delta", text: p.text } });
+        }
+        const gm = cand.groundingMetadata;
+        if (gm && !sentResults) {
+          const items = (gm.groundingChunks || []).filter((x) => x.web && x.web.uri).map((x) => ({ type: "web_search_result", url: x.web.uri, title: x.web.title || x.web.uri }));
+          if (items.length) {
+            sentResults = true;
+            send(c, { type: "content_block_start", index: 1, content_block: { type: "server_tool_use", name: "web_search" } });
+            send(c, { type: "content_block_start", index: 2, content_block: { type: "web_search_tool_result", content: items } });
+          }
+        }
+      }
+      if (c.desiredSize < before) return; // اتبعت حاجة، نستنى الطلب الجاي
+      }
+    },
+    cancel() { reader.cancel(); },
+  });
+}
+async function viaGemini(env, prompt, search, trusted) {
+  const model = await pickGemini(env);
+  const body = {
+    contents: [{ role: "user", parts: [{ text: search ? prompt + "\n\nاعتمد في البحث على المصادر الرسمية والموثوقة قدر الإمكان، مثل: " + trusted.slice(0, 15).join("، ") : prompt }] }],
+    generationConfig: { maxOutputTokens: search ? 3000 : 4000, temperature: 0.7 },
+  };
+  if (search) body.tools = [{ google_search: {} }];
+  const call = (m, b) => fetch(GBASE + "/models/" + m + ":streamGenerateContent?alt=sse", {
+    method: "POST",
+    headers: { "x-goog-api-key": env.GEMINI_API_KEY, "content-type": "application/json" },
+    body: JSON.stringify(b),
+  });
+  let up = await call(model, body);
+  if (!up.ok && search && (up.status === 400 || up.status === 429)) {
+    // البحث مش متاح أو خلص الحد المجاني بتاعه: نكمل من غير بحث
+    delete body.tools; up = await call(model, body);
+  }
+  if (!up.ok && up.status === 404 && !env.GEMINI_MODEL) {
+    cachedGemini = null; up = await call("gemini-flash-latest", body);
+  }
+  return up;
+}
+
 export default {
   async fetch(req, env) {
     if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
@@ -50,16 +138,21 @@ export default {
       return json({ error: "unauthorized" }, 401);
 
     if (url.pathname === "/status")
-      return json({ ai: !!env.ANTHROPIC_API_KEY, did: !!env.DID_API_KEY });
+      return json({ ai: !!(env.GEMINI_API_KEY || env.ANTHROPIC_API_KEY), provider: env.GEMINI_API_KEY ? "gemini" : (env.ANTHROPIC_API_KEY ? "claude" : null), did: !!env.DID_API_KEY });
 
     if (url.pathname === "/ai" && req.method === "POST") {
-      if (!env.ANTHROPIC_API_KEY) return json({ error: "no_ai" }, 503);
+      if (!env.GEMINI_API_KEY && !env.ANTHROPIC_API_KEY) return json({ error: "no_ai" }, 503);
       let body;
       try { body = await req.json(); } catch { return json({ error: "bad_request" }, 400); }
       const prompt = String(body.prompt || "").slice(0, 30000);
       if (!prompt.trim()) return json({ error: "bad_request" }, 400);
       const search = !!body.search;
       const trusted = (env.TRUSTED_DOMAINS ? env.TRUSTED_DOMAINS.split(",") : DEFAULT_TRUSTED).map((d) => d.trim()).filter(Boolean);
+      if (env.GEMINI_API_KEY) {
+        const up = await viaGemini(env, prompt, search, trusted);
+        if (!up.ok) return json({ error: "upstream", status: up.status }, up.status === 429 ? 429 : 502);
+        return new Response(geminiToEvents(up.body), { headers: { ...CORS, "content-type": "text/event-stream" } });
+      }
       const payload = {
         model: search ? (env.VERIFY_MODEL || "claude-sonnet-5-5") : await pickModel(env),
         max_tokens: search ? 3000 : 4000,

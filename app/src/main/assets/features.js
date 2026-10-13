@@ -448,4 +448,5 @@
       if (localStorage.getItem("mihbara-welcomed") && !myInterests()) setTimeout(function () { showInterests(); }, 700);
     } catch (e) { console.error("features init", e); }
   });
+  window.NF = { E: E, N: N, U: U, st: st, INTERESTS: INTERESTS, gSearch: gSearch, netGet: netGet, parseRSS: parseRSS, myInterests: myInterests, showInterests: showInterests, tier: tier, dedupe: dedupe, ago: ago, fTime: fTime };
 })();

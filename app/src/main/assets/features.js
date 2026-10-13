@@ -138,12 +138,98 @@
   }
 
   // ---------- مدرب الإلقاء ----------
+  // ---------- رسومات مدرب الإلقاء: مذيعين مرسومين بملامح ----------
+  var SK = "#E9B48C", SKD = "#CF956C", HAIR = "#2A1C15";
+  function svgWrap(inner, label, ok) {
+    var badge = ok === undefined ? "" : (ok
+      ? "<g transform='translate(18 18)'><circle r='11' fill='#12B886' stroke='#fff' stroke-width='2.5'/><path d='M-5 0l3.5 3.5L5.5-4' stroke='#fff' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/></g>"
+      : "<g transform='translate(18 18)'><circle r='11' fill='#E03131' stroke='#fff' stroke-width='2.5'/><path d='M-4.5-4.5l9 9M4.5-4.5l-9 9' stroke='#fff' stroke-width='3' stroke-linecap='round'/></g>");
+    return "<svg viewBox='0 0 200 150' class='nf-ill' role='img' aria-label='" + E(label) + "'>" +
+      "<defs><linearGradient id='nfBg' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#DCE6F7'/><stop offset='1' stop-color='#AFC3E6'/></linearGradient></defs>" +
+      "<rect width='200' height='150' fill='url(#nfBg)'/>" +
+      "<g fill='#9DB3DC' opacity='.55'><rect x='6' y='70' width='16' height='40'/><rect x='24' y='58' width='12' height='52'/><rect x='38' y='76' width='18' height='34'/><rect x='150' y='62' width='14' height='48'/><rect x='166' y='74' width='22' height='36'/></g>" +
+      "<rect x='0' y='118' width='200' height='32' fill='#8A5A3C'/><rect x='0' y='118' width='200' height='4' fill='#B07A52'/>" +
+      inner + badge + "</svg>";
+  }
+  function person(o) {
+    o = o || {};
+    var x = o.x || 100, y = o.y || 0, s = o.s || 1, fem = o.hair === "long", suit = o.suit || (fem ? "#0B7285" : "#1E3A8A"), suitD = o.suitD || (fem ? "#085C6B" : "#152C6B");
+    var slouch = !!o.slouch, gdx = o.gaze === "side" ? 1.6 : 0, gdy = o.gaze === "down" ? 1.4 : 0;
+    var headT = slouch ? "translate(0 11)" : (o.gaze === "down" ? "translate(0 3) rotate(0)" : "");
+    var g = "<g transform='translate(" + x + " " + y + ") scale(" + s + ")'>";
+    // الجسم
+    g += slouch
+      ? "<path d='M-42 120 C-44 102 -32 92 -16 90 L16 90 C32 92 44 102 42 120 Z' fill='" + suit + "'/>"
+      : "<path d='M-42 120 C-42 98 -36 84 -20 80 L20 80 C36 84 42 98 42 120 Z' fill='" + suit + "'/>";
+    var sy = slouch ? 10 : 0;
+    g += "<path d='M-9 " + (80 + sy) + " L0 " + (99 + sy) + " L9 " + (80 + sy) + " Z' fill='#fff'/>";
+    if (!fem) g += "<path d='M-2.6 " + (84 + sy) + " L2.6 " + (84 + sy) + " L3.6 " + (101 + sy) + " L0 " + (105 + sy) + " L-3.6 " + (101 + sy) + " Z' fill='#F5B700'/><path d='M-3 " + (80 + sy) + " L3 " + (80 + sy) + " L2.6 " + (84 + sy) + " L-2.6 " + (84 + sy) + " Z' fill='#D99E00'/>";
+    else g += "<circle cx='0' cy='" + (88 + sy) + "' r='1.6' fill='#F5B700'/>";
+    g += "<path d='M-9 " + (80 + sy) + " L-3 " + (104 + sy) + " M9 " + (80 + sy) + " L3 " + (104 + sy) + "' stroke='" + suitD + "' stroke-width='2' fill='none'/>";
+    if (o.mic) g += "<g transform='translate(-12 " + (92 + sy) + ")'><rect x='-1.5' y='-4' width='3' height='3' fill='#888'/><circle r='2.6' fill='#222'/></g>";
+    // الشعر الطويل ورا الراس
+    g += "<g transform='" + headT + "'>";
+    if (fem) g += "<path d='M-22 44 C-26 16 26 16 22 44 L24 78 C14 82 -14 82 -24 78 Z' fill='" + HAIR + "'/>";
+    g += "<rect x='-7' y='62' width='14' height='20' rx='3' fill='" + SKD + "'/>";
+    g += "<ellipse cx='-17' cy='50' rx='3.5' ry='5' fill='" + SKD + "'/><ellipse cx='17' cy='50' rx='3.5' ry='5' fill='" + SKD + "'/>";
+    g += "<ellipse cx='0' cy='48' rx='17' ry='21' fill='" + SK + "'/>";
+    g += fem
+      ? "<path d='M-18 44 C-18 24 18 22 18 42 C12 31 -2 29 -18 44 Z' fill='" + HAIR + "'/>"
+      : "<path d='M-18 46 C-21 25 -8 21 2 23 C15 23 22 32 18 46 C16 37 10 32 0 32 C-8 32 -14 36 -18 46 Z' fill='" + HAIR + "'/>";
+    // الحواجب
+    var mood = o.mood || "neutral";
+    var bIn = mood === "serious" ? 1.6 : (mood === "smile" ? -0.6 : 0);
+    g += "<path d='M-12 " + 39.5 + " L-3.5 " + (39 + bIn) + " M12 39.5 L3.5 " + (39 + bIn) + "' stroke='" + HAIR + "' stroke-width='1.8' stroke-linecap='round'/>";
+    // العينين
+    g += "<ellipse cx='-7.5' cy='45' rx='3.6' ry='" + (gdy ? 1.8 : 2.6) + "' fill='#fff'/><ellipse cx='7.5' cy='45' rx='3.6' ry='" + (gdy ? 1.8 : 2.6) + "' fill='#fff'/>";
+    g += "<circle cx='" + (-7.5 + gdx) + "' cy='" + (45 + gdy * 0.6) + "' r='1.7' fill='#2B2B2B'/><circle cx='" + (7.5 + gdx) + "' cy='" + (45 + gdy * 0.6) + "' r='1.7' fill='#2B2B2B'/>";
+    if (gdy) g += "<path d='M-11 43.5 Q-7.5 42 -4 43.5 M4 43.5 Q7.5 42 11 43.5' stroke='" + SKD + "' stroke-width='1.6' fill='none'/>";
+    if (fem) g += "<path d='M-11.5 43 l-1.4 -1.2 M11.5 43 l1.4 -1.2' stroke='#2B2B2B' stroke-width='.9'/>";
+    // الأنف والبق
+    g += "<path d='M0.5 46 Q-2.2 53 1.4 54.2' stroke='" + SKD + "' stroke-width='1.4' fill='none' stroke-linecap='round'/>";
+    var mouth = mood === "smile" ? "M-6.5 59 Q0 65 6.5 59" : mood === "serious" ? "M-5 61 Q0 59.6 5 61" : mood === "frown" ? "M-6 62.5 Q0 57.5 6 62.5" : "M-5 60.5 Q0 62 5 60.5";
+    g += "<path d='" + mouth + "' stroke='#9C4A3C' stroke-width='1.8' fill='" + (mood === "smile" ? "#fff" : "none") + "' stroke-linecap='round'/>";
+    if (mood === "smile") g += "<ellipse cx='-11' cy='54' rx='3' ry='1.8' fill='#F28C8C' opacity='.35'/><ellipse cx='11' cy='54' rx='3' ry='1.8' fill='#F28C8C' opacity='.35'/>";
+    g += "</g>";
+    // الإيدين
+    var hand = o.hand || "desk";
+    if (hand === "desk") {
+      g += "<path d='M-36 104 Q-34 116 -20 119' stroke='" + suit + "' stroke-width='11' fill='none' stroke-linecap='round'/><path d='M36 104 Q34 116 20 119' stroke='" + suit + "' stroke-width='11' fill='none' stroke-linecap='round'/>";
+      g += "<ellipse cx='-14' cy='120' rx='7' ry='4.2' fill='" + SK + "'/><ellipse cx='14' cy='120' rx='7' ry='4.2' fill='" + SK + "'/>";
+    } else if (hand === "gesture") {
+      g += "<path d='M-36 104 Q-34 116 -20 119' stroke='" + suit + "' stroke-width='11' fill='none' stroke-linecap='round'/><ellipse cx='-14' cy='120' rx='7' ry='4.2' fill='" + SK + "'/>";
+      g += "<path d='M36 104 Q40 104 30 96' stroke='" + suit + "' stroke-width='11' fill='none' stroke-linecap='round'/>";
+      g += "<g transform='translate(25 92) rotate(-15)'><ellipse rx='6' ry='7.5' fill='" + SK + "'/><path d='M-4 -6 v-5 M-1.3 -7 v-6 M1.4 -7 v-6 M4 -6 v-4.5' stroke='" + SK + "' stroke-width='2.6' stroke-linecap='round'/></g>";
+    } else if (hand === "fidget") {
+      g += "<path d='M-36 104 Q-34 116 -20 119' stroke='" + suit + "' stroke-width='11' fill='none' stroke-linecap='round'/><path d='M36 104 Q34 116 20 119' stroke='" + suit + "' stroke-width='11' fill='none' stroke-linecap='round'/>";
+      g += "<ellipse cx='-14' cy='120' rx='7' ry='4.2' fill='" + SK + "'/><ellipse cx='14' cy='118' rx='7' ry='5' fill='" + SK + "'/>";
+      g += "<path d='M8 124 L26 108' stroke='#E03131' stroke-width='2.4' stroke-linecap='round'/><path d='M28 100 q4 2 3 6 M32 96 q5 3 4 8' stroke='#E03131' stroke-width='1.2' fill='none'/>";
+    }
+    if (o.paper) g += "<g transform='translate(0 0)'><rect x='-16' y='121' width='32' height='9' rx='1' fill='#fff' stroke='#ccc'/><path d='M-12 124h22M-12 127h18' stroke='#bbb' stroke-width='.8'/></g>";
+    return g + "</g>";
+  }
+  function tagL(x, y, txt, col) {
+    var w = txt.length * 4.6 + 12; x = Math.max(w / 2 + 3, Math.min(200 - w / 2 - 3, x));
+    return "<g transform='translate(" + x + " " + y + ")'><rect x='" + (-w / 2) + "' y='-7' width='" + w + "' height='13' rx='6.5' fill='" + (col || "#1E3A8A") + "'/><text x='0' y='2.6' text-anchor='middle' direction='rtl' font-size='7.4' font-weight='700' fill='#fff' font-family='inherit'>" + E(txt) + "</text></g>";
+  }
+  function viewfinder() {
+    return "<g stroke='#fff' stroke-width='2.4' fill='none' stroke-linecap='round'><path d='M10 22 V10 H22 M178 10 H190 V22 M190 128 V140 H178 M22 140 H10 V128'/></g>" +
+      "<g stroke='#fff' stroke-width='.9' stroke-dasharray='3 3' opacity='.85'><path d='M66.7 6 V144 M133.3 6 V144 M6 50 H194 M6 100 H194'/></g>" +
+      "<circle cx='150' cy='38' r='3.2' fill='#E03131'/><text x='156' y='41' font-size='8' font-weight='700' fill='#fff' font-family='inherit' direction='ltr'>REC</text>";
+  }
   var ILL = {
-    frameOk: "<svg viewBox='0 0 160 100' class='nf-ill' role='img' aria-label='الكادر الصحيح'><rect x='4' y='4' width='152' height='92' rx='6' class='nf-frame'/><path d='M57 4V96M103 4V96M4 35H156M4 65H156' class='nf-grid'/><circle cx='80' cy='38' r='13' class='nf-fig'/><path d='M50 96c2-22 14-32 30-32s28 10 30 32' class='nf-fig'/><circle cx='75' cy='36' r='1.6' class='nf-eye'/><circle cx='85' cy='36' r='1.6' class='nf-eye'/><path d='M140 12l4 4 8-8' class='nf-ok'/></svg>",
-    frameBad: "<svg viewBox='0 0 160 100' class='nf-ill' role='img' aria-label='كادر غلط'><rect x='4' y='4' width='152' height='92' rx='6' class='nf-frame'/><path d='M57 4V96M103 4V96M4 35H156M4 65H156' class='nf-grid'/><circle cx='118' cy='68' r='13' class='nf-fig'/><path d='M92 110c2-16 12-24 26-24s24 8 26 24' class='nf-fig'/><path d='M141 9l10 10M151 9l-10 10' class='nf-bad'/></svg>",
-    eyes: "<svg viewBox='0 0 160 100' class='nf-ill' role='img' aria-label='النظر للعدسة'><rect x='104' y='34' width='44' height='30' rx='5' class='nf-frame'/><circle cx='126' cy='49' r='9' class='nf-lens'/><circle cx='42' cy='46' r='16' class='nf-fig'/><path d='M14 96c2-22 12-30 28-30s26 8 28 30' class='nf-fig'/><circle cx='48' cy='44' r='1.8' class='nf-eye'/><path d='M60 44H112' class='nf-ray'/></svg>",
-    posture: "<svg viewBox='0 0 160 100' class='nf-ill' role='img' aria-label='الجلسة الصحيحة'><path d='M40 92H120' class='nf-grid'/><circle cx='80' cy='22' r='11' class='nf-fig'/><path d='M80 33V66M60 44H100M80 66L70 92M80 66L90 92' class='nf-line'/><path d='M60 44l-6 14M100 44l6 14' class='nf-line'/><path d='M136 14l4 4 8-8' class='nf-ok'/></svg>",
-    hands: "<svg viewBox='0 0 160 100' class='nf-ill' role='img' aria-label='حركة الإيدين'><circle cx='80' cy='22' r='11' class='nf-fig'/><path d='M50 96c2-26 12-40 30-40s28 14 30 40' class='nf-fig'/><path d='M60 70c6-4 14-4 20 0M100 70c-6-4-14-4-20 0' class='nf-line'/><rect x='46' y='60' width='68' height='22' rx='4' class='nf-zone'/></svg>"
+    frameOk: function () { return svgWrap(person({ y: 5, mood: "smile" }) + viewfinder() + "<path d='M100 20 V28' stroke='#0c8a63' stroke-width='1.6'/>" + tagL(100, 14, "مسافة صغيرة فوق الراس", "#0c8a63") + tagL(36, 50, "خط العين", "#0c8a63"), "الكادر الصحيح", true); },
+    frameBad: function () { return svgWrap(person({ x: 158, y: 40, s: 0.72 }) + viewfinder() + tagL(84, 40, "فراغ كبير فوق الراس", "#E03131") + tagL(84, 80, "المذيع في طرف الصورة", "#E03131"), "كادر غلط", false); },
+    eyesOk: function () { return svgWrap(person({ mood: "smile", hair: "long" }) + "<g transform='translate(100 8)'><rect x='-13' y='-6' width='26' height='12' rx='3' fill='#222'/><circle r='4' fill='#3b5bdb' stroke='#99a' stroke-width='1.2'/></g>" + "<path d='M100 16 V34' stroke='#0c8a63' stroke-width='1.4' stroke-dasharray='2 2'/>" + tagL(160, 60, "عينك في العدسة", "#0c8a63"), "النظر للعدسة", true); },
+    eyesBad: function () { return svgWrap(person({ gaze: "down", paper: true, hair: "long" }) + tagL(165, 56, "عينك في الورق", "#E03131") + tagL(40, 56, "مش باصص للمشاهد", "#E03131"), "النظر للورق", false); },
+    postureOk: function () { return svgWrap(person({ mood: "neutral" }) + "<path d='M152 30 V112' stroke='#0c8a63' stroke-width='2' stroke-dasharray='4 3'/>" + tagL(170, 24, "ضهر مفرود", "#0c8a63") + tagL(44, 80, "كتاف مرتاحة لتحت", "#0c8a63"), "القعدة الصحيحة", true); },
+    postureBad: function () { return svgWrap(person({ slouch: true, gaze: "down" }) + "<path d='M152 40 Q160 76 150 112' stroke='#E03131' stroke-width='2' fill='none' stroke-dasharray='4 3'/>" + tagL(170, 30, "ضهر محني", "#E03131") + tagL(44, 70, "راس واقعة لقدّام", "#E03131"), "قعدة غلط", false); },
+    hands: function () { return svgWrap("<rect x='54' y='86' width='92' height='34' rx='8' fill='rgba(18,184,134,.14)' stroke='#12B886' stroke-dasharray='4 3'/>" + person({ hand: "gesture", mood: "smile", hair: "long" }) + tagL(100, 140, "منطقة حركة الإيدين", "#0c8a63"), "حركة الإيدين", true); },
+    fidget: function () { return svgWrap(person({ hand: "fidget", mood: "neutral" }) + tagL(156, 92, "بيلعب في القلم", "#E03131") + tagL(44, 40, "بيشتت المشاهد", "#E03131"), "اللعب في القلم", false); },
+    faces: function () { return svgWrap(person({ x: 56, y: 30, s: 0.72, mood: "smile", hair: "long" }) + person({ x: 146, y: 30, s: 0.72, mood: "serious" }) + tagL(56, 24, "خبر مبهج: ابتسامة", "#0c8a63") + tagL(146, 24, "خبر حزين: جدّية", "#1E3A8A"), "تعبيرات الوش"); },
+    light: function () { return svgWrap(person({ mood: "smile" }) + "<g transform='translate(28 22)'><rect x='-10' y='-8' width='20' height='16' rx='3' fill='#FFE066' stroke='#E0A800' stroke-width='1.5'/><path d='M10 0 L40 22 M10 5 L36 32 M6 8 L26 38' stroke='#FFD43B' stroke-width='2.2' stroke-linecap='round' opacity='.9'/></g>" + tagL(38, 66, "نور من قدّام", "#0c8a63") + tagL(165, 30, "مفيش شباك وراك", "#0c8a63"), "الإضاءة"); },
+    outfit: function () { return svgWrap(person({ mood: "smile", hair: "long" }) + "<g transform='translate(30 40)'><rect x='-14' y='-12' width='28' height='24' rx='4' fill='#0B7285'/><text x='0' y='22' text-anchor='middle' font-size='7' font-weight='700' fill='#0c8a63'>سادة ✓</text></g><g transform='translate(170 40)'><rect x='-14' y='-12' width='28' height='24' rx='4' fill='url(#nfStripe)'/><path d='M-14 -12 L14 12' stroke='#E03131' stroke-width='2.4'/><text x='0' y='22' text-anchor='middle' font-size='7' font-weight='700' fill='#E03131'>مقلّم ✗</text></g><defs><pattern id='nfStripe' width='4' height='4' patternUnits='userSpaceOnUse'><rect width='4' height='4' fill='#fff'/><rect width='2' height='4' fill='#222'/></pattern></defs>", "اللبس"); },
+    mic: function () { return svgWrap(person({ mic: true, mood: "neutral" }) + "<path d='M88 92 L58 78' stroke='#1E3A8A' stroke-width='1.2'/>" + tagL(48, 72, "المايك على الصدر", "#0c8a63") + tagL(156, 70, "شبر تحت الدقن", "#0c8a63"), "الميكروفون"); }
   };
   var TWISTERS = ["خيط حرير على حيط خليل.", "ضابطٌ ظريفٌ ضاعَ ظلُّه في الضباب.", "قال القاضي: القضية قديمة، والقرار قريب.", "ثلاثة ذئاب ذهبت ثم ثارت في الثلج.", "صوت الصحفي الصادق يصل أسرع من الصدى.", "طار الطائر الطويل فوق الطريق الطيني."];
   var PACE_TEXT = "مساء الخير، وأهلاً بكم في نشرة مِحبرة نيوز. نبدأ بأبرز الأخبار. افتتحت كلية الإعلام معملاً جديداً للصحافة الرقمية، يضم أربعين جهاز كمبيوتر واستوديو للبودكاست. ويخدم المعمل ألفاً ومئتي طالب سنوياً. وفي الرياضة، يستعد المنتخب لمباراته المقبلة وسط تفاؤل جماهيري كبير. كانت هذه أبرز الأخبار، شكراً لمتابعتكم.";
@@ -157,18 +243,26 @@
     function card(ill, title, pts, ok) { return "<div class='nf-card'>" + ill + "<div><b class='" + (ok === false ? "nf-badt" : "nf-okt") + "'>" + E(title) + "</b><ul>" + pts.map(function (p) { return "<li>" + E(p) + "</li>"; }).join("") + "</ul></div></div>"; }
     function draw() {
       if (cur === "cam") {
-        body.innerHTML = "<div class='nf-cards'>" +
-          card(ILL.frameOk, "الكادر الصح ✓", ["عينيك على الخط الأفقي اللي فوق (قاعدة الأتلات).", "مسافة صغيرة فوق راسك، مش كبيرة ومش معدومة.", "الكاميرا في مستوى عينيك بالظبط، مش من تحت ولا من فوق."]) +
-          card(ILL.frameBad, "الكادر الغلط ✗", ["راسك مقطوع أو في طرف الصورة.", "فراغ كبير فوقك يخلّيك تبان صغير.", "الكاميرا مايلة أو بتصوّرك من تحت."], false) +
-          card(ILL.eyes, "بص للعدسة، مش للشاشة", ["العدسة هي عين المشاهد؛ لما تبصلها هو يحس إنك بتكلمه.", "لو بتقرا من التلقين، خلّي الموبايل جنب العدسة أو تحتها مباشرة.", "ارمش طبيعي، وماتثبتش عينك بشكل جامد."]) +
-          card(ILL.posture, "الوقفة أو القعدة", ["ضهرك مفرود وكتافك مرتاحة لتحت.", "لو قاعد: اقعد على أول الكرسي ومتسندش لورا.", "ثبّت جسمك، وماتتمرجحش يمين وشمال."]) +
-          card(ILL.hands, "الإيدين", ["خلّي إيديك في المنطقة بين صدرك ووسطك.", "حركة بسيطة مفتوحة بتأكد على الكلام، مش أكتر.", "ماتمسكش القلم أو تلعب في حاجة قدامك."]) +
-          "</div><div class='proof'><h3 class='nf-sec'>قبل ما تبدأ التصوير</h3><ul class='nf-check'><li>الإضاءة قدامك مش وراك (الشباك قدامك).</li><li>خلفية هادية ومرتبة.</li><li>الموبايل ثابت على حامل، والكاميرا الخلفية أوضح.</li><li>اشرب مية، وخد نفسين عميقين.</li><li>جرّب «التلقين» من عُدّة الصحفي عشان تقرا وانت باصص للكاميرا.</li></ul><div class='actions'><button class='btn' type='button' id='nfGoPrompter'>افتح التلقين</button></div></div>";
+        body.innerHTML = "<p class='small nf-intro'>بص على كل صورة واقرا التعليمات اللي تحتها. الصور اللي عليها ✓ هي الصح، واللي عليها ✗ أخطاء شائعة لازم تتجنبها.</p><div class='nf-cards'>" +
+          card(ILL.frameOk(), "الكادر الصح", ["عينيك على الخط الأفقي اللي فوق في تقسيمة الأتلات (اللي بتظهر في إعدادات كاميرا الموبايل: Grid).", "مسافة صغيرة فوق راسك قد صباع، مش فراغ كبير ومش راس مقطوعة.", "إنت في نص الكادر، والصورة بتبدأ من نص صدرك (Medium shot).", "الكاميرا في مستوى عينيك بالظبط: لو أعلى هتبان صغير، ولو أوطى هتبان متعالي."]) +
+          card(ILL.frameBad(), "الكادر الغلط", ["فراغ كبير فوق الراس بيخلّي المذيع يبان صغير وضايع.", "المذيع في طرف الصورة من غير سبب، والعين بتدوّر عليه.", "الحل: قرّب الكاميرا أو اعمل زووم بسيط، وخلّي عينيك على خط التلت."], false) +
+          card(ILL.eyesOk(), "بص في العدسة", ["العدسة هي عين المشاهد؛ لما تبصلها هو يحس إنك بتكلمه هو شخصياً.", "على الموبايل: العدسة هي النقطة الصغيرة فوق الشاشة، مش صورتك على الشاشة.", "لو بتقرا من «التلقين» خلّي الموبايل تحت العدسة مباشرة عشان عينك ماتنزلش.", "ارمش طبيعي، وابتسم بعينك مش بس ببقك."]) +
+          card(ILL.eyesBad(), "عينك في الورق", ["لما عينك تنزل للورق المشاهد بيحس إنك مش واثق أو مش فاهم الخبر.", "بص في الورق بسرعة عند الأرقام والأسماء بس، وارجع للعدسة على طول.", "احفظ أول جملة وآخر جملة في الخبر عشان تقولهم وانت باصص للكاميرا."], false) +
+          card(ILL.postureOk(), "القعدة الصح", ["ضهرك مفرود كأن فيه خيط شادد راسك لفوق.", "اقعد على أول الكرسي ومتسندش لورا، ورجليك ثابتة على الأرض.", "كتافك مرتاحة لتحت ومش مشدودة لودانك.", "ميل لقدام سنة صغيرة بيدّي إحساس بالاهتمام."]) +
+          card(ILL.postureBad(), "القعدة الغلط", ["الضهر المحني بيكتم الصوت لأن النفَس مش بيوصل كويس.", "الراس الواقعة لقدام بتبان تعبانة ومش مهتمة.", "لو لقيت نفسك بتنحني: خد نفس عميق وارجع كتافك لورا."], false) +
+          card(ILL.hands(), "حركة الإيدين", ["خلّي حركة إيدك في المنطقة بين صدرك ووسطك (المربع الأخضر).", "حركة بسيطة مفتوحة مع الكلمة المهمة، وبعدين ترجع الإيد مكانها.", "لما مافيش حركة: سيب إيديك مرتاحة على الديسك أو متشابكة بهدوء.", "ماتشاورش ناحية الكاميرا بصباعك."]) +
+          card(ILL.fidget(), "اللعب في القلم", ["أي حركة متكررة (قلم، خاتم، ورق) بتسرق عين المشاهد من الخبر.", "لو محتاج القلم سيبه على الديسك جنبك.", "نفس الكلام على هز الرجل أو اللف بالكرسي."], false) +
+          card(ILL.faces(), "تعبيرات الوش", ["الخبر المبهج: ابتسامة خفيفة ونبرة مرتاحة.", "الخبر الحزين أو الحوادث: وش جاد وهادي، ومن غير ابتسامة خالص.", "الانتقال بين خبرين مختلفين: خد ثانية سكوت وغيّر تعبيرك قبل ما تبدأ.", "تعبير وشك لازم يطابق الكلام، وإلا المشاهد مش هيصدقك."]) +
+          card(ILL.light(), "الإضاءة", ["النور يكون قدامك أو بزاوية خفيفة من جنب، مش وراك.", "الشباك وراك بيخليك ضلّ أسود، فاقعد وانت قدام الشباك.", "لو عندك لمبة واحدة: حطها قدامك فوق مستوى عينك شوية.", "تجنب نور السقف لوحده لأنه بيعمل ضلّ تحت العين."]) +
+          card(ILL.outfit(), "اللبس", ["ألوان سادة هادية زي الكحلي والزيتي والرمادي.", "ابعد عن المقلّم والكاروهات الصغيرة لأنها بتعمل رعشة في الصورة.", "ابعد عن الأبيض الصريح والأخضر لو هتستخدم كروما.", "إكسسوارات بسيطة من غير لمعة أو صوت."]) +
+          card(ILL.mic(), "الميكروفون", ["المايك الصغير (لافلير) يتشبك على الصدر، حوالي شبر تحت الدقن.", "خليه ناحية الكتف اللي هتلف ناحيته لو فيه ضيف.", "اتأكد إن الهدوم مش بتحك فيه، وإن السلك مستخبي.", "اعمل اختبار صوت (Test) قبل التسجيل: قول اسمك والتاريخ."]) +
+          "</div><div class='proof'><h3 class='nf-sec'>قبل ما تبدأ التصوير</h3><ul class='nf-check'><li>الموبايل ثابت على حامل، ونضّف العدسة بمنديل.</li><li>شغّل خطوط الأتلات (Grid) في إعدادات الكاميرا.</li><li>الإضاءة قدامك مش وراك، والخلفية هادية ومرتبة.</li><li>اقفل الإشعارات وحط الموبايل على وضع الطيران.</li><li>اشرب مية، وخد ٣ أنفاس عميقة.</li><li>جرّب «التلقين» من عُدّة الصحفي عشان تقرا وانت باصص للكاميرا.</li></ul>" +
+          "<h3 class='nf-sec'>أخطاء شائعة عند المبتدئين</h3><ul class='nf-check'><li>البدء بكلمة «طيب» أو «إمم»: ابدأ بعد ثانية سكوت ووشك جاهز.</li><li>السرعة الزيادة من التوتر: اقرا أبطأ مما تتخيل.</li><li>الوقفة بعد الخبر: فضّل باصص للكاميرا ثانيتين بعد ما تخلص، ماتبصّش بعيد فوراً.</li><li>نسيان الابتسامة في التحية والختام.</li></ul><div class='actions'><button class='btn' type='button' id='nfGoPrompter'>افتح التلقين</button></div></div>";
         body.querySelector("#nfGoPrompter").onclick = function () { open("prompter"); };
       } else if (cur === "voice") {
         body.innerHTML = "<div class='proof nf-breath'><h3 class='nf-sec'>تمرين التنفّس (قبل الهوا)</h3><p class='small'>شهيق ٤ ثواني من الأنف، ثبات ٤، زفير ٦ من البق. كرّره ٤ مرات عشان صوتك يبقى ثابت.</p><div class='nf-circle' id='nfCircle'><span id='nfBreathTxt'>جاهز؟</span></div><div class='actions' style='justify-content:center'><button class='btn' type='button' id='nfBreathGo'>ابدأ التمرين</button></div></div>" +
           "<div class='proof'><h3 class='nf-sec'>تمارين النطق</h3><p class='small'>اقرا كل جملة ٣ مرات: الأولى ببطء ووضوح، وبعدين أسرع شوية. ركّز على مخارج الحروف.</p><ol class='nf-tw'>" + TWISTERS.map(function (t) { return "<li>" + E(t) + "</li>"; }).join("") + "</ol></div>" +
-          "<div class='proof'><h3 class='nf-sec'>نصايح الصوت</h3><ul class='nf-check'><li>اتكلم من بطنك (الحجاب الحاجز)، مش من زورك.</li><li>ارفع نبرة صوتك في أول الخبر ونزّلها في آخره.</li><li>اقف وقفة قصيرة عند كل فاصلة، وأطول عند النقطة.</li><li>شدّد على الكلمة المهمة في الجملة (الرقم أو الاسم).</li><li>ابتسامة خفيفة بتبان في الصوت حتى من غير صورة.</li></ul></div>";
+          "<div class='proof'><h3 class='nf-sec'>تسخين الصوت (٣ دقايق)</h3><ol class='nf-check'><li>همهمة «مممم» بشفايف مقفولة ١٠ ثواني، وحس بالرعشة في وشك.</li><li>رعشة الشفايف «بررررر» زي صوت العربية، وانت بتطلع وتنزل بالنبرة.</li><li>تثاؤب واسع مرتين عشان تفتح الزور.</li><li>لف لسانك جوه بقك ٥ مرات يمين و٥ شمال.</li><li>قول «ما مي مو» و«با بي بو» بوضوح مبالغ فيه.</li></ol></div><div class='proof'><h3 class='nf-sec'>نصايح الصوت</h3><ul class='nf-check'><li>اتكلم من بطنك (الحجاب الحاجز)، مش من زورك: حط إيدك على بطنك وحس بيها بتتحرك مع النفس.</li><li>ارفع نبرة صوتك في أول الخبر ونزّلها في آخره عشان المستمع يحس إن الخبر خلص.</li><li>اقف وقفة قصيرة عند كل فاصلة، وأطول عند النقطة.</li><li>شدّد على الكلمة المهمة في الجملة (الرقم أو الاسم أو المكان).</li><li>ابتسامة خفيفة بتبان في الصوت حتى في الراديو.</li><li>اشرب مية دافية قبل التسجيل، وابعد عن الساقع والحاجات اللي فيها لبن.</li></ul></div><div class='proof'><h3 class='nf-sec'>مخارج الحروف اللي بتتلخبط</h3><ul class='nf-check'><li><b>ث</b> و<b>ذ</b> و<b>ظ</b>: طرف لسانك يطلع بين سنانك، متقولهاش «س» و«ز».</li><li><b>ق</b> في الفصحى: من آخر اللسان مع سقف الحلق، مش همزة.</li><li><b>ض</b>: من جنب اللسان مع الضروس، أتقل من «د».</li><li><b>ج</b> في نشرة الأخبار الفصحى: «جيم» معطشة مش «g».</li><li>نطّق آخر الكلمة كويس ومتبلعش الحرف الأخير.</li></ul></div>";
         body.querySelector("#nfBreathGo").onclick = function () {
           stopAll(); var steps = [["شهيق", 4, "in"], ["ثبات", 4, "hold"], ["زفير", 6, "out"]], round = 0, si = 0, left = steps[0][1], c = body.querySelector("#nfCircle"), tx = body.querySelector("#nfBreathTxt");
           function show() { tx.textContent = steps[si][0] + " " + N(left); c.className = "nf-circle " + steps[si][2]; }
@@ -300,7 +394,7 @@
     ".nf-tag{font-style:normal;font-size:11px;font-weight:600;padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}" +
     ".nf-cards{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));margin-bottom:14px}" +
     ".nf-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;display:grid;gap:10px;box-shadow:var(--shadow)}.nf-card ul{margin:6px 0 0;padding-inline-start:18px;font-size:13.5px}" +
-    ".nf-okt{color:#0c8a63}.nf-badt{color:var(--flash)}.nf-ill{width:100%;height:auto;background:var(--surface2);border-radius:12px}" +
+    ".nf-okt{color:#0c8a63}.nf-badt{color:var(--flash)}.nf-ill{width:100%;height:auto;display:block;border-radius:14px;box-shadow:0 1px 0 var(--line)}.nf-intro{margin:0 0 12px}.nf-card b{font-size:16px}.nf-card li{margin-bottom:4px;line-height:1.7}" +
     ".nf-frame{fill:none;stroke:var(--muted);stroke-width:2}.nf-grid{stroke:var(--line);stroke-width:1.2;stroke-dasharray:4 4;fill:none}.nf-fig{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2}" +
     ".nf-eye{fill:var(--accent)}.nf-line{stroke:var(--accent);stroke-width:3;stroke-linecap:round;fill:none}.nf-ok{stroke:#12b886;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}" +
     ".nf-bad{stroke:var(--flash);stroke-width:3;stroke-linecap:round}.nf-lens{fill:var(--surface);stroke:var(--accent);stroke-width:3}.nf-ray{stroke:#f5b700;stroke-width:2;stroke-dasharray:5 4}.nf-zone{fill:rgba(18,184,134,.12);stroke:#12b886;stroke-dasharray:4 3}" +

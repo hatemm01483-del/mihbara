@@ -71,6 +71,8 @@ public class MainActivity extends Activity {
         webView.addJavascriptInterface(new ShareBridge(), "MihbaraShare");
         webView.addJavascriptInterface(new UiBridge(), "MihbaraUI");
         webView.addJavascriptInterface(new NetBridge(), "MihbaraNet");
+        webView.addJavascriptInterface(new NotifyBridge(), "MihbaraNotify");
+        if (NewsJobService.prefs(this).getBoolean("enabled", false)) NewsJobService.schedule(this);
 
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
@@ -171,6 +173,36 @@ public class MainActivity extends Activity {
                 final String js = "window.__net && window.__net('" + safeId + "'," + ok + ",'" + b64 + "')";
                 webView.post(() -> webView.evaluateJavascript(js, null));
             }).start();
+        }
+    }
+
+    // تنبيهات الأخبار الجديدة في الخلفية
+    private class NotifyBridge {
+        @JavascriptInterface
+        public void configure(String json) {
+            NewsJobService.prefs(MainActivity.this).edit().putString("feeds", json == null ? "[]" : json).apply();
+        }
+
+        @JavascriptInterface
+        public void seen(String json) {
+            NewsJobService.addSeen(MainActivity.this, json);
+        }
+
+        @JavascriptInterface
+        public boolean isEnabled() {
+            return NewsJobService.prefs(MainActivity.this).getBoolean("enabled", false) && NewsJobService.canNotify(MainActivity.this);
+        }
+
+        @JavascriptInterface
+        public void setEnabled(boolean on) {
+            NewsJobService.prefs(MainActivity.this).edit().putBoolean("enabled", on).apply();
+            if (on) {
+                if (Build.VERSION.SDK_INT >= 33 && !NewsJobService.canNotify(MainActivity.this))
+                    runOnUiThread(() -> requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 77));
+                NewsJobService.schedule(MainActivity.this);
+            } else {
+                NewsJobService.cancel(MainActivity.this);
+            }
         }
     }
 

@@ -11,4 +11,4 @@ window.MIHBARA_CONFIG = {
 document.write('<script src="verify.js"><\/script>');
 document.write('<script src="features.js"><\/script>');
 document.write('<script src="live.js"><\/script>');
-document.write('<script src="course.js"><\/script>');
+document.write('<script src="manage.js"><\/script>');

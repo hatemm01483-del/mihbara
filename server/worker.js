@@ -1,4 +1,4 @@
-// سيرفر مِحبرة — Cloudflare Worker
+// سيرفر صَدى — Cloudflare Worker
 // المتغيرات (Settings → Variables and Secrets):
 //   GEMINI_API_KEY     (Secret)  مفتاح جوجل Gemini المجاني (من aistudio.google.com) — لو موجود بيتستخدم هو
 //   GEMINI_MODEL       (Text)    موديل جوجل (اختياري، السيرفر بيختار أحدث موديل flash لوحده)
@@ -129,6 +129,22 @@ async function viaGemini(env, prompt, search, trusted) {
   return up;
 }
 
+// ---------- صوت المذيع (Gemini TTS) ----------
+let cachedTts = null;
+async function pickTts(env) {
+  if (env.TTS_MODEL) return env.TTS_MODEL.replace(/^models\//, "");
+  if (cachedTts) return cachedTts;
+  try {
+    const r = await fetch(GBASE + "/models?pageSize=200", { headers: { "x-goog-api-key": env.GEMINI_API_KEY } });
+    const list = ((await r.json()).models || []).map((m) => m.name.replace(/^models\//, "")).filter((n) => /tts/i.test(n) && /flash/i.test(n));
+    const ver = (n) => parseFloat((n.match(/gemini-([\d.]+)/) || [])[1]) || 0;
+    list.sort((a, b) => ver(b) - ver(a) || (/preview/.test(a) ? 1 : 0) - (/preview/.test(b) ? 1 : 0));
+    cachedTts = list[0] || "gemini-2.5-flash-preview-tts";
+  } catch { cachedTts = "gemini-2.5-flash-preview-tts"; }
+  return cachedTts;
+}
+const VOICE_OK = /^[A-Z][a-z]+$/;
+
 export default {
   async fetch(req, env) {
     if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
@@ -138,7 +154,31 @@ export default {
       return json({ error: "unauthorized" }, 401);
 
     if (url.pathname === "/status")
-      return json({ ai: !!(env.GEMINI_API_KEY || env.ANTHROPIC_API_KEY), provider: env.GEMINI_API_KEY ? "gemini" : (env.ANTHROPIC_API_KEY ? "claude" : null), did: !!env.DID_API_KEY });
+      return json({ ai: !!(env.GEMINI_API_KEY || env.ANTHROPIC_API_KEY), provider: env.GEMINI_API_KEY ? "gemini" : (env.ANTHROPIC_API_KEY ? "claude" : null), did: !!env.DID_API_KEY, tts: !!env.GEMINI_API_KEY });
+
+    if (url.pathname === "/tts" && req.method === "POST") {
+      if (!env.GEMINI_API_KEY) return json({ error: "no_tts" }, 503);
+      let body;
+      try { body = await req.json(); } catch { return json({ error: "bad_request" }, 400); }
+      const text = String(body.text || "").slice(0, 2500).trim();
+      if (!text) return json({ error: "bad_request" }, 400);
+      const voice = VOICE_OK.test(String(body.voice || "")) ? body.voice : "Kore";
+      const style = String(body.style || "اقرأ بصوت مذيع نشرة أخبار محترف").slice(0, 300);
+      const payload = {
+        contents: [{ role: "user", parts: [{ text: style + ":\n" + text }] }],
+        generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } } },
+      };
+      const call = (m) => fetch(GBASE + "/models/" + m + ":generateContent", {
+        method: "POST",
+        headers: { "x-goog-api-key": env.GEMINI_API_KEY, "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      let up = await call(await pickTts(env));
+      if (!up.ok && up.status === 404 && !env.TTS_MODEL) { cachedTts = null; up = await call("gemini-2.5-flash-preview-tts"); }
+      if (!up.ok) return json({ error: "upstream", status: up.status }, up.status === 429 ? 429 : 502);
+      // بنعدّي الرد زي ما هو (من غير ما نفكّه) عشان نوفّر وقت المعالجة في السيرفر
+      return new Response(up.body, { headers: { ...CORS, "content-type": "application/json" } });
+    }
 
     if (url.pathname === "/ai" && req.method === "POST") {
       if (!env.GEMINI_API_KEY && !env.ANTHROPIC_API_KEY) return json({ error: "no_ai" }, 503);

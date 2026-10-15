@@ -1,4 +1,4 @@
-/* مِحبرة — أخبارك اللحظية + المساعد الإعلامي */
+/* صَدى — أخبارك اللحظية + المساعد الإعلامي */
 (function () {
   "use strict";
   var NF = window.NF;
@@ -142,7 +142,7 @@
     "حلّل التغطية الإعلامية لقضية "
   ];
   function buildPrompt(req, ctx) {
-    return "إنت «مِحبرة»، مساعد إعلامي محترف بيساعد طلاب وأساتذة الإعلام في مصر.\n" +
+    return "إنت «صَدى»، مساعد إعلامي محترف بيساعد طلاب وأساتذة الإعلام في مصر.\n" +
       "رد على الطلب اللي تحت بشكل إعلامي بحت وبمعايير غرف الأخبار:\n" +
       "- اختار الشكل الصحفي المناسب للطلب (خبر بالهرم المقلوب، تقرير، سكريبت تلفزيوني أو إذاعي، بوست سوشيال، أسئلة حوار، مقال رأي، تحليل تغطية، خطة تغطية...).\n" +
       "- ابدأ بعنوان قوي، واستخدم عناوين فرعية ونقاط لو مناسب.\n" +
@@ -167,7 +167,7 @@
       act.innerHTML = "<button class='btn mini' type='button'>نسخ</button><button class='btn ghost mini' type='button'>مشاركة</button><button class='btn ghost mini' type='button'>حفظ في السجل</button>";
       var bs = act.querySelectorAll("button");
       bs[0].onclick = function () { copyText(text); };
-      bs[1].onclick = function () { shareText(text, "مِحبرة"); };
+      bs[1].onclick = function () { shareText(text, "صَدى"); };
       bs[2].onclick = function () { try { addHistory("ask", req, text); toast("اتحفظ في السجل ✓"); } catch (e) { } };
       item.querySelector(".lv-a").append(act);
     }

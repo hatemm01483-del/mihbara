@@ -8,6 +8,14 @@ import android.view.View;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.content.ContentValues;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Base64;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.webkit.JavascriptInterface;
@@ -72,6 +80,7 @@ public class MainActivity extends Activity {
         webView.addJavascriptInterface(new UiBridge(), "MihbaraUI");
         webView.addJavascriptInterface(new NetBridge(), "MihbaraNet");
         webView.addJavascriptInterface(new NotifyBridge(), "MihbaraNotify");
+        webView.addJavascriptInterface(new FileBridge(), "MihbaraFile");
         if (NewsJobService.prefs(this).getBoolean("enabled", false)) NewsJobService.schedule(this);
 
         webView.setWebChromeClient(new WebChromeClient() {
@@ -81,7 +90,9 @@ public class MainActivity extends Activity {
                 fileCallback = callback;
                 Intent pick = new Intent(Intent.ACTION_GET_CONTENT);
                 pick.addCategory(Intent.CATEGORY_OPENABLE);
-                pick.setType("image/*");
+                boolean wantsVideo = false;
+                try { for (String t : params.getAcceptTypes()) if (t != null && t.startsWith("video")) wantsVideo = true; } catch (Exception ignored) { }
+                pick.setType(wantsVideo ? "video/*" : "image/*");
                 try {
                     startActivityForResult(Intent.createChooser(pick, "اختار صورة"), FILE_REQ);
                 } catch (Exception e) {
@@ -236,6 +247,88 @@ public class MainActivity extends Activity {
             send.putExtra(Intent.EXTRA_TEXT, text);
             runOnUiThread(() -> {
                 try { startActivity(Intent.createChooser(send, "مشاركة")); } catch (Exception ignored) { }
+            });
+        }
+    }
+
+    private class FileBridge {
+        private final HashMap<String, OutputStream> streams = new HashMap<>();
+        private final HashMap<String, Uri> uris = new HashMap<>();
+        private final HashMap<String, String> mimes = new HashMap<>();
+        private final HashMap<String, String> places = new HashMap<>();
+
+        @JavascriptInterface
+        public synchronized String begin(String name, String mime) {
+            try {
+                String id = Long.toString(System.nanoTime());
+                String safe = name.replaceAll("[\\\\/:*?\"<>|]", "_");
+                OutputStream os; Uri uri; String place;
+                if (Build.VERSION.SDK_INT >= 29) {
+                    boolean img = mime.startsWith("image/"), vid = mime.startsWith("video/");
+                    String dir = (img ? Environment.DIRECTORY_PICTURES : vid ? Environment.DIRECTORY_MOVIES : Environment.DIRECTORY_DOWNLOADS) + "/Sada";
+                    ContentValues v = new ContentValues();
+                    v.put(MediaStore.MediaColumns.DISPLAY_NAME, safe);
+                    v.put(MediaStore.MediaColumns.MIME_TYPE, mime);
+                    v.put(MediaStore.MediaColumns.RELATIVE_PATH, dir);
+                    v.put(MediaStore.MediaColumns.IS_PENDING, 1);
+                    Uri coll = img ? MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                            : vid ? MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                            : MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+                    uri = getContentResolver().insert(coll, v);
+                    if (uri == null) return "";
+                    os = getContentResolver().openOutputStream(uri);
+                    place = dir;
+                } else {
+                    File d = new File(getExternalFilesDir(null), "Sada");
+                    if (!d.exists()) d.mkdirs();
+                    File f = new File(d, safe);
+                    os = new FileOutputStream(f);
+                    uri = null;
+                    place = f.getAbsolutePath();
+                }
+                if (os == null) return "";
+                streams.put(id, os); if (uri != null) uris.put(id, uri); mimes.put(id, mime); places.put(id, place);
+                return id;
+            } catch (Exception e) { return ""; }
+        }
+
+        @JavascriptInterface
+        public synchronized boolean append(String id, String b64) {
+            OutputStream os = streams.get(id);
+            if (os == null) return false;
+            try { os.write(Base64.decode(b64, Base64.DEFAULT)); return true; } catch (Exception e) { return false; }
+        }
+
+        @JavascriptInterface
+        public synchronized String finish(String id) {
+            OutputStream os = streams.remove(id);
+            if (os == null) return "";
+            try {
+                os.close();
+                Uri uri = uris.get(id);
+                if (uri != null && Build.VERSION.SDK_INT >= 29) {
+                    ContentValues v = new ContentValues();
+                    v.put(MediaStore.MediaColumns.IS_PENDING, 0);
+                    getContentResolver().update(uri, v, null, null);
+                }
+                String p = places.get(id);
+                return p == null ? "" : p;
+            } catch (Exception e) { return ""; }
+        }
+
+        @JavascriptInterface
+        public void share(String id) {
+            final Uri uri = uris.get(id);
+            if (uri == null) return;
+            final String mime = mimes.get(id);
+            runOnUiThread(() -> {
+                try {
+                    Intent send = new Intent(Intent.ACTION_SEND);
+                    send.setType(mime == null ? "*/*" : mime);
+                    send.putExtra(Intent.EXTRA_STREAM, uri);
+                    send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(Intent.createChooser(send, "افتح الـ LUT في…"));
+                } catch (Exception ignored) { }
             });
         }
     }

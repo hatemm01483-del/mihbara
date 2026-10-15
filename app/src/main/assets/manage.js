@@ -1,4 +1,4 @@
-// صَدى — إدارة العمل الإعلامي: مميزات مبنية على مادة «مبادئ الإدارة» (RTV 314)
+// صحفجي — إدارة العمل الإعلامي: مميزات مبنية على مادة «مبادئ الإدارة» (RTV 314)
 (function () {
   "use strict";
   const E = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -467,7 +467,7 @@
       <h3 class="nf-sec">تطوّر إزاي؟ (من المادة)</h3><ul class="mg-tips">${weak.map(([d]) => `<li><b>${E(d[1])} — محاضرة ${N(d[2])}:</b> ${E(d[3])}</li>`).join("")}</ul>
       <div class="actions"><button class="btn" type="button" id="mgLAI">خطة تطوير ٣٠ يوم</button><button class="btn ghost" type="button" id="mgLShare">مشاركة</button><button class="btn ghost" type="button" id="mgLAgain">أعيد المقياس</button></div>`;
     if (!lv.saved) { lv.saved = true; D.leader = (D.leader || []).concat([{ d: today(), p: total, s: per.map(x => x[1]) }]).slice(-10); save(); try { addHistory("mleader", "مقياس القائد الإعلامي: " + total + "%", report); } catch (e) { } }
-    c.querySelector("#mgLShare").onclick = () => { try { shareText(report + "\n\nعملته على صَدى 🎙️"); } catch (e) { } };
+    c.querySelector("#mgLShare").onclick = () => { try { shareText(report + "\n\nعملته على صحفجي 🎙️"); } catch (e) { } };
     c.querySelector("#mgLAgain").onclick = () => { lv = { i: 0, a: [] }; renderOff("mleader"); };
     c.querySelector("#mgLAI").onclick = () => aiBox(c, `طالب إعلام عمل مقياس القيادة وده نتيجته:\n${report}\n\nاعمله خطة تطوير لمدة ٣٠ يوم (٤ أسابيع) يطبقها في شغله مع فريق إعلامي طلابي (برنامج، جريدة، صفحة)، بتركز على أضعف صفتين. كل أسبوع: هدف واحد، تمرين عملي، وإزاي يقيس إنه اتحسن. استخدم أمثلة من غرفة الأخبار والاستوديو.\n${STYLE}`, { wait: "بيجهّز الخطة…", tool: "mleader", history: "خطة تطوير قيادية" });
   }

@@ -14,3 +14,4 @@ document.write('<script src="live.js"><\/script>');
 document.write('<script src="manage.js"><\/script>');
 document.write('<script src="lut.js"><\/script>');
 document.write('<script src="anchor.js"><\/script>');
+document.write('<script src="social.js"><\/script>');

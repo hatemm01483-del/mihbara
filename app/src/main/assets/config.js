@@ -1,4 +1,4 @@
-// إعدادات مِحبرة
+// إعدادات صَدى
 // server: لينك السيرفر الخاص بيك (Cloudflare Worker). سيبه فاضي عشان يشتغل بالخدمة المجانية.
 // token:  بيتحط تلقائياً وقت البناء من سر GitHub اسمه MIHBARA_TOKEN (متكتبهوش هنا لأن المشروع عام).
 // contact: بريد التواصل اللي يظهر في سياسة الخصوصية (اختياري).
@@ -12,3 +12,5 @@ document.write('<script src="verify.js"><\/script>');
 document.write('<script src="features.js"><\/script>');
 document.write('<script src="live.js"><\/script>');
 document.write('<script src="manage.js"><\/script>');
+document.write('<script src="lut.js"><\/script>');
+document.write('<script src="anchor.js"><\/script>');

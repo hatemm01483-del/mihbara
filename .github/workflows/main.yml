@@ -1,4 +1,4 @@
-name: Build Mihbara APK
+name: Build Sada APK
 
 on:
   push:
@@ -32,6 +32,22 @@ jobs:
             echo "No MIHBARA_TOKEN secret set"
           fi
 
+      - name: Render launcher icons
+        run: |
+          if [ -f branding/icon.svg ]; then
+            (sudo apt-get update -qq && sudo apt-get install -y -qq librsvg2-bin) >/dev/null 2>&1 || true
+            if command -v rsvg-convert >/dev/null; then
+              for d in mdpi:48 hdpi:72 xhdpi:96 xxhdpi:144 xxxhdpi:192; do
+                n=${d%%:*}; s=${d##*:}
+                rsvg-convert -w $s -h $s branding/icon.svg -o app/src/main/res/mipmap-$n/ic_launcher.png
+                rsvg-convert -w $s -h $s branding/icon_round.svg -o app/src/main/res/mipmap-$n/ic_launcher_round.png
+              done
+              echo "icons rendered"
+            else
+              echo "rsvg-convert not available, keeping old PNG icons"
+            fi
+          fi
+
       - name: Build APK
         run: |
           if [ -f settings.gradle ]; then FILE=./settings.gradle; else FILE=$(find . -name settings.gradle -not -path "./.git/*" | head -1); fi
@@ -42,9 +58,9 @@ jobs:
           cd "$(dirname "$FILE")"
           echo "Building project in: $(pwd)"
           gradle assembleDebug --no-daemon
-          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/Mihbara.apk"
+          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/Sada.apk"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Mihbara-APK
-          path: Mihbara.apk
+          name: Sada-APK
+          path: Sada.apk

@@ -713,7 +713,7 @@ footer{margin-top:30px}
   </div>
   <footer>
     <div class="flinks"><button type="button" id="openPrivacy">سياسة الخصوصية</button><span>·</span><button type="button" id="openTerms">الشروط والأحكام</button><span>·</span><button type="button" id="openTour">جولة في التطبيق</button></div>
-    <p>صحفجي · خليك صحفجي · نسخة 2.3 · المحتوى من إنتاج الذكاء الاصطناعي وممكن يحتوي أخطاء. راجع أي معلومة أو رقم من مصدره قبل النشر.</p>
+    <p>صحفجي · خليك صحفجي · نسخة 2.4 · المحتوى من إنتاج الذكاء الاصطناعي وممكن يحتوي أخطاء. راجع أي معلومة أو رقم من مصدره قبل النشر.</p>
     <p>© 2026 صحفجي. جميع الحقوق محفوظة.</p>
   </footer>
 </div>
@@ -1544,7 +1544,7 @@ try{ matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>ap
 // ===== Welcome =====
 const SLIDES=[
   {h:"أهلاً بيك في صحفجي",p:"مساعدك الصحفي الذكي. معمول لطلاب الإعلام عشان تتدرب على شغل غرفة الأخبار الحقيقي."},
-  {h:"كل أدواتك في مكان واحد",p:"",feat:[["news","اكتب خبر أو مقال أو سكريبت، ودقّق وترجم"],["verify","اكشف الشائعات وجهّز أسئلة حوارك"],["prompter","عُدّة صحفي كاملة بتشتغل من غير نت"]]},
+  {h:"كل أدواتك في مكان واحد",p:"",feat:[["social","حوّل خبرك لبوست وكاروسيل وريلز جاهزين للنشر"],["news","اكتب خبر أو مقال أو سكريبت، ودقّق وترجم"],["verify","اكشف الشائعات وجهّز أسئلة حوارك"],["prompter","عُدّة صحفي كاملة بتشتغل من غير نت"]]},
   {h:"اتعلّم وانت بتشتغل",p:"",feat:[["studio","مذيع افتراضي بيقرا نشرتك بصوت"],["quiz","أكتر من 35 سؤال تدريبي بدرجة وشرح"],["history","كل نتايجك محفوظة وتقدر تشاركها"]]}
 ];
 let wi=0;
@@ -1954,4 +1954,18 @@ refreshKeyState();
 </script>
 
 <script>addEventListener("load",function(){setTimeout(function(){var n=document.querySelectorAll("[id^=card-]").length,e=document.getElementById("hsTools");if(n&&e)e.textContent=n;},400);});</script>
+<script>
+/* زرار الرجوع في الموبايل: يقفل اللي مفتوح ويرجع خطوة لورا بدل ما يقفل التطبيق */
+window.sahafgyBack=function(){
+  try{
+    if(document.querySelector(".prompter")&&window.stopPrompter){ stopPrompter(); return true; }
+    if(document.fullscreenElement){ document.exitFullscreen(); return true; }
+    var sh=[].slice.call(document.querySelectorAll(".sheet")).filter(function(s){return !s.hidden;});
+    if(sh.length){ var s=sh[sh.length-1], x=s.querySelector(".x,[id^=close],[aria-label='إغلاق']"); if(x) x.click(); else s.hidden=true; return true; }
+    var w=document.getElementById("welcome"); if(w&&!w.hidden){ closeWelcome(); return true; }
+    if(typeof view!=="undefined"&&view!=="home"){ open("home"); return true; }
+  }catch(e){}
+  return false;
+};
+</script>
 </body></html>

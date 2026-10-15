@@ -265,7 +265,7 @@ public class MainActivity extends Activity {
                 OutputStream os; Uri uri; String place;
                 if (Build.VERSION.SDK_INT >= 29) {
                     boolean img = mime.startsWith("image/"), vid = mime.startsWith("video/");
-                    String dir = (img ? Environment.DIRECTORY_PICTURES : vid ? Environment.DIRECTORY_MOVIES : Environment.DIRECTORY_DOWNLOADS) + "/Sada";
+                    String dir = (img ? Environment.DIRECTORY_PICTURES : vid ? Environment.DIRECTORY_MOVIES : Environment.DIRECTORY_DOWNLOADS) + "/Sahafgy";
                     ContentValues v = new ContentValues();
                     v.put(MediaStore.MediaColumns.DISPLAY_NAME, safe);
                     v.put(MediaStore.MediaColumns.MIME_TYPE, mime);
@@ -279,7 +279,7 @@ public class MainActivity extends Activity {
                     os = getContentResolver().openOutputStream(uri);
                     place = dir;
                 } else {
-                    File d = new File(getExternalFilesDir(null), "Sada");
+                    File d = new File(getExternalFilesDir(null), "Sahafgy");
                     if (!d.exists()) d.mkdirs();
                     File f = new File(d, safe);
                     os = new FileOutputStream(f);

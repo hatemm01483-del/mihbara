@@ -354,8 +354,12 @@ public class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        if (webView.canGoBack()) webView.goBack();
-        else super.onBackPressed();
+        if (webView == null) { super.onBackPressed(); return; }
+        webView.evaluateJavascript("(window.sahafgyBack&&window.sahafgyBack())?'1':'0'", v -> {
+            if (v != null && v.contains("1")) return;
+            if (webView.canGoBack()) webView.goBack();
+            else finish();
+        });
     }
 
     @Override

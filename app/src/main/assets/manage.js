@@ -1,4 +1,4 @@
-// صحفجي — إدارة العمل الإعلامي: مميزات مبنية على مادة «مبادئ الإدارة» (RTV 314)
+// أثير — إدارة العمل الإعلامي: مميزات مبنية على مادة «مبادئ الإدارة» (RTV 314)
 (function () {
   "use strict";
   const E = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -48,7 +48,7 @@
   // =====================================================================
   // ١) إدارة مشروع إعلامي — وظائف الإدارة الأربع
   // =====================================================================
-  const PTYPES = ["حلقة برنامج", "عدد جريدة / مجلة", "حملة إعلامية", "تغطية حدث", "بودكاست / سلسلة فيديو", "مشروع تخرج"];
+  const PTYPES = ["حلقة برنامج", "حلقة إذاعية / بودكاست", "حملة إعلامية", "تغطية حدث", "بودكاست / سلسلة فيديو", "مشروع تخرج"];
   const GOALC = ["واضح للفريق كله", "مشروع (قانوني وأخلاقي)", "واقعي حسب إمكانياتنا", "قابل للقياس والمتابعة", "مرن لو الظروف اتغيرت"];
   const CTRL = [["quality", "الجودة"], ["time", "الوقت"], ["cost", "التكلفة"], ["effort", "المجهود"]];
   let pv = { id: null, tab: "plan" };
@@ -343,7 +343,7 @@
   function orgCtx(o) { return `المؤسسة: ${o.name || "—"} (${o.kind || "—"})\nالرؤية: ${o.vision || "—"}\nالرسالة: ${o.mission || "—"}\nSWOT — قوة: ${o.swot.s || "—"} | ضعف: ${o.swot.w || "—"} | فرص: ${o.swot.o || "—"} | تهديدات: ${o.swot.t || "—"}`; }
   function offOrg(box) {
     const o = O();
-    head(box, "هوية مؤسستي ومنافسيها", "ابني هوية قناتك أو صفحتك أو جريدتك الطلابية: رؤية ورسالة، تحليل SWOT، هيكل إداري، ومقارنة بالمنافسين.", [2, 8]);
+    head(box, "هوية مؤسستي ومنافسيها", "ابني هوية قناتك أو إذاعتك أو صفحتك الطلابية: رؤية ورسالة، تحليل SWOT، هيكل إداري، ومقارنة بالمنافسين.", [2, 8]);
     tabs(box.lastChild, [["id", "الرؤية والرسالة"], ["swot", "SWOT"], ["lv", "الهيكل الإداري"], ["comp", "المنافسين"], ["card", "بطاقة الهوية"]], ov, k => { ov = k; renderOff("morg"); });
     const c = document.createElement("div"); c.className = "proof"; box.append(c);
     const nameRow = `<div class="mg-row"><div><label for="mgON">اسم المؤسسة</label><input id="mgON" value="${E(o.name)}" placeholder="مثلاً: راديو إعلام أونلاين"></div><div><label for="mgOK">نوعها</label><input id="mgOK" value="${E(o.kind)}" placeholder="قناة يوتيوب / راديو / صفحة أخبار"></div></div>`;
@@ -379,7 +379,7 @@
     } else if (ov === "comp") {
       c.innerHTML = concept([8, 2], "التنافسية الصحية بتخلي المؤسسة تطوّر نفسها، والمنافسين جزء من «التهديدات» في SWOT. اعرف منافسك كويس: بيتميز في إيه؟ وفين الفجوة اللي تقدر تكسب فيها جمهورك؟") +
         `<div class="mg-add"><input id="mgCN" placeholder="اسم المنافس"><input id="mgCS" placeholder="بيتميز في…"><input id="mgCW" placeholder="ضعفه…"><button class="btn" type="button" id="mgCAdd">ضيف</button></div>
-        <div class="mg-comp">${o.comp.length ? `<table><thead><tr><th>المنافس</th><th>قوته</th><th>ضعفه</th><th></th></tr></thead><tbody>${o.comp.map((x, i) => `<tr><td><b>${E(x.n)}</b></td><td>${E(x.s)}</td><td>${E(x.w)}</td><td><button type="button" class="mg-x" data-rm="${i}" aria-label="حذف">✕</button></td></tr>`).join("")}</tbody></table>` : `<p class="small">ضيف ٢ أو ٣ منافسين (صفحات أو قنوات أو جرايد بتستهدف نفس جمهورك).</p>`}</div>
+        <div class="mg-comp">${o.comp.length ? `<table><thead><tr><th>المنافس</th><th>قوته</th><th>ضعفه</th><th></th></tr></thead><tbody>${o.comp.map((x, i) => `<tr><td><b>${E(x.n)}</b></td><td>${E(x.s)}</td><td>${E(x.w)}</td><td><button type="button" class="mg-x" data-rm="${i}" aria-label="حذف">✕</button></td></tr>`).join("")}</tbody></table>` : `<p class="small">ضيف ٢ أو ٣ منافسين (قنوات أو إذاعات أو صفحات بتستهدف نفس جمهورك).</p>`}</div>
         <div class="actions"><button class="btn" type="button" id="mgCAI">قارن واقترح ميزة تنافسية</button></div>`;
       c.querySelector("#mgCAdd").onclick = () => { const n = c.querySelector("#mgCN").value.trim(); if (!n) { T("اكتب اسم المنافس"); return; } o.comp.push({ n, s: c.querySelector("#mgCS").value.trim(), w: c.querySelector("#mgCW").value.trim() }); save(); renderOff("morg"); };
       $$(c, "[data-rm]").forEach(b => b.onclick = () => { o.comp.splice(+b.dataset.rm, 1); save(); renderOff("morg"); });
@@ -467,9 +467,9 @@
       <h3 class="nf-sec">تطوّر إزاي؟ (من المادة)</h3><ul class="mg-tips">${weak.map(([d]) => `<li><b>${E(d[1])} — محاضرة ${N(d[2])}:</b> ${E(d[3])}</li>`).join("")}</ul>
       <div class="actions"><button class="btn" type="button" id="mgLAI">خطة تطوير ٣٠ يوم</button><button class="btn ghost" type="button" id="mgLShare">مشاركة</button><button class="btn ghost" type="button" id="mgLAgain">أعيد المقياس</button></div>`;
     if (!lv.saved) { lv.saved = true; D.leader = (D.leader || []).concat([{ d: today(), p: total, s: per.map(x => x[1]) }]).slice(-10); save(); try { addHistory("mleader", "مقياس القائد الإعلامي: " + total + "%", report); } catch (e) { } }
-    c.querySelector("#mgLShare").onclick = () => { try { shareText(report + "\n\nعملته على صحفجي 🎙️"); } catch (e) { } };
+    c.querySelector("#mgLShare").onclick = () => { try { shareText(report + "\n\nعملته على أثير 🎙️"); } catch (e) { } };
     c.querySelector("#mgLAgain").onclick = () => { lv = { i: 0, a: [] }; renderOff("mleader"); };
-    c.querySelector("#mgLAI").onclick = () => aiBox(c, `طالب إعلام عمل مقياس القيادة وده نتيجته:\n${report}\n\nاعمله خطة تطوير لمدة ٣٠ يوم (٤ أسابيع) يطبقها في شغله مع فريق إعلامي طلابي (برنامج، جريدة، صفحة)، بتركز على أضعف صفتين. كل أسبوع: هدف واحد، تمرين عملي، وإزاي يقيس إنه اتحسن. استخدم أمثلة من غرفة الأخبار والاستوديو.\n${STYLE}`, { wait: "بيجهّز الخطة…", tool: "mleader", history: "خطة تطوير قيادية" });
+    c.querySelector("#mgLAI").onclick = () => aiBox(c, `طالب إعلام عمل مقياس القيادة وده نتيجته:\n${report}\n\nاعمله خطة تطوير لمدة ٣٠ يوم (٤ أسابيع) يطبقها في شغله مع فريق إعلامي طلابي (برنامج، إذاعة، صفحة)، بتركز على أضعف صفتين. كل أسبوع: هدف واحد، تمرين عملي، وإزاي يقيس إنه اتحسن. استخدم أمثلة من غرفة الأخبار والاستوديو.\n${STYLE}`, { wait: "بيجهّز الخطة…", tool: "mleader", history: "خطة تطوير قيادية" });
   }
 
   // ---------- CSS ----------

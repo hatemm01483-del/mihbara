@@ -1,4 +1,4 @@
-// صحفجي — صناعة المحتوى: استوديو السوشيال (بوست/كاروسيل صور) + ريلز وستوري بورد
+// أثير — صناعة المحتوى: استوديو السوشيال (بوست/كاروسيل صور) + ريلز وستوري بورد
 (function () {
   "use strict";
   const E = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -41,7 +41,7 @@
   }
   function segHTML(name, opts, val) { return `<div class="sc-seg" data-seg="${name}">${opts.map(([k, l]) => `<button type="button" data-v="${k}" aria-pressed="${k === val}">${l}</button>`).join("")}</div>`; }
   function bindSeg(c, name, fn) { $$(c, `[data-seg="${name}"] button`).forEach(b => b.onclick = () => { $$(c, `[data-seg="${name}"] button`).forEach(x => x.setAttribute("aria-pressed", x === b)); fn(b.dataset.v); }); }
-  async function fontsReady() { try { await Promise.all([document.fonts.load(`700 40px ${FD}`, "صحفجي"), document.fonts.load(`500 40px ${FB}`, "صحفجي"), document.fonts.load(`400 40px ${FB}`, "صحفجي")]); } catch (e) { } }
+  async function fontsReady() { try { await Promise.all([document.fonts.load(`700 40px ${FD}`, "أثير"), document.fonts.load(`500 40px ${FB}`, "أثير"), document.fonts.load(`400 40px ${FB}`, "أثير")]); } catch (e) { } }
 
   // =====================================================================
   //                         استوديو السوشيال
@@ -49,12 +49,12 @@
   const SIZES = { post: [1080, 1350, "بوست 4:5"], square: [1080, 1080, "مربع 1:1"], story: [1080, 1920, "ستوري 9:16"], wide: [1200, 675, "عريض 16:9"] };
   const THEMES = {
     breaking: { n: "عاجل", bg: ["#B91C1C", "#450A0A"], ink: "#fff", sub: "rgba(255,255,255,.86)", acc: "#FDE047", tag: "عاجل" },
-    classic: { n: "جرنال", bg: ["#FBF8F3", "#EFE8DC"], ink: "#111827", sub: "#4B5563", acc: "#BE123C", tag: "" },
+    classic: { n: "كلاسيك", bg: ["#FBF8F3", "#EFE8DC"], ink: "#111827", sub: "#4B5563", acc: "#BE123C", tag: "" },
     dark: { n: "داكن ذهبي", bg: ["#16161F", "#05050A"], ink: "#fff", sub: "rgba(255,255,255,.78)", acc: "#F5B700", tag: "" },
     vivid: { n: "ملوّن", bg: ["#F43F5E", "#7C3AED"], ink: "#fff", sub: "rgba(255,255,255,.9)", acc: "#FDBA74", tag: "" },
     quote: { n: "اقتباس", bg: ["#FFFFFF", "#F3F4F6"], ink: "#111827", sub: "#374151", acc: "#E11D48", tag: "", quote: true }
   };
-  const SDEF = { text: "", size: "post", theme: "breaking", kind: "single", n: 5, lang: "fusha", brand: "صحفجي نيوز", handle: "@sahafgy", accent: "", slides: [], caption: "", tags: [] };
+  const SDEF = { text: "", size: "post", theme: "breaking", kind: "single", n: 5, lang: "fusha", brand: "أثير نيوز", handle: "@atheer", accent: "", slides: [], caption: "", tags: [] };
   let SS = Object.assign({}, SDEF, st("mihbara-social") || {}), photo = null, rendering = 0;
   const saveS = () => st("mihbara-social", Object.assign({}, SS));
 
@@ -71,7 +71,7 @@
   function rrect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
   function micMark(ctx, x, y, s, col) {
     ctx.save(); ctx.translate(x, y); ctx.scale(s / 24, s / 24); ctx.fillStyle = col;
-    ctx.beginPath(); ctx.arc(12, 7, 5.5, 0, 7); ctx.fill(); ctx.fillRect(8, 12.6, 8, 1.8); ctx.fillRect(11, 14.4, 2, 5); rrect(ctx, 7.5, 19.4, 9, 2.6, 1.3); ctx.fill(); ctx.restore();
+    ctx.beginPath(); ctx.moveTo(5, 2.5); ctx.lineTo(21, 12); ctx.lineTo(5, 21.5); ctx.closePath(); ctx.fill(); ctx.restore();
   }
   function drawSlide(cv, sl, i, total) {
     const [W, H] = SIZES[SS.size] || SIZES.post; cv.width = W; cv.height = H;
@@ -93,7 +93,7 @@
     // البراند فوق
     const bx = W - pad; ctx.textAlign = "right";
     micMark(ctx, bx - 44 * u, pad - 6 * u, 44 * u, onPhoto || dark ? "#fff" : acc);
-    ctx.font = `700 ${34 * u}px ${FD}`; ctx.fillStyle = ink; ctx.fillText(SS.brand || "صحفجي نيوز", bx - 60 * u, pad + 30 * u);
+    ctx.font = `700 ${34 * u}px ${FD}`; ctx.fillStyle = ink; ctx.fillText(SS.brand || "أثير نيوز", bx - 60 * u, pad + 30 * u);
     if (total > 1) { ctx.textAlign = "left"; ctx.font = `600 ${26 * u}px ${FB}`; ctx.fillStyle = sub; ctx.fillText(`${i + 1}/${total}`, pad, pad + 28 * u); ctx.textAlign = "right"; }
     // العلامة (عاجل/كيكر)
     const top = pad + 150 * u, maxW = W - 2 * pad, bottomRes = 150 * u;
@@ -134,7 +134,7 @@
   }
   function socialPrompt(text) {
     const n = SS.kind === "single" ? 1 : cl(+SS.n || 5, 3, 8);
-    return `إنت محرر سوشيال ميديا شاطر في مؤسسة إخبارية مصرية. حوّل المادة اللي تحت لـ${n === 1 ? "بوست صورة واحدة" : `كاروسيل من ${n} شرائح`} لانستجرام وفيسبوك.
+    return `إنت محرر سوشيال ميديا شاطر في قناة إخبارية مصرية. حوّل المادة اللي تحت لـ${n === 1 ? "بوست صورة واحدة" : `كاروسيل من ${n} شرائح`} لانستجرام وفيسبوك.
 - اللغة: ${SS.lang === "ammiya" ? "عامية مصرية خفيفة ومحترمة" : "عربي فصيح مبسّط"}.
 - ${n === 1 ? "الشريحة فيها: كيكر (كلمة أو اتنين زي: عاجل/اقتصاد/جامعة)، عنوان قوي أقل من 12 كلمة، وسطرين شرح بحد أقصى 30 كلمة." : "الشريحة الأولى غلاف جذاب بعنوان قوي (هوك) من غير شرح طويل، الشرائح اللي بعدها كل واحدة فكرة واحدة (عنوان قصير + شرح بحد أقصى 30 كلمة)، والأخيرة خلاصة + دعوة للتفاعل أو المتابعة."}
 - متضيفش أي معلومة أو رقم مش موجود في المادة.
@@ -147,11 +147,11 @@
   }
   function localSlides(text) {
     const S = sentences(text); if (!S.length) return null;
-    if (SS.kind === "single") return { slides: [{ kicker: "خبر", title: clip(S[0], 12), body: clip(S.slice(1, 3).join(" "), 30) }], caption: clip(S.slice(0, 3).join(" "), 60), hashtags: ["#صحفجي", "#أخبار"] };
+    if (SS.kind === "single") return { slides: [{ kicker: "خبر", title: clip(S[0], 12), body: clip(S.slice(1, 3).join(" "), 30) }], caption: clip(S.slice(0, 3).join(" "), 60), hashtags: ["#أثير", "#أخبار"] };
     const n = cl(+SS.n || 5, 3, 8), sl = [{ kicker: "خبر", title: clip(S[0], 12), body: "" }];
     S.slice(1, n - 1).forEach((s, k) => sl.push({ kicker: String(k + 1), title: clip(s, 9), body: clip(s, 30) }));
     sl.push({ kicker: "الخلاصة", title: "تابعنا عشان توصلك الأخبار أول بأول", body: clip(S[0], 24) });
-    return { slides: sl, caption: clip(S.slice(0, 3).join(" "), 60), hashtags: ["#صحفجي", "#أخبار"] };
+    return { slides: sl, caption: clip(S.slice(0, 3).join(" "), 60), hashtags: ["#أثير", "#أخبار"] };
   }
   function cleanSlides(j) {
     const sl = (j && Array.isArray(j.slides) ? j.slides : []).map(s => ({ kicker: String(s.kicker || "").slice(0, 30), title: String(s.title || "").slice(0, 160), body: String(s.body || "").slice(0, 400) })).filter(s => s.title || s.body);
@@ -160,7 +160,7 @@
 
   function offSocial(box) {
     const head = document.createElement("div"); head.className = "slip";
-    head.innerHTML = `<h2>استوديو السوشيال</h2><p class="lead">حط خبرك أو أي مادة، و«صحفجي» يحوّلها لبوست أو كاروسيل صور متصمم وجاهز للنشر على انستجرام وفيسبوك، مع الكابشن والهاشتاجات. تقدر تعدّل أي كلمة وتختار الشكل، وتحفظ الصور على موبايلك.</p>`;
+    head.innerHTML = `<h2>استوديو السوشيال</h2><p class="lead">حط خبرك أو أي مادة، و«أثير» يحوّلها لبوست أو كاروسيل صور متصمم وجاهز للنشر على انستجرام وفيسبوك، مع الكابشن والهاشتاجات. تقدر تعدّل أي كلمة وتختار الشكل، وتحفظ الصور على موبايلك.</p>`;
     box.append(head);
     const c = document.createElement("div"); c.className = "proof sc"; box.append(c);
     c.innerHTML = `<label for="scText">الخبر أو المادة</label><textarea id="scText" placeholder="الصق الخبر هنا… أو اكتب الفكرة">${E(SS.text)}</textarea>${fromHistoryOptions()}
@@ -231,7 +231,7 @@
   function drawAll() { SS.slides.forEach((_, i) => drawOne(i)); }
   async function exportOne(i, share, quiet) {
     const cv = document.createElement("canvas"); await fontsReady(); drawSlide(cv, SS.slides[i], i, SS.slides.length);
-    const b = await toBlob(cv); const name = `Sahafgy_post_${Date.now()}_${i + 1}.png`;
+    const b = await toBlob(cv); const name = `Atheer_post_${Date.now()}_${i + 1}.png`;
     try { const where = await saveBlob(b, name, "image/png", share); if (!quiet) T(share ? "اختار هتشاركها فين" : `اتحفظت في ${where} ✓`); return where; }
     catch (e) { if (!quiet) T("مقدرتش أحفظ الصورة"); throw e; }
   }
@@ -261,7 +261,7 @@
   function reelsPrompt(text) {
     const pl = { reels: "Instagram Reels", tiktok: "TikTok", shorts: "YouTube Shorts" }[RS.plat] || "Reels";
     const sty = (STYLES.find(s => s[0] === RS.style) || STYLES[0])[1];
-    return `إنت صانع محتوى فيديو قصير ومخرج شاطر بتشتغل لمؤسسة إخبارية مصرية. اعمل خطة فيديو ${pl} مدته ${RS.dur} ثانية بالظبط، بأسلوب «${sty}»، عن المادة اللي تحت.
+    return `إنت صانع محتوى فيديو قصير ومخرج شاطر بتشتغل لقناة إخبارية مصرية. اعمل خطة فيديو ${pl} مدته ${RS.dur} ثانية بالظبط، بأسلوب «${sty}»، عن المادة اللي تحت.
 - أول 3 ثواني هوك قوي يوقّف اللي بيقلّب.
 - قسّم الفيديو للقطات (shots) متتالية من 0 لحد ${RS.dur} ثانية، كل لقطة 2-8 ثواني. نوع اللقطة لازم يكون واحد من: close, medium, wide, broll, text, screen.
 - لكل لقطة: اللي بيظهر في الكادر (visual) وزاوية/حركة الكاميرا، الكلام المنطوق (voice) ${RS.lang === "ammiya" ? "بالعامية المصرية" : "بالفصحى المبسطة"}، النص اللي يتكتب على الشاشة (text) قصير جداً، والصوت/المؤثر (sound).
@@ -287,7 +287,7 @@
   function localReel(text) {
     const S = sentences(text); if (!S.length) return null; const D = RS.dur, n = cl(Math.round(D / 5), 3, 12), per = D / n, types = ["close", "broll", "text", "medium", "broll", "wide", "text", "close"];
     const shots = []; for (let i = 0; i < n; i++) shots.push({ from: Math.round(i * per), to: Math.round((i + 1) * per), type: i === 0 ? "close" : types[i % types.length], visual: i === 0 ? "المذيع/المراسل بيبص للكاميرا مباشرة" : "لقطات من مكان الحدث", camera: i === 0 ? "ثابتة على مستوى العين" : "حركة بطيئة", voice: clip(S[i % S.length], Math.round(per * 2.3)), text: clip(S[i % S.length], 5), sound: i === 0 ? "مؤثر افتتاحي سريع" : "موسيقى خفيفة" });
-    return { title: clip(S[0], 8), hook: clip(S[0], 10), shots, cover: clip(S[0], 5), caption: clip(S.slice(0, 2).join(" "), 40), hashtags: ["#صحفجي", "#ريلز"], music: "إيقاع سريع خفيف", tips: ["صوّر عمودي 9:16", "خلي الإضاءة في وش المتكلم"] };
+    return { title: clip(S[0], 8), hook: clip(S[0], 10), shots, cover: clip(S[0], 5), caption: clip(S.slice(0, 2).join(" "), 40), hashtags: ["#أثير", "#ريلز"], music: "إيقاع سريع خفيف", tips: ["صوّر عمودي 9:16", "خلي الإضاءة في وش المتكلم"] };
   }
   function offReels(box) {
     const head = document.createElement("div"); head.className = "slip";
@@ -363,8 +363,8 @@
       ctx.font = `400 23px ${FB}`; ctx.fillStyle = "#C4B5FD"; L.tx.forEach(l => { yy += 34; ctx.fillText(l, tx0, yy); });
       y += L.h + 24;
     }
-    ctx.fillStyle = "rgba(255,255,255,.55)"; ctx.font = `500 24px ${FB}`; micMark(ctx, W - pad - 30, H - 64, 30, "#E11D48"); ctx.fillText("اتعمل على صحفجي · خليك صحفجي", W - pad - 44, H - 40);
-    const b = await toBlob(cv); return saveBlob(b, `Sahafgy_storyboard_${Date.now()}.png`, "image/png", false);
+    ctx.fillStyle = "rgba(255,255,255,.55)"; ctx.font = `500 24px ${FB}`; micMark(ctx, W - pad - 30, H - 64, 30, "#E11D48"); ctx.fillText("اتعمل على أثير · خليك على الهوا", W - pad - 44, H - 40);
+    const b = await toBlob(cv); return saveBlob(b, `Atheer_storyboard_${Date.now()}.png`, "image/png", false);
   }
 
   // ===================== CSS + تسجيل الأدوات =====================

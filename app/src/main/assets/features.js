@@ -1,4 +1,4 @@
-/* صحفجي — غرفة الأخبار: الاهتمامات، التقرير الصباحي، مدرب الإلقاء، لوحات المؤسسات */
+/* أثير — غرفة الأخبار: الاهتمامات، التقرير الصباحي، مدرب الإلقاء، لوحات المؤسسات */
 (function () {
   "use strict";
   // ---------- شبكة (مشتركة مع verify.js) ----------
@@ -231,8 +231,8 @@
     outfit: function () { return svgWrap(person({ mood: "smile", hair: "long" }) + "<g transform='translate(30 40)'><rect x='-14' y='-12' width='28' height='24' rx='4' fill='#0B7285'/><text x='0' y='22' text-anchor='middle' font-size='7' font-weight='700' fill='#0c8a63'>سادة ✓</text></g><g transform='translate(170 40)'><rect x='-14' y='-12' width='28' height='24' rx='4' fill='url(#nfStripe)'/><path d='M-14 -12 L14 12' stroke='#E03131' stroke-width='2.4'/><text x='0' y='22' text-anchor='middle' font-size='7' font-weight='700' fill='#E03131'>مقلّم ✗</text></g><defs><pattern id='nfStripe' width='4' height='4' patternUnits='userSpaceOnUse'><rect width='4' height='4' fill='#fff'/><rect width='2' height='4' fill='#222'/></pattern></defs>", "اللبس"); },
     mic: function () { return svgWrap(person({ mic: true, mood: "neutral" }) + "<path d='M88 92 L58 78' stroke='#1E3A8A' stroke-width='1.2'/>" + tagL(48, 72, "المايك على الصدر", "#0c8a63") + tagL(156, 70, "شبر تحت الدقن", "#0c8a63"), "الميكروفون"); }
   };
-  var TWISTERS = ["خيط حرير على حيط خليل.", "ضابطٌ ظريفٌ ضاعَ ظلُّه في الضباب.", "قال القاضي: القضية قديمة، والقرار قريب.", "ثلاثة ذئاب ذهبت ثم ثارت في الثلج.", "صوت الصحفي الصادق يصل أسرع من الصدى.", "طار الطائر الطويل فوق الطريق الطيني."];
-  var PACE_TEXT = "مساء الخير، وأهلاً بكم في نشرة صحفجي نيوز. نبدأ بأبرز الأخبار. افتتحت كلية الإعلام معملاً جديداً للصحافة الرقمية، يضم أربعين جهاز كمبيوتر واستوديو للبودكاست. ويخدم المعمل ألفاً ومئتي طالب سنوياً. وفي الرياضة، يستعد المنتخب لمباراته المقبلة وسط تفاؤل جماهيري كبير. كانت هذه أبرز الأخبار، شكراً لمتابعتكم.";
+  var TWISTERS = ["خيط حرير على حيط خليل.", "ضابطٌ ظريفٌ ضاعَ ظلُّه في الضباب.", "قال القاضي: القضية قديمة، والقرار قريب.", "ثلاثة ذئاب ذهبت ثم ثارت في الثلج.", "صوت المذيع الصادق يصل أسرع من الصدى.", "طار الطائر الطويل فوق الطريق الطيني."];
+  var PACE_TEXT = "مساء الخير، وأهلاً بكم في نشرة أثير نيوز. نبدأ بأبرز الأخبار. افتتحت كلية الإعلام مركزاً جديداً للإنتاج الإذاعي والتلفزيوني، يضم أربعين جهاز مونتاج واستوديو للبودكاست. ويخدم المركز ألفاً ومئتي طالب سنوياً. وفي الرياضة، يستعد المنتخب لمباراته المقبلة وسط تفاؤل جماهيري كبير. كانت هذه أبرز الأخبار، شكراً لمتابعتكم.";
   function renderCoach(box) {
     var tabs = [["cam", "الكاميرا والوقفة"], ["voice", "الصوت والنطق"], ["pace", "القراءة بانتظام"]], cur = "cam";
     box.innerHTML = "<div class='slip'><h2>مدرب الإلقاء</h2><p class='lead'>اتعلّم إزاي تقف أو تقعد قدام الكاميرا، وتظبط صوتك، وتقرا بإيقاع منتظم زي المذيعين.</p><div class='seg2' id='nfTabs'></div></div><div id='nfCoachBody'></div>";
@@ -256,7 +256,7 @@
           card(ILL.light(), "الإضاءة", ["النور يكون قدامك أو بزاوية خفيفة من جنب، مش وراك.", "الشباك وراك بيخليك ضلّ أسود، فاقعد وانت قدام الشباك.", "لو عندك لمبة واحدة: حطها قدامك فوق مستوى عينك شوية.", "تجنب نور السقف لوحده لأنه بيعمل ضلّ تحت العين."]) +
           card(ILL.outfit(), "اللبس", ["ألوان سادة هادية زي الكحلي والزيتي والرمادي.", "ابعد عن المقلّم والكاروهات الصغيرة لأنها بتعمل رعشة في الصورة.", "ابعد عن الأبيض الصريح والأخضر لو هتستخدم كروما.", "إكسسوارات بسيطة من غير لمعة أو صوت."]) +
           card(ILL.mic(), "الميكروفون", ["المايك الصغير (لافلير) يتشبك على الصدر، حوالي شبر تحت الدقن.", "خليه ناحية الكتف اللي هتلف ناحيته لو فيه ضيف.", "اتأكد إن الهدوم مش بتحك فيه، وإن السلك مستخبي.", "اعمل اختبار صوت (Test) قبل التسجيل: قول اسمك والتاريخ."]) +
-          "</div><div class='proof'><h3 class='nf-sec'>قبل ما تبدأ التصوير</h3><ul class='nf-check'><li>الموبايل ثابت على حامل، ونضّف العدسة بمنديل.</li><li>شغّل خطوط الأتلات (Grid) في إعدادات الكاميرا.</li><li>الإضاءة قدامك مش وراك، والخلفية هادية ومرتبة.</li><li>اقفل الإشعارات وحط الموبايل على وضع الطيران.</li><li>اشرب مية، وخد ٣ أنفاس عميقة.</li><li>جرّب «التلقين» من عُدّة الصحفي عشان تقرا وانت باصص للكاميرا.</li></ul>" +
+          "</div><div class='proof'><h3 class='nf-sec'>قبل ما تبدأ التصوير</h3><ul class='nf-check'><li>الموبايل ثابت على حامل، ونضّف العدسة بمنديل.</li><li>شغّل خطوط الأتلات (Grid) في إعدادات الكاميرا.</li><li>الإضاءة قدامك مش وراك، والخلفية هادية ومرتبة.</li><li>اقفل الإشعارات وحط الموبايل على وضع الطيران.</li><li>اشرب مية، وخد ٣ أنفاس عميقة.</li><li>جرّب «التلقين» من عُدّة الإعلامي عشان تقرا وانت باصص للكاميرا.</li></ul>" +
           "<h3 class='nf-sec'>أخطاء شائعة عند المبتدئين</h3><ul class='nf-check'><li>البدء بكلمة «طيب» أو «إمم»: ابدأ بعد ثانية سكوت ووشك جاهز.</li><li>السرعة الزيادة من التوتر: اقرا أبطأ مما تتخيل.</li><li>الوقفة بعد الخبر: فضّل باصص للكاميرا ثانيتين بعد ما تخلص، ماتبصّش بعيد فوراً.</li><li>نسيان الابتسامة في التحية والختام.</li></ul><div class='actions'><button class='btn' type='button' id='nfGoPrompter'>افتح التلقين</button></div></div>";
         body.querySelector("#nfGoPrompter").onclick = function () { open("prompter"); };
       } else if (cur === "voice") {
@@ -291,10 +291,10 @@
 
   // ---------- لوحات المؤسسات ----------
   var OUTLETS = [
-    { k: "youm7", name: "اليوم السابع", d: "youm7.com" }, { k: "ahram", name: "الأهرام", d: "ahram.org.eg" }, { k: "masry", name: "المصري اليوم", d: "almasryalyoum.com" },
-    { k: "shorouk", name: "الشروق", d: "shorouknews.com" }, { k: "masrawy", name: "مصراوي", d: "masrawy.com" }, { k: "watan", name: "الوطن", d: "elwatannews.com" },
+    { k: "qahera", name: "القاهرة الإخبارية", d: "alqaheranews.net" }, { k: "maspero", name: "ماسبيرو", d: "maspero.eg" }, { k: "france24", name: "فرانس 24", d: "france24.com/ar" },
+    { k: "dw", name: "DW عربية", d: "dw.com/ar" }, { k: "cnbc", name: "CNBC عربية", d: "cnbcarabia.com" }, { k: "rt", name: "RT عربي", d: "arabic.rt.com" },
     { k: "hadath", name: "الحدث", d: "alhadath.net" }, { k: "arabiya", name: "العربية", d: "alarabiya.net" }, { k: "sky", name: "سكاي نيوز عربية", d: "skynewsarabia.com" },
-    { k: "bbc", name: "BBC عربي", d: "bbc.com/arabic" }, { k: "jazeera", name: "الجزيرة", d: "aljazeera.net" }, { k: "qahera", name: "القاهرة الإخبارية", d: "alqaheranews.net" }
+    { k: "bbc", name: "BBC عربي", d: "bbc.com/arabic" }, { k: "jazeera", name: "الجزيرة", d: "aljazeera.net" }
   ];
   var CATS = [
     ["سياسة", /(الرئيس|وزير|الحكومة|البرلمان|النواب|الشيوخ|سفير|دبلوماس|مجلس الوزراء|انتخاب|حزب)/],
@@ -333,7 +333,7 @@
   }
   function renderOutlets(box) {
     var sel = st("mihbara-outlet") || "youm7";
-    box.innerHTML = "<div class='slip'><h2>لوحة المؤسسات</h2><p class='lead'>اختار جريدة أو قناة، وشوف نشاطها النهارده: عدد الأخبار، ساعات النشر، أكتر الأقسام، أهم الموضوعات، وأرشيف أخبارها بالروابط.</p><div class='nf-chips' id='nfOut'></div><details class='nf-add'><summary>+ ضيف مؤسسة تانية</summary><div class='row'><div><label for='nfOName'>الاسم</label><input id='nfOName' placeholder='مثلاً: أخبار اليوم'></div><div><label for='nfODom'>الموقع</label><input id='nfODom' dir='ltr' placeholder='akhbarelyom.com'></div></div><div class='actions'><button class='btn mini' type='button' id='nfOAdd'>إضافة</button></div></details></div><div id='nfDash'></div>";
+    box.innerHTML = "<div class='slip'><h2>لوحة المؤسسات</h2><p class='lead'>اختار قناة أو إذاعة، وشوف نشاطها النهارده: عدد الأخبار، ساعات النشر، أكتر الأقسام، أهم الموضوعات، وأرشيف أخبارها بالروابط.</p><div class='nf-chips' id='nfOut'></div><details class='nf-add'><summary>+ ضيف مؤسسة تانية</summary><div class='row'><div><label for='nfOName'>الاسم</label><input id='nfOName' placeholder='مثلاً: إكسترا نيوز'></div><div><label for='nfODom'>الموقع</label><input id='nfODom' dir='ltr' placeholder='extranews.tv'></div></div><div class='actions'><button class='btn mini' type='button' id='nfOAdd'>إضافة</button></div></details></div><div id='nfDash'></div>";
     var chips = box.querySelector("#nfOut"), dash = box.querySelector("#nfDash");
     function drawChips() { chips.innerHTML = ""; myOutlets().forEach(function (o) { var b = document.createElement("button"); b.type = "button"; b.className = "nf-chip"; b.textContent = o.name; b.setAttribute("aria-pressed", String(o.k === sel)); b.onclick = function () { sel = o.k; st("mihbara-outlet", sel); drawChips(); load(); }; chips.append(b); }); }
     box.querySelector("#nfOAdd").onclick = function () {
@@ -422,7 +422,7 @@
       ICONS.coach = '<rect x="2" y="7" width="14" height="10" rx="2"/><path d="M16 11l6-3v8l-6-3"/><circle cx="9" cy="12" r="2"/>';
       TINT.brief = "#f08c00"; TINT.outlets = "#1c7ed6"; TINT.coach = "#d6336c";
       EXTRA.brief = { name: "التقرير الصباحي", desc: "أهم أخبار النهارده بمصادرها قبل اجتماع التحرير" };
-      EXTRA.outlets = { name: "لوحة المؤسسات", desc: "نشاط وأرشيف ومؤشرات كل جريدة أو قناة" };
+      EXTRA.outlets = { name: "لوحة المؤسسات", desc: "نشاط وأرشيف ومؤشرات كل قناة أو إذاعة" };
       EXTRA.coach = { name: "مدرب الإلقاء", desc: "الوقفة قدام الكاميرا، الصوت، والقراءة بانتظام", off: true };
       OFF.push("brief", "outlets", "coach");
       GROUPS.unshift({ title: "غرفة الأخبار", items: ["brief", "outlets", "coach"] });

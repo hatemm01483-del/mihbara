@@ -1,4 +1,4 @@
-// سيرفر صحفجي — Cloudflare Worker
+// سيرفر أثير — Cloudflare Worker
 // المتغيرات (Settings → Variables and Secrets):
 //   GEMINI_API_KEY     (Secret)  مفتاح جوجل Gemini المجاني (من aistudio.google.com) — لو موجود بيتستخدم هو
 //   GEMINI_MODEL       (Text)    موديل جوجل (اختياري، السيرفر بيختار أحدث موديل flash لوحده)

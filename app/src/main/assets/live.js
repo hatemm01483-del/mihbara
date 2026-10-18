@@ -1,4 +1,4 @@
-/* صحفجي — أخبارك اللحظية + المساعد الإعلامي */
+/* أثير — أخبارك اللحظية + المساعد الإعلامي */
 (function () {
   "use strict";
   var NF = window.NF;
@@ -134,17 +134,17 @@
 
   // ---------- المساعد الإعلامي ----------
   var SUGGEST = [
-    "اكتب خبر صحفي بالهرم المقلوب عن ",
+    "اكتب خبر للنشرة التلفزيونية عن ",
     "حوّل البيان ده لتقرير تلفزيوني دقيقتين: ",
     "اقترح ٥ زوايا مختلفة لتغطية موضوع ",
-    "اكتب ١٠ أسئلة لحوار صحفي مع ",
+    "اكتب ١٠ أسئلة لمقابلة تلفزيونية مع ",
     "اكتب بوست فيسبوك وتغريدة عن خبر ",
     "حلّل التغطية الإعلامية لقضية "
   ];
   function buildPrompt(req, ctx) {
-    return "إنت «صحفجي»، مساعد إعلامي محترف بيساعد طلاب وأساتذة الإعلام في مصر.\n" +
+    return "إنت «أثير»، مساعد إعلامي محترف بيساعد طلاب وأساتذة الإعلام في مصر.\n" +
       "رد على الطلب اللي تحت بشكل إعلامي بحت وبمعايير غرف الأخبار:\n" +
-      "- اختار الشكل الصحفي المناسب للطلب (خبر بالهرم المقلوب، تقرير، سكريبت تلفزيوني أو إذاعي، بوست سوشيال، أسئلة حوار، مقال رأي، تحليل تغطية، خطة تغطية...).\n" +
+      "- اختار الشكل الإعلامي المناسب للطلب (خبر للنشرة، تقرير، سكريبت تلفزيوني أو إذاعي، بوست سوشيال، أسئلة حوار، تعليق، تحليل تغطية، خطة تغطية...).\n" +
       "- ابدأ بعنوان قوي، واستخدم عناوين فرعية ونقاط لو مناسب.\n" +
       "- اكتب بالعربية الفصحى الإعلامية المبسطة، إلا لو الطلب محدد لهجة أو لغة تانية.\n" +
       "- ماتخترعش أرقام أو تصريحات أو أسماء؛ لو محتاج معلومة مش موجودة حط مكانها [للتحقق: ...].\n" +
@@ -167,7 +167,7 @@
       act.innerHTML = "<button class='btn mini' type='button'>نسخ</button><button class='btn ghost mini' type='button'>مشاركة</button><button class='btn ghost mini' type='button'>حفظ في السجل</button>";
       var bs = act.querySelectorAll("button");
       bs[0].onclick = function () { copyText(text); };
-      bs[1].onclick = function () { shareText(text, "صحفجي"); };
+      bs[1].onclick = function () { shareText(text, "أثير"); };
       bs[2].onclick = function () { try { addHistory("ask", req, text); toast("اتحفظ في السجل ✓"); } catch (e) { } };
       item.querySelector(".lv-a").append(act);
     }
@@ -250,7 +250,7 @@
       if (hero) {
         // خانة الكتابة في الرئيسية
         var ab = document.createElement("div"); ab.id = "lvAskWrap";
-        ab.innerHTML = "<form class='lv-askbar' id='lvAskBar'><textarea id='lvAskIn' rows='1' placeholder='اكتب اللي محتاجه هنا…'></textarea><button type='submit'>اسأل</button></form><p class='lv-askhint'>مثلاً: «اكتب خبر عن افتتاح معرض الكتاب» أو «إزاي أغطي مؤتمر صحفي؟»</p>";
+        ab.innerHTML = "<form class='lv-askbar' id='lvAskBar'><textarea id='lvAskIn' rows='1' placeholder='اكتب اللي محتاجه هنا…'></textarea><button type='submit'>اسأل</button></form><p class='lv-askhint'>مثلاً: «اكتب خبر عن افتتاح معرض الكتاب» أو «إزاي أغطي مؤتمر بالكاميرا؟»</p>";
         hero.after(ab);
         ab.querySelector("#lvAskBar").addEventListener("submit", function (e) { e.preventDefault(); var v = ab.querySelector("#lvAskIn").value.trim(); if (!v) { ab.querySelector("#lvAskIn").focus(); return; } ab.querySelector("#lvAskIn").value = ""; askAbout(v); });
         ab.querySelector("#lvAskIn").addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ab.querySelector("#lvAskBar").requestSubmit(); } });
@@ -266,7 +266,7 @@
         fw.querySelector("#lvMore").onclick = function () { feed.expanded = !feed.expanded; paintFeed(); };
         fw.querySelector("#lvNewPill").onclick = function () { this.hidden = true; feed.filter = "all"; paintFeed(); fw.scrollIntoView({ behavior: "smooth", block: "start" }); };
         fw.addEventListener("click", function (e) {
-          var b = e.target.closest(".lv-ask"); if (b) { e.preventDefault(); askAbout("اكتب خبر صحفي بالهرم المقلوب عن العنوان ده (المصدر: " + b.dataset.s + "):\n«" + b.dataset.t + "»\nووضّح المعلومات اللي محتاجة تحقق قبل النشر."); return; }
+          var b = e.target.closest(".lv-ask"); if (b) { e.preventDefault(); askAbout("اكتب خبر للنشرة التلفزيونية عن العنوان ده (المصدر: " + b.dataset.s + "):\n«" + b.dataset.t + "»\nووضّح المعلومات اللي محتاجة تحقق قبل النشر."); return; }
           var a = e.target.closest("a[data-u]"); if (a) { delete feed.fresh[a.dataset.u]; var s = seenSet(); s.add(a.dataset.u); st("mihbara-feed-seen", Array.from(s).slice(-300)); }
         });
         // إخفاء الأقسام دي وقت البحث في الأدوات

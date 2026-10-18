@@ -1,4 +1,4 @@
-name: Build Sahafgy APK
+name: Build Atheer APK
 
 on:
   push:
@@ -55,9 +55,9 @@ jobs:
           cd "$(dirname "$FILE")"
           echo "Building project in: $(pwd)"
           gradle assembleDebug --no-daemon
-          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/Sahafgy.apk"
+          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/Atheer.apk"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Sahafgy-APK
-          path: Sahafgy.apk
+          name: Atheer-APK
+          path: Atheer.apk

@@ -1,4 +1,4 @@
-name: Build Atheer APK
+name: Build NewsCast 360 APK
 
 on:
   push:
@@ -55,9 +55,9 @@ jobs:
           cd "$(dirname "$FILE")"
           echo "Building project in: $(pwd)"
           gradle assembleDebug --no-daemon
-          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/Atheer.apk"
+          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/NewsCast360.apk"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Atheer-APK
-          path: Atheer.apk
+          name: NewsCast360-APK
+          path: NewsCast360.apk

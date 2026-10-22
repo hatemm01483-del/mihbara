@@ -1,10 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 108 108" width="108" height="108"><defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="108" height="108"><defs>
 <filter id="bl" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.8"/></filter>
-<linearGradient id="hlg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
-<linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset=".55" stop-color="#fff" stop-opacity=".06"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".40"/><stop offset=".55" stop-color="#fff" stop-opacity=".05"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
 <linearGradient id="shade" x1="0" y1="0" x2="0" y2="1"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient>
-<linearGradient id="wf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#DCE6FF"/></linearGradient>
-<linearGradient id="gf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF4C2"/><stop offset=".5" stop-color="#F6C343"/><stop offset="1" stop-color="#C98A12"/></linearGradient>
-<radialGradient id="bg" cx="30%" cy="15%" r="100%"><stop offset="0" stop-color="#FDBA74"/><stop offset="0.5" stop-color="#F43F5E"/><stop offset="1" stop-color="#9D174D"/></radialGradient>
-<radialGradient id="mh" cx="38%" cy="30%" r="70%"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".35" stop-color="#E5E7EB"/><stop offset="1" stop-color="#6B7280"/></radialGradient>
-</defs><defs><linearGradient id="scr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2B1030"/><stop offset="1" stop-color="#0B0410"/></linearGradient><linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".5" stop-color="#D1D5DB"/><stop offset="1" stop-color="#6B7280"/></linearGradient><linearGradient id="red" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF6B81"/><stop offset="1" stop-color="#B0102F"/></linearGradient></defs><rect width="108" height="108" fill="url(#bg)"/><ellipse cx="54" cy="6" rx="78" ry="44" fill="url(#gloss)"/><rect width="108" height="108" fill="url(#shade)"/></svg>
+<linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".5" stop-color="#D1D5DB"/><stop offset="1" stop-color="#6B7280"/></linearGradient>
+<linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF4C2"/><stop offset=".5" stop-color="#F6C343"/><stop offset="1" stop-color="#C98A12"/></linearGradient>
+<radialGradient id="rose" cx="30%" cy="15%" r="100%"><stop offset="0" stop-color="#FDBA74"/><stop offset=".5" stop-color="#F43F5E"/><stop offset="1" stop-color="#9D174D"/></radialGradient>
+<radialGradient id="navy" cx="30%" cy="15%" r="100%"><stop offset="0" stop-color="#3B82F6"/><stop offset=".55" stop-color="#1E3A8A"/><stop offset="1" stop-color="#0B1026"/></radialGradient>
+<radialGradient id="night" cx="35%" cy="20%" r="100%"><stop offset="0" stop-color="#2A1530"/><stop offset="1" stop-color="#07050C"/></radialGradient>
+<linearGradient id="ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FDBA74"/><stop offset=".5" stop-color="#F43F5E"/><stop offset="1" stop-color="#C026D3"/></linearGradient>
+</defs><rect width="108" height="108" fill="url(#rose)"/><ellipse cx="54" cy="6" rx="78" ry="44" fill="url(#gloss)"/><rect width="108" height="108" fill="url(#shade)"/></svg>

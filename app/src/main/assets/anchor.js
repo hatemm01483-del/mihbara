@@ -1,4 +1,4 @@
-// أثير — المذيع الافتراضي ٢: استوديو أخبار متحرك بمذيع بيتكلم وشفايفه بتتحرك مع الصوت
+// NewsCast 360 — المذيع الافتراضي ٢: استوديو أخبار متحرك بمذيع بيتكلم وشفايفه بتتحرك مع الصوت
 (function () {
   "use strict";
   const E = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -27,7 +27,7 @@
 
   let cfg = Object.assign({ anchor: "salma", name: "", theme: "news", dialect: "fusha", voice: "", speed: "normal", len: "80", rewrite: true, captions: true, stories: ["افتتحت كلية الإعلام بجامعة القاهرة يوم الأحد مركزاً جديداً للإنتاج الإذاعي والتلفزيوني بتكلفة 4 ملايين جنيه، يضم 40 جهاز مونتاج واستوديو بودكاست، ويخدم 1200 طالب سنوياً."] }, st("mihbara-anchor2") || {});
   const saveCfg = () => st("mihbara-anchor2", cfg);
-  const anchorOf = () => cfg.anchor === "photo" ? { id: "photo", name: "مراسل أثير", g: cfg.photoG || "f", voice: "" } : (ANCHORS.find(a => a.id === cfg.anchor) || ANCHORS[0]);
+  const anchorOf = () => cfg.anchor === "photo" ? { id: "photo", name: "مراسل نيوزكاست", g: cfg.photoG || "f", voice: "" } : (ANCHORS.find(a => a.id === cfg.anchor) || ANCHORS[0]);
   const shownName = () => (cfg.name || "").trim() || anchorOf().name;
 
   // ================= حالة الاستوديو =================
@@ -119,7 +119,7 @@
       const ls = wrap(S.wall, ww - 60, `700 40px ${FD}`).slice(0, 3); ls.forEach((l, i) => txt(l, wx + ww - 24 - (1 - wa) * 40, wy + 108 + i * 52, `700 40px ${FD}`, "#fff"));
       ctx.font = `500 20px ${FB}`; let kx = wx + ww - 24; S.wallKw.slice(0, 3).forEach(k => { const w = ctx.measureText(k).width + 28; if (kx - w < wx + 20) return; rr(kx - w, wy + wh - 58, w, 36, 18); ctx.fillStyle = "rgba(255,255,255,.18)"; ctx.fill(); txt(k, kx - 14, wy + wh - 33, `500 20px ${FB}`, "#fff"); kx -= w + 10; });
       ctx.globalAlpha = 1;
-    } else { txt("أثير نيوز", wx + ww / 2, wy + wh / 2 + 16, `700 54px ${FD}`, "rgba(255,255,255,.9)", "center"); }
+    } else { txt("NEWSCAST 360", wx + ww / 2, wy + wh / 2 + 16, `700 54px ${FD}`, "rgba(255,255,255,.9)", "center"); }
     ctx.restore();
   }
   function drawAnchor(a, t) {
@@ -205,7 +205,7 @@
     ctx.beginPath(); ctx.moveTo(560, 505); ctx.lineTo(1240, 505); ctx.lineTo(1280, H); ctx.lineTo(520, H); ctx.closePath(); ctx.fill();
     ctx.fillStyle = th.b; ctx.fillRect(560, 505, 680, 8);
     ctx.fillStyle = "rgba(255,255,255,.08)"; ctx.fillRect(560, 513, 680, 3);
-    txt("أثير نيوز", 900, 600, `700 30px ${FD}`, "rgba(255,255,255,.85)", "center");
+    txt("NEWSCAST 360", 900, 600, `700 30px ${FD}`, "rgba(255,255,255,.85)", "center");
     if (a && a.id !== "photo") {
       // ورق
       ctx.save(); ctx.translate(900, 498); ctx.rotate(-.04); ctx.fillStyle = "#f7f7f2"; ctx.fillRect(-70, -8, 140, 14); ctx.fillStyle = "#e6e6de"; ctx.fillRect(-66, -12, 136, 6); ctx.restore();
@@ -225,7 +225,7 @@
   function drawOverlays(th, t, a) {
     // لوجو + مباشر + الساعة
     rr(W - 268, 26, 236, 50, 10); ctx.fillStyle = th.b; ctx.fill();
-    txt("أثير نيوز", W - 48, 61, `700 26px ${FD}`, "#fff");
+    txt("NEWSCAST 360", W - 48, 61, `700 26px ${FD}`, "#fff");
     const live = S.phase === "live" || S.phase === "intro";
     rr(W - 372, 32, 92, 38, 8); ctx.fillStyle = live ? "#e11d48" : "rgba(0,0,0,.5)"; ctx.fill();
     if (live && Math.floor(t * 2) % 2) { ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(W - 296, 51, 5, 0, 7); ctx.fill(); }
@@ -242,7 +242,7 @@
       ctx.restore();
       const q = ease((t - S.hlAt - .25) / .5), nw = 330 * q;
       ctx.save(); rr(x0 - nw, y + 68, nw, 38, 6); ctx.clip(); ctx.fillStyle = th.b; ctx.fillRect(x0 - nw, y + 68, nw, 38);
-      txt(shownName() + " | أثير نيوز", x0 - 18, y + 94, `500 19px ${FB}`, "#fff"); ctx.restore();
+      txt(shownName() + " | NewsCast 360", x0 - 18, y + 94, `500 19px ${FB}`, "#fff"); ctx.restore();
     }
     // الترجمة
     if (cfg.captions && S.caption && S.phase === "live") {
@@ -252,7 +252,7 @@
     // التيكر
     ctx.fillStyle = "rgba(5,8,20,.92)"; ctx.fillRect(0, H - 52, W, 52);
     ctx.fillStyle = th.c; ctx.fillRect(W - 150, H - 52, 150, 52); txt(th.tag, W - 75, H - 17, `700 22px ${FD}`, "#111", "center");
-    const items = (S.ticker.length ? S.ticker : ["أثير نيوز: أدوات ذكية لطلاب الإعلام", "اكتب خبرك واضغط «اعمل النشرة»"]).join("   ◆   ") + "   ◆   ";
+    const items = (S.ticker.length ? S.ticker : ["نيوزكاست 360: أدوات ذكية لطلاب الإعلام", "اكتب خبرك واضغط «اعمل النشرة»"]).join("   ◆   ") + "   ◆   ";
     ctx.save(); ctx.beginPath(); ctx.rect(0, H - 52, W - 150, 52); ctx.clip();
     ctx.font = `500 22px ${FB}`; const tw = ctx.measureText(items).width, off = (t * 90) % tw;
     for (let x = -tw + off; x < W; x += tw) txt(items, x + tw, H - 17, `500 22px ${FB}`, "#fff");
@@ -265,10 +265,10 @@
     ctx.globalAlpha = q * .15; ctx.fillStyle = "#fff"; for (let i = 0; i < 9; i++) { const x = ((t - start) * 400 + i * 220) % (W + 400) - 200; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + 120, 0); ctx.lineTo(x - 180, H); ctx.lineTo(x - 300, H); ctx.fill(); }
     ctx.globalAlpha = q;
     ctx.save(); ctx.translate(W / 2, H / 2 - 20); ctx.scale(.8 + .2 * p, .8 + .2 * p);
-    txt("أثير نيوز", 0, 0, `700 96px ${FD}`, "#fff", "center");
+    txt("NEWSCAST 360", 0, 0, `700 96px ${FD}`, "#fff", "center");
     ctx.fillStyle = th.c; ctx.fillRect(-160 * p, 30, 320 * p, 6);
     txt(outro ? "شكراً لمتابعتكم" : (th.n + " · " + new Date().toLocaleDateString("ar-EG", { weekday: "long", day: "numeric", month: "long" })), 0, 90, `500 32px ${FB}`, "rgba(255,255,255,.92)", "center");
-    if (outro) txt("خليك على الهوا", 0, 150, `700 28px ${FD}`, th.c, "center");
+    if (outro) txt("Every angle. One app.", 0, 150, `700 28px ${FD}`, th.c, "center");
     ctx.restore(); ctx.restore();
   }
   function frame() {
@@ -296,7 +296,7 @@
   async function buildPlan(stories) {
     const a = anchorOf(), name = shownName(), fem = a.g === "f";
     if (!cfg.rewrite) {
-      return { intro: `أهلاً بكم في نشرة أثير نيوز، ${fem ? "معكم" : "معكم"} ${name}.`, stories: stories.map(s => ({ headline: s.split(/[.،\n]/)[0].slice(0, 90), text: s, wall: s.split(/[.،\n]/)[0].slice(0, 60), keywords: [] })), outro: `وبهذا نصل إلى ختام النشرة. ${fem ? "كانت معكم" : "كان معكم"} ${name} من أثير نيوز.`, ticker: stories.map(s => s.split(/[.،\n]/)[0].slice(0, 80)) };
+      return { intro: `أهلاً بكم في نشرة نيوزكاست، ${fem ? "معكم" : "معكم"} ${name}.`, stories: stories.map(s => ({ headline: s.split(/[.،\n]/)[0].slice(0, 90), text: s, wall: s.split(/[.،\n]/)[0].slice(0, 60), keywords: [] })), outro: `وبهذا نصل إلى ختام النشرة. ${fem ? "كانت معكم" : "كان معكم"} ${name} من نيوزكاست.`, ticker: stories.map(s => s.split(/[.،\n]/)[0].slice(0, 80)) };
     }
     const dia = cfg.dialect === "masri" ? "بالعامية المصرية المهذبة زي مذيعي البرامج على التليفزيون المصري" : "بالعربية الفصحى المبسطة زي نشرات الأخبار";
     const prompt = `أنت محرر نشرات أخبار تليفزيونية. حوّل المواد التالية لنص نشرة يقرأه المذيع «${name}» (${fem ? "مذيعة" : "مذيع"}) ${dia}.
@@ -306,13 +306,13 @@
 ${stories.map((s, i) => `المادة ${i + 1}:\n${s}`).join("\n\n")}
 
 رد بـ JSON بس بالشكل ده:
-{"intro":"تحية افتتاحية قصيرة فيها اسم أثير نيوز واسم المذيع","stories":[{"headline":"عنوان للشريط أقل من 10 كلمات","wall":"عنوان قصير جداً للشاشة (٣-٥ كلمات)","keywords":["كلمة","كلمة"],"text":"نص الخبر"}],"outro":"ختام قصير","ticker":["عنوان قصير لكل خبر"]}`;
+{"intro":"تحية افتتاحية قصيرة فيها اسم نيوزكاست واسم المذيع","stories":[{"headline":"عنوان للشريط أقل من 10 كلمات","wall":"عنوان قصير جداً للشاشة (٣-٥ كلمات)","keywords":["كلمة","كلمة"],"text":"نص الخبر"}],"outro":"ختام قصير","ticker":["عنوان قصير لكل خبر"]}`;
     const { text } = await sample(prompt);
     const a1 = text.indexOf("{"), b1 = text.lastIndexOf("}"); let j = null;
     try { j = JSON.parse(text.slice(a1, b1 + 1)); } catch (e) { try { j = JSON.parse(text.slice(a1, b1 + 1).replace(/,\s*([}\]])/g, "$1")); } catch (x) { } }
     if (!j || !Array.isArray(j.stories) || !j.stories.length) throw { code: "bad_script" };
     j.stories = j.stories.filter(s => s && s.text).map(s => ({ headline: String(s.headline || "").slice(0, 120), wall: String(s.wall || s.headline || "").slice(0, 70), keywords: (s.keywords || []).slice(0, 3).map(String), text: String(s.text) }));
-    j.intro = String(j.intro || `أهلاً بكم في أثير نيوز، معكم ${name}.`); j.outro = String(j.outro || "شكراً لمتابعتكم."); j.ticker = (j.ticker || j.stories.map(s => s.headline)).map(String);
+    j.intro = String(j.intro || `أهلاً بكم في نيوزكاست، معكم ${name}.`); j.outro = String(j.outro || "شكراً لمتابعتكم."); j.ticker = (j.ticker || j.stories.map(s => s.headline)).map(String);
     return j;
   }
   function planText(p) { return [p.intro].concat(p.stories.map(s => "■ " + s.headline + "\n" + s.text)).concat([p.outro]).join("\n\n"); }
@@ -510,7 +510,7 @@ ${stories.map((s, i) => `المادة ${i + 1}:\n${s}`).join("\n\n")}
     try { await perform(plan, rec); } finally { btns(false); }
     if (rec) {
       status("بيحفظ الفيديو…", true);
-      try { const where = await saveBlob(rec.blob(), "Atheer_News_" + Date.now() + "." + rec.ext, rec.mime.split(";")[0]); note("✓ الفيديو اتحفظ في " + where); T("الفيديو اتحفظ ✓"); }
+      try { const where = await saveBlob(rec.blob(), "NewsCast360_" + Date.now() + "." + rec.ext, rec.mime.split(";")[0]); note("✓ الفيديو اتحفظ في " + where); T("الفيديو اتحفظ ✓"); }
       catch (e) { note("مقدرتش أحفظ الفيديو."); }
       status("خلصت", false);
     }

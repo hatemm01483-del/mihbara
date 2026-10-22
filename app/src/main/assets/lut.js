@@ -1,4 +1,4 @@
-// أثير — ستوديو الألوان السينمائي: LUTs مستوحاة من الأفلام بالذكاء الاصطناعي
+// NewsCast 360 — ستوديو الألوان السينمائي: LUTs مستوحاة من الأفلام بالذكاء الاصطناعي
 (function () {
   "use strict";
   const E = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -70,7 +70,7 @@
     return d;
   }
   function cubeText(P, title) {
-    const d = buildLUT(P), out = [`TITLE "${String(title || "Atheer Look").replace(/"/g, "'")}"`, "# Made with Atheer app - Rec.709 / sRGB input", `LUT_3D_SIZE ${N}`, "DOMAIN_MIN 0.0 0.0 0.0", "DOMAIN_MAX 1.0 1.0 1.0"];
+    const d = buildLUT(P), out = [`TITLE "${String(title || "NewsCast 360 Look").replace(/"/g, "'")}"`, "# Made with NewsCast 360 app - Rec.709 / sRGB input", `LUT_3D_SIZE ${N}`, "DOMAIN_MIN 0.0 0.0 0.0", "DOMAIN_MAX 1.0 1.0 1.0"];
     for (let i = 0; i < d.length; i += 3) out.push(d[i].toFixed(6) + " " + d[i + 1].toFixed(6) + " " + d[i + 2].toFixed(6));
     return out.join("\n") + "\n";
   }
@@ -312,7 +312,7 @@ exposure من -1 لـ 1 (ستوبات) · temperature من -1 (أزرق بارد
     s.querySelector("#ltReset").onclick = () => { l.params = sanitize(JSON.parse(JSON.stringify(l.orig))); setLook(l); };
     s.querySelector("#ltCube").onclick = async () => {
       const b = s.querySelector("#ltCube"); b.disabled = true; b.textContent = "بيجهّز…";
-      try { const txt = cubeText(l.params, l.title + " - Atheer"); const where = await saveBlob(new Blob([txt], { type: "application/octet-stream" }), "Atheer_" + slug(l.title) + ".cube", "application/octet-stream", true); T("اتحفظ في " + where + " ✓"); }
+      try { const txt = cubeText(l.params, l.title + " - NewsCast 360"); const where = await saveBlob(new Blob([txt], { type: "application/octet-stream" }), "NewsCast360_" + slug(l.title) + ".cube", "application/octet-stream", true); T("اتحفظ في " + where + " ✓"); }
       catch (e) { T("مقدرتش أحفظ الملف"); }
       b.disabled = false; b.textContent = "⬇️ نزّل LUT ‎(.cube)";
     };
@@ -331,7 +331,7 @@ exposure من -1 لـ 1 (ستوبات) · temperature من -1 (أزرق بارد
     const [w, h] = mediaSize(S.media), sc = Math.min(1, 4096 / Math.max(w, h)), c = document.createElement("canvas"); c.width = Math.round(w * sc); c.height = Math.round(h * sc);
     const r = Renderer(c); if (!r) { T("مش مدعوم على الجهاز"); return; }
     r.setLUT(buildLUT(l.params)); r.draw(S.media, 0, false);
-    c.toBlob(async b => { try { const where = await saveBlob(b, "Atheer_" + slug(l.title) + "_" + Date.now() + ".jpg", "image/jpeg", false); T("اتحفظت في " + where + " ✓"); } catch (e) { T("مقدرتش أحفظ الصورة"); } }, "image/jpeg", .95);
+    c.toBlob(async b => { try { const where = await saveBlob(b, "NewsCast360_" + slug(l.title) + "_" + Date.now() + ".jpg", "image/jpeg", false); T("اتحفظت في " + where + " ✓"); } catch (e) { T("مقدرتش أحفظ الصورة"); } }, "image/jpeg", .95);
   }
   async function exportVideo(l, prog) {
     if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream) { T("تصدير الفيديو مش مدعوم على الجهاز ده. نزّل الـ LUT وحطه في برنامج المونتاج."); return; }
@@ -363,7 +363,7 @@ exposure من -1 لـ 1 (ستوبات) · temperature من -1 (أزرق بارد
     await finished; cancelAnimationFrame(raf2); try { actx && actx.close(); } catch (e) { }
     if (cancel) { prog.innerHTML = ""; T("اتلغى"); return; }
     prog.innerHTML = `<div class="livesearch"><i></i><span>بيحفظ الفيديو…</span></div>`;
-    try { const where = await saveBlob(new Blob(parts, { type: mime.split(";")[0] }), "Atheer_" + slug(l.title) + "_" + Date.now() + "." + ext, mime.split(";")[0], false); prog.innerHTML = `<p class="mg-ok">✓ الفيديو اتحفظ في ${E(where)}</p>`; }
+    try { const where = await saveBlob(new Blob(parts, { type: mime.split(";")[0] }), "NewsCast360_" + slug(l.title) + "_" + Date.now() + "." + ext, mime.split(";")[0], false); prog.innerHTML = `<p class="mg-ok">✓ الفيديو اتحفظ في ${E(where)}</p>`; }
     catch (e) { prog.innerHTML = `<p class="lv-err">مقدرتش أحفظ الفيديو.</p>`; }
   }
 

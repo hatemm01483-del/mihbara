@@ -363,7 +363,7 @@
       ctx.font = `400 23px ${FB}`; ctx.fillStyle = "#C4B5FD"; L.tx.forEach(l => { yy += 34; ctx.fillText(l, tx0, yy); });
       y += L.h + 24;
     }
-    ctx.fillStyle = "rgba(255,255,255,.55)"; ctx.font = `500 24px ${FB}`; micMark(ctx, W - pad - 30, H - 64, 30, "#E11D48"); ctx.fillText("اتعمل على NewsCast 360 · كل الزوايا.. في تطبيق واحد", W - pad - 44, H - 40);
+    ctx.fillStyle = "rgba(255,255,255,.55)"; ctx.font = `500 24px ${FB}`; micMark(ctx, W - pad - 30, H - 64, 30, "#E11D48"); ctx.fillText("اتعمل على NewsCast 360 · خليك محاوط الخبر", W - pad - 44, H - 40);
     const b = await toBlob(cv); return saveBlob(b, `NewsCast360_storyboard_${Date.now()}.png`, "image/png", false);
   }
 

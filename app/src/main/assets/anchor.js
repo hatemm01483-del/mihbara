@@ -268,7 +268,7 @@
     txt("NEWSCAST 360", 0, 0, `700 96px ${FD}`, "#fff", "center");
     ctx.fillStyle = th.c; ctx.fillRect(-160 * p, 30, 320 * p, 6);
     txt(outro ? "شكراً لمتابعتكم" : (th.n + " · " + new Date().toLocaleDateString("ar-EG", { weekday: "long", day: "numeric", month: "long" })), 0, 90, `500 32px ${FB}`, "rgba(255,255,255,.92)", "center");
-    if (outro) txt("Every angle. One app.", 0, 150, `700 28px ${FD}`, th.c, "center");
+    if (outro) txt("خليك محاوط الخبر", 0, 150, `700 28px ${FD}`, th.c, "center");
     ctx.restore(); ctx.restore();
   }
   function frame() {

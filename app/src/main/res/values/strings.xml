@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">NewsCast 360</string>
+    <string name="widget_desc">مصطلح اليوم وجملة اليوم</string>
 </resources>

@@ -86,11 +86,12 @@
     var strong = matches.filter(function (m) { return m.s >= 0.5; });
     var trusted = strong.filter(function (m) { return m.tier.k >= 2; });
     var denied = trusted.filter(function (m) { return DENY.test(m.title); });
-    if (denied.length) return { cls: "nv-bad", t: "فيه نفي أو توضيح من مصدر موثوق", p: "لقيت " + denied.length.toLocaleString("ar-EG") + " خبر من مصادر موثوقة بينفي الكلام دا أو بيوضح حقيقته. اقرا المصدر قبل ما تنشر أي حاجة." };
-    if (trusted.length) return { cls: "nv-ok", t: "الخبر منشور في مصادر موثوقة ✓", p: "لقيته في " + new Set(trusted.map(function (m) { return m.source; })).size.toLocaleString("ar-EG") + " مصدر موثوق. التفاصيل والروابط تحت." };
-    if (strong.length) return { cls: "nv-warn", t: "منشور في مواقع غير مصنّفة بس", p: "الخبر ظاهر في مواقع مش من قايمة المصادر الموثوقة. استنى لحد ما مصدر رسمي أو قناة إخبارية كبيرة تذيعه." };
-    if (matches.length) return { cls: "nv-warn", t: "لقيت أخبار قريبة بس مش نفس الخبر", p: "فيه أخبار عن نفس الموضوع، بس محدش نشر نفس المعلومة بالظبط. راجع الأخبار اللي تحت." };
-    return { cls: "nv-none", t: "مالقيتش الخبر دا في أي مصدر إخباري", p: "مفيش أي موقع إخباري نشر الخبر دا. غالباً شائعة أو خبر غير دقيق — ماتنشروش لحد ما يظهر في مصدر رسمي." };
+    var uniq = new Set(trusted.map(function (m) { return m.source; })).size, off = trusted.some(function (m) { return m.tier.k >= 3; });
+    if (denied.length) return { conf: Math.min(95, 70 + 8 * denied.length), cls: "nv-bad", t: "فيه نفي أو توضيح من مصدر موثوق", p: "لقيت " + denied.length.toLocaleString("ar-EG") + " خبر من مصادر موثوقة بينفي الكلام دا أو بيوضح حقيقته. اقرا المصدر قبل ما تنشر أي حاجة." };
+    if (trusted.length) return { conf: Math.min(97, 55 + 10 * uniq + (off ? 10 : 0)), cls: "nv-ok", t: "الخبر منشور في مصادر موثوقة ✓", p: "لقيته في " + new Set(trusted.map(function (m) { return m.source; })).size.toLocaleString("ar-EG") + " مصدر موثوق. التفاصيل والروابط تحت." };
+    if (strong.length) return { conf: 35, cls: "nv-warn", t: "منشور في مواقع غير مصنّفة بس", p: "الخبر ظاهر في مواقع مش من قايمة المصادر الموثوقة. استنى لحد ما مصدر رسمي أو قناة إخبارية كبيرة تذيعه." };
+    if (matches.length) return { conf: 30, cls: "nv-warn", t: "لقيت أخبار قريبة بس مش نفس الخبر", p: "فيه أخبار عن نفس الموضوع، بس محدش نشر نفس المعلومة بالظبط. راجع الأخبار اللي تحت." };
+    return { conf: 55, cls: "nv-none", t: "مالقيتش الخبر دا في أي مصدر إخباري", p: "مفيش أي موقع إخباري نشر الخبر دا. غالباً شائعة أو خبر غير دقيق — ماتنشروش لحد ما يظهر في مصدر رسمي." };
   }
 
   function render(claim, matches) {
@@ -98,7 +99,11 @@
     var shown = matches.slice().sort(function (a, b) { return (b.tier.k - a.tier.k) || (b.s - a.s); }).slice(0, 10).sort(function (a, b) { return a.date - b.date; });
     var firstTrusted = matches.filter(function (m) { return m.s >= 0.5 && m.tier.k >= 2; }).sort(function (a, b) { return a.date - b.date; })[0]
       || matches.filter(function (m) { return m.s >= 0.5; }).sort(function (a, b) { return a.date - b.date; })[0];
-    var h = "<style>" + CSS + "</style><div class='nv-verdict " + v.cls + "'><b>" + E(v.t) + "</b><p>" + E(v.p) + "</p></div>";
+    var latest = matches.filter(function (m) { return m.s >= 0.5; }).sort(function (a, b) { return b.date - a.date; })[0] || matches.slice().sort(function (a, b) { return b.date - a.date; })[0];
+    var confTxt = v.conf >= 80 ? "عالية" : v.conf >= 55 ? "متوسطة" : "ضعيفة";
+    var h = "<style>" + CSS + ".nv-conf{display:flex;gap:10px;align-items:center;margin:-6px 0 14px;font-size:13px;color:var(--muted)}.nv-cbar{flex:1;height:8px;border-radius:4px;background:var(--surface2);overflow:hidden}.nv-cbar i{display:block;height:100%;background:linear-gradient(90deg,#ef4444,#f59e0b,#22c55e)}</style><div class='nv-verdict " + v.cls + "'><b>" + E(v.t) + "</b><p>" + E(v.p) + "</p></div>" +
+      "<div class='nv-conf'><span>درجة الثقة في الحكم: <b>" + v.conf.toLocaleString("ar-EG") + "٪ (" + confTxt + ")</b></span><span class='nv-cbar'><i style='width:" + v.conf + "%'></i></span></div>" +
+      (latest ? "<div class='nv-conf'><span>آخر تحديث للمصادر: <b>" + E(fDate(latest.date)) + " · " + E(fTime(latest.date)) + "</b> (" + E(ago(latest.date)) + ") — " + E(latest.source) + "</span></div>" : "");
     if (firstTrusted) {
       h += "<div class='nv-first'><h4>أول مصدر نشر الخبر</h4><div class='nv-grid'>" +
         "<span>المصدر</span><b>" + E(firstTrusted.source) + " <em class='nv-tag nv-t" + firstTrusted.tier.k + "' style='font-style:normal'>" + firstTrusted.tier.label + "</em></b>" +
@@ -118,11 +123,11 @@
       h += "</div>";
     }
     h += "<p class='nv-note'>البحث تم في المواقع الإخبارية عن طريق أخبار جوجل، والمواعيد بتوقيت القاهرة حسب وقت النشر المسجّل. افتح الرابط واقرا الخبر الأصلي قبل ما تعتمد عليه.</p>";
-    return { html: h, verdict: v, first: firstTrusted, shown: shown };
+    return { html: h, verdict: v, first: firstTrusted, shown: shown, latest: latest };
   }
 
   function toText(claim, r) {
-    var t = "### الحكم\n" + r.verdict.t + "\n" + r.verdict.p + "\n";
+    var t = "### الحكم\n" + r.verdict.t + "\n" + r.verdict.p + "\n\n**درجة الثقة:** " + r.verdict.conf + "٪" + (r.latest ? "\n**آخر تحديث للمصادر:** " + fDate(r.latest.date) + " " + fTime(r.latest.date) + " — " + r.latest.source : "") + "\n";
     if (r.first) t += "\n### أول مصدر نشر\n- **المصدر:** " + r.first.source + "\n- **التاريخ:** " + fDate(r.first.date) + "\n- **الساعة:** " + fTime(r.first.date) + " بتوقيت القاهرة\n- [" + r.first.title.replace(/[\[\]]/g, "") + "](" + r.first.link + ")\n";
     if (r.shown.length) t += "\n### المصادر\n" + r.shown.map(function (m) { return "- **" + m.source + "** (" + fDate(m.date) + " " + fTime(m.date) + "): [" + m.title.replace(/[\[\]]/g, "") + "](" + m.link + ")"; }).join("\n");
     return t;

@@ -639,8 +639,10 @@ footer{margin-top:30px}
     <div class="qwrap">
       <form class="slip" id="quizSetup">
         <h2>اختبار تدريبي</h2>
-        <p class="lead">اختار الموضوع وجاوب. الأسئلة جاهزة جوه التطبيق وبتشتغل من غير نت، وكل إجابة معاها شرح.</p>
-        <label for="qz-topic">الموضوع</label>
+        <p class="lead">اختار الفرقة والمادة وجاوب. أسئلة المواد الأساسية جاهزة جوه التطبيق وبتشتغل من غير نت، وكل إجابة معاها شرح.</p>
+        <label for="qz-year">الفرقة</label>
+        <select id="qz-year"><option>كل الفرق</option><option>الفرقة الأولى</option><option>الفرقة الثانية</option><option>الفرقة الثالثة</option><option>الفرقة الرابعة</option></select>
+        <label for="qz-topic">المادة</label>
         <select id="qz-topic">
           <option value="mix">خليط من كل المواضيع</option>
           <option>أساسيات الخبر والهرم المقلوب</option>
@@ -721,7 +723,7 @@ footer{margin-top:30px}
   </div>
   <footer>
     <div class="flinks"><button type="button" id="openPrivacy">سياسة الخصوصية</button><span>·</span><button type="button" id="openTerms">الشروط والأحكام</button><span>·</span><button type="button" id="openTour">جولة في التطبيق</button></div>
-    <p>NewsCast 360 · خليك محاوط الخبر · نسخة 2.7 · المحتوى من إنتاج الذكاء الاصطناعي وممكن يحتوي أخطاء. راجع أي معلومة أو رقم من مصدره قبل النشر.</p>
+    <p>NewsCast 360 · خليك محاوط الخبر · نسخة 3.0 · المحتوى من إنتاج الذكاء الاصطناعي وممكن يحتوي أخطاء. راجع أي معلومة أو رقم من مصدره قبل النشر.</p>
     <p>© 2026 NewsCast 360. جميع الحقوق محفوظة.</p>
   </footer>
 </div>
@@ -1618,25 +1620,34 @@ const BANK=[
 let quiz=null;
 function qzUI(){ const custom=$("qz-topic").value==="custom"; $("qz-customWrap").hidden=!custom; $("qz-aiWrap").hidden=custom; $("qz-levelWrap").hidden=!(custom||$("qz-ai").checked); }
 $("qz-topic").onchange=qzUI; $("qz-ai").onchange=qzUI;
+// المواد حسب الفرقة (المواد اللي ليها بنك أسئلة جاهز بتشتغل من غير نت، والباقي بالذكاء الاصطناعي)
+const QZ_ALL=$("qz-topic").innerHTML;
+const QZ_YEARS={"الفرقة الأولى":["أساسيات الخبر والهرم المقلوب","الإعلام الرقمي والسوشيال ميديا","مدخل إلى علوم الاتصال ونظرياته"],
+ "الفرقة الثانية":["فنون التحرير الإعلامي (الخبر، التقرير المصوّر، التعليق، التحقيق)","الإذاعة والتلفزيون والكتابة للأذن","التحقق من الأخبار ومكافحة الشائعات"],
+ "الفرقة الثالثة":["أخلاقيات العمل الإعلامي","مبادئ الإدارة (RTV 314)","الإنتاج والإخراج التلفزيوني"],
+ "الفرقة الرابعة":["بحوث الإعلام ومناهجه","العلاقات العامة والحملات الإعلامية","إعلام الأزمات"]};
+$("qz-year").onchange=()=>{ const y=$("qz-year").value; $("qz-topic").innerHTML = y==="كل الفرق" ? QZ_ALL : `<option value="mix">خليط مواد ${y}</option>`+QZ_YEARS[y].map(s=>`<option>${s}</option>`).join("")+`<option value="custom">موضوع تاني…</option>`; qzUI(); };
 function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function validQs(a){ return Array.isArray(a)&&a.filter(x=>x&&typeof x.q==="string"&&Array.isArray(x.options)&&x.options.length>=2&&Number.isInteger(+x.answer)&&+x.answer<x.options.length).map(x=>({q:x.q,options:x.options.map(String),answer:+x.answer,explain:String(x.explain||"")})); }
 $("quizSetup").addEventListener("submit",async e=>{
   e.preventDefault();
-  const topic=$("qz-topic").value==="custom"?$("qz-custom").value.trim():$("qz-topic").value;
+  const year=$("qz-year").value, yMix=$("qz-topic").value==="mix"&&year!=="كل الفرق";
+  const topic=$("qz-topic").value==="custom"?$("qz-custom").value.trim():yMix?("مواد "+year+": "+QZ_YEARS[year].join("، ")):$("qz-topic").value;
   if(!topic){ $("qz-note").textContent="اكتب الموضوع الأول."; return; }
   const n=+$("qz-count").value, lvl=$("qz-level").value;
   $("qz-go").disabled=true; $("qz-note").textContent="بيجهّز الأسئلة… (ممكن ياخد لحظات)";
   let qs=null, offline=false;
   const TOPICMAP={"أساسيات الخبر والهرم المقلوب":"b","التحقق من الأخبار ومكافحة الشائعات":"v","أخلاقيات العمل الإعلامي":"e","فنون التحرير الإعلامي (الخبر، التقرير المصوّر، التعليق، التحقيق)":"f","الإعلام الرقمي والسوشيال ميديا":"d","الإذاعة والتلفزيون والكتابة للأذن":"r"};
-  const useAI = $("qz-topic").value==="custom" || $("qz-ai").checked;
+  const noBank = (topic!=="mix" && !TOPICMAP[topic] && !yMix) || (yMix && !QZ_YEARS[year].some(s=>TOPICMAP[s]));
+  const useAI = $("qz-topic").value==="custom" || $("qz-ai").checked || noBank;
   if(!useAI){
-    const tag=TOPICMAP[topic]; let pool=shuffle(tag?BANK.filter(x=>x.t===tag):BANK);
+    const tags=yMix?QZ_YEARS[year].map(s=>TOPICMAP[s]).filter(Boolean):[TOPICMAP[topic]].filter(Boolean); let pool=shuffle(tags.length?BANK.filter(x=>tags.includes(x.t)):BANK);
     if(pool.length<n) pool=pool.concat(shuffle(BANK.filter(x=>!pool.includes(x))));
     quiz={topic:topic==="mix"?"خليط من كل المواضيع":topic,qs:pool.slice(0,n),i:0,score:0,answered:false,offline:true};
     $("qz-go").disabled=false; $("qz-note").textContent=""; $("quizSetup").hidden=true; $("quizPlay").hidden=false; renderQ(); return;
   }
   try{
-    const {text}=await sample(`أنشئ اختباراً من ${n} أسئلة جديدة اختيار من متعدد لطلاب كلية الإعلام عن: ${topic}. المستوى: ${lvl}.
+    const {text}=await sample(`أنشئ اختباراً من ${n} أسئلة جديدة اختيار من متعدد لطلاب كلية الإعلام${year!=="كل الفرق"?" ("+year+")":""} عن: ${topic}. المستوى: ${lvl}.
 لكل سؤال 4 اختيارات وإجابة صحيحة واحدة فقط، ونوّع مكان الإجابة الصحيحة. اكتب الأسئلة والاختيارات بالعربية الفصحى المبسطة، والشرح جملة أو اتنين بالعامية المصرية.
 رد بـ JSON فقط بدون أي كلام تاني، بهذا الشكل:
 [{"q":"السؤال","options":["أ","ب","ج","د"],"answer":0,"explain":"الشرح"}]
@@ -1646,7 +1657,7 @@ $("quizSetup").addEventListener("submit",async e=>{
     qs=qs.slice(0,n);
   }catch(err){
     if($("qz-topic").value==="custom"){ $("qz-go").disabled=false; $("qz-note").textContent="مقدرتش أجهّز أسئلة دلوقتي. جرّب تاني أو اختار موضوع من القايمة."; return; }
-    qs=shuffle(TOPICMAP[topic]?BANK.filter(x=>x.t===TOPICMAP[topic]):BANK).slice(0,n); offline=true; toast("مافيش نت، استخدمت الأسئلة الجاهزة");
+    qs=shuffle(TOPICMAP[topic]?BANK.filter(x=>x.t===TOPICMAP[topic]):BANK).slice(0,n); offline=true; toast(noBank?"المادة دي محتاجة نت، استخدمت أسئلة عامة جاهزة":"مافيش نت، استخدمت الأسئلة الجاهزة");
   }
   quiz={topic:topic==="mix"?"خليط من كل المواضيع":topic,qs,i:0,score:0,answered:false,offline};
   $("qz-go").disabled=false; $("qz-note").textContent=""; $("quizSetup").hidden=true; $("quizPlay").hidden=false; renderQ();

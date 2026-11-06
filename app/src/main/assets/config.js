@@ -15,3 +15,5 @@ document.write('<script src="manage.js"><\/script>');
 document.write('<script src="lut.js"><\/script>');
 document.write('<script src="anchor.js"><\/script>');
 document.write('<script src="social.js"><\/script>');
+// تحديث 3.0: أدوات مشتركة + التحديثات الأربعة
+['kit','daily','onair','avlab','prlab','career'].forEach(function (f) { document.write('<script src="' + f + '.js"><\/script>'); });

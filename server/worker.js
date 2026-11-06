@@ -154,7 +154,33 @@ export default {
       return json({ error: "unauthorized" }, 401);
 
     if (url.pathname === "/status")
-      return json({ ai: !!(env.GEMINI_API_KEY || env.ANTHROPIC_API_KEY), provider: env.GEMINI_API_KEY ? "gemini" : (env.ANTHROPIC_API_KEY ? "claude" : null), did: !!env.DID_API_KEY, tts: !!env.GEMINI_API_KEY });
+      return json({ ai: !!(env.GEMINI_API_KEY || env.ANTHROPIC_API_KEY), provider: env.GEMINI_API_KEY ? "gemini" : (env.ANTHROPIC_API_KEY ? "claude" : null), did: !!env.DID_API_KEY, tts: !!env.GEMINI_API_KEY, media: !!env.GEMINI_API_KEY });
+
+    // ملف صوت أو صورة + تعليمات → نص (تفريغ المقابلات، ملخص المحاضرة، معمل الصوت)
+    if (url.pathname === "/media" && req.method === "POST") {
+      if (!env.GEMINI_API_KEY) return json({ error: "no_media" }, 503);
+      let body;
+      try { body = await req.json(); } catch { return json({ error: "bad_request" }, 400); }
+      const data = String(body.data || ""), mime = String(body.mime || "").toLowerCase().split(";")[0];
+      const prompt = String(body.prompt || "").slice(0, 6000);
+      if (!data || !prompt || !/^(audio|image|video)\/[\w.+-]+$/.test(mime)) return json({ error: "bad_request" }, 400);
+      if (data.length > 17 * 1024 * 1024) return json({ error: "too_big" }, 413);
+      const payload = {
+        contents: [{ role: "user", parts: [{ inline_data: { mime_type: mime, data } }, { text: prompt }] }],
+        generationConfig: { maxOutputTokens: 8000, temperature: 0.3 },
+      };
+      const call = (m) => fetch(GBASE + "/models/" + m + ":generateContent", {
+        method: "POST",
+        headers: { "x-goog-api-key": env.GEMINI_API_KEY, "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      let up = await call(await pickGemini(env));
+      if (!up.ok && up.status === 404 && !env.GEMINI_MODEL) { cachedGemini = null; up = await call("gemini-flash-latest"); }
+      if (!up.ok) return json({ error: "upstream", status: up.status }, up.status === 429 ? 429 : 502);
+      const j = await up.json();
+      const text = ((((j.candidates || [])[0] || {}).content || {}).parts || []).map((p) => p.text || "").join("");
+      return json({ text });
+    }
 
     if (url.pathname === "/tts" && req.method === "POST") {
       if (!env.GEMINI_API_KEY) return json({ error: "no_tts" }, 503);

@@ -19,6 +19,9 @@ import java.util.HashMap;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.webkit.JavascriptInterface;
+import android.webkit.PermissionRequest;
+import android.content.pm.PackageManager;
+import java.util.ArrayList;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -41,6 +44,8 @@ public class MainActivity extends Activity {
     private volatile boolean ttsReady = false;
     private ValueCallback<Uri[]> fileCallback;
     private static final int FILE_REQ = 41;
+    private static final int MEDIA_PERM_REQ = 42;
+    private PermissionRequest pendingPerm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,16 +95,39 @@ public class MainActivity extends Activity {
                 fileCallback = callback;
                 Intent pick = new Intent(Intent.ACTION_GET_CONTENT);
                 pick.addCategory(Intent.CATEGORY_OPENABLE);
-                boolean wantsVideo = false;
-                try { for (String t : params.getAcceptTypes()) if (t != null && t.startsWith("video")) wantsVideo = true; } catch (Exception ignored) { }
-                pick.setType(wantsVideo ? "video/*" : "image/*");
+                ArrayList<String> types = new ArrayList<>();
+                try { for (String a : params.getAcceptTypes()) if (a != null) for (String t : a.split(",")) { t = t.trim(); if (t.length() > 0 && !types.contains(t)) types.add(t); } } catch (Exception ignored) { }
+                if (types.isEmpty()) types.add("image/*");
+                if (types.size() == 1) pick.setType(types.get(0));
+                else { pick.setType("*/*"); pick.putExtra(Intent.EXTRA_MIME_TYPES, types.toArray(new String[0])); }
+                String title = types.get(0).startsWith("audio") ? "اختار ملف صوت" : types.get(0).startsWith("video") ? "اختار فيديو" : types.get(0).startsWith("image") ? "اختار صورة" : "اختار ملف";
                 try {
-                    startActivityForResult(Intent.createChooser(pick, "اختار صورة"), FILE_REQ);
+                    startActivityForResult(Intent.createChooser(pick, title), FILE_REQ);
                 } catch (Exception e) {
                     fileCallback = null;
                     return false;
                 }
                 return true;
+            }
+
+            @Override
+            public void onPermissionRequest(final PermissionRequest request) {
+                runOnUiThread(() -> {
+                    ArrayList<String> need = new ArrayList<>();
+                    for (String r : request.getResources()) {
+                        if (PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(r) && checkSelfPermission("android.permission.RECORD_AUDIO") != PackageManager.PERMISSION_GRANTED) need.add("android.permission.RECORD_AUDIO");
+                        if (PermissionRequest.RESOURCE_VIDEO_CAPTURE.equals(r) && checkSelfPermission("android.permission.CAMERA") != PackageManager.PERMISSION_GRANTED) need.add("android.permission.CAMERA");
+                    }
+                    if (need.isEmpty()) { request.grant(request.getResources()); return; }
+                    if (pendingPerm != null) { try { pendingPerm.deny(); } catch (Exception ignored) { } }
+                    pendingPerm = request;
+                    requestPermissions(need.toArray(new String[0]), MEDIA_PERM_REQ);
+                });
+            }
+
+            @Override
+            public void onPermissionRequestCanceled(PermissionRequest request) {
+                if (pendingPerm == request) pendingPerm = null;
             }
         });
 
@@ -331,6 +359,19 @@ public class MainActivity extends Activity {
                 } catch (Exception ignored) { }
             });
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode != MEDIA_PERM_REQ || pendingPerm == null) return;
+        PermissionRequest req = pendingPerm; pendingPerm = null;
+        ArrayList<String> ok = new ArrayList<>();
+        for (String r : req.getResources()) {
+            if (PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(r) && checkSelfPermission("android.permission.RECORD_AUDIO") == PackageManager.PERMISSION_GRANTED) ok.add(r);
+            if (PermissionRequest.RESOURCE_VIDEO_CAPTURE.equals(r) && checkSelfPermission("android.permission.CAMERA") == PackageManager.PERMISSION_GRANTED) ok.add(r);
+        }
+        if (ok.isEmpty()) req.deny(); else req.grant(ok.toArray(new String[0]));
     }
 
     @Override

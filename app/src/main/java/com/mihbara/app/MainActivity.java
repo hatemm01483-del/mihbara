@@ -247,6 +247,13 @@ public class MainActivity extends Activity {
 
     private class UiBridge {
         @JavascriptInterface
+        public String deviceId() {
+            try {
+                String id = android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+                return id == null ? "" : id;
+            } catch (Exception e) { return ""; }
+        }
+        @JavascriptInterface
         public void setDark(boolean dark) {
             runOnUiThread(() -> {
                 int c = dark ? 0xFF0E0E13 : 0xFFF6F6F9;

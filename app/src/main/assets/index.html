@@ -723,7 +723,7 @@ footer{margin-top:30px}
   </div>
   <footer>
     <div class="flinks"><button type="button" id="openPrivacy">سياسة الخصوصية</button><span>·</span><button type="button" id="openTerms">الشروط والأحكام</button><span>·</span><button type="button" id="openTour">جولة في التطبيق</button></div>
-    <p>NewsCast 360 · خليك محاوط الخبر · نسخة 3.0 · المحتوى من إنتاج الذكاء الاصطناعي وممكن يحتوي أخطاء. راجع أي معلومة أو رقم من مصدره قبل النشر.</p>
+    <p>NewsCast 360 · خليك محاوط الخبر · نسخة 3.1 · المحتوى من إنتاج الذكاء الاصطناعي وممكن يحتوي أخطاء. راجع أي معلومة أو رقم من مصدره قبل النشر.</p>
     <p>© 2026 NewsCast 360. جميع الحقوق محفوظة.</p>
   </footer>
 </div>
@@ -1114,7 +1114,9 @@ function buildNav(){
     b.setAttribute("aria-selected",active); b.innerHTML=ico(k)+"<span></span>"; b.querySelector("span").textContent=label;
     b.onclick=()=>open(k); nav.append(b); }
 }
+const SCROLLMEM={};
 function open(k){
+  SCROLLMEM[view==="tool"?"t:"+current:view==="off"?"o:"+offTool:view]=window.scrollY;
   if(view==="tool") saveDraft();
   if(window.stopPrompter) stopPrompter();
   if(k==="home"||k==="history"||k==="studio"||k==="quiz") view=k; else if(OFF.includes(k)){ view="off"; offTool=k; } else { view="tool"; current=k; }
@@ -1128,7 +1130,11 @@ function open(k){
   $("crumbIcon").innerHTML=ico(key); tintEl($("crumb"),key); $("crumbDesc").textContent = view==="history" ? "كل نتايجك محفوظة هنا" : (toolMeta(key)?.desc||"");
   const sec={home:"homeView",tool:"mainDesk",studio:"studioDesk",quiz:"quizDesk",history:"historyDesk",off:"offDesk"}[view];
   [$(sec),$("crumb")].forEach(e=>{ e.classList.remove("enter"); void e.offsetWidth; e.classList.add("enter"); });
-  buildNav(); window.scrollTo(0,0);
+  buildNav();
+  // الرجوع للرئيسية (أو لأي صفحة كنت فيها) يرجّعك لنفس النقطة اللي كنت واقف عندها، مش لفوق
+  const memKey = view==="tool"?"t:"+current : view==="off"?"o:"+offTool : view;
+  const y = (view==="home"||view==="history") ? (SCROLLMEM[memKey]||0) : 0;
+  window.scrollTo(0,y); if(y) requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo(0,y)));
 }
 function showDesk(){}
 $("backHome").onclick=()=>open("home");
@@ -1231,7 +1237,7 @@ async function readSSE(r,onDelta,signal,onEv){
 }
 async function viaServer(prompt,signal,onDelta,opts={}){
   const r=await fetch(CFG.server+"/ai",{method:"POST",signal,headers:{"content-type":"application/json","x-app-token":CFG.token},body:JSON.stringify({prompt,search:!!opts.search})});
-  if(!r.ok) throw {code:r.status===429?"rate_limited":"server_down"};
+  if(!r.ok) throw {code:r.status===402?"sub_required":r.status===401?"login_required":r.status===429?"rate_limited":"server_down"};
   await readSSE(r,onDelta,signal,opts.onEvent);
 }
 async function viaFree(prompt,signal,onDelta){
@@ -1254,7 +1260,7 @@ async function sample(prompt,{signal,onText,search,onEvent,fallbackPrompt}={}){
   try{
     if(CFG.server){
       try{ await viaServer(prompt,inner.signal,onDelta,{search,onEvent:onEv}); if(search) usedLive=true; }
-      catch(e){ if(e?.name==="AbortError"||text) throw e; usedLive=false; await viaFree(fallbackPrompt||prompt,inner.signal,onDelta); }
+      catch(e){ if(e?.name==="AbortError"||text||e?.code==="sub_required"||e?.code==="login_required") throw e; usedLive=false; await viaFree(fallbackPrompt||prompt,inner.signal,onDelta); }
     } else await viaFree(fallbackPrompt||prompt,inner.signal,onDelta);
   }catch(e){
     if(timer) clearTimeout(timer);
@@ -1266,7 +1272,7 @@ async function sample(prompt,{signal,onText,search,onEvent,fallbackPrompt}={}){
   if(!text.trim()) throw {code:"empty_completion"};
   return {text,truncated:false,live:usedLive};
 }
-Object.assign(ERR,{network:"مفيش اتصال بالإنترنت. اتأكد من النت وجرب تاني.",free_down:"خدمة الذكاء الاصطناعي المجانية واقفة دلوقتي من عندهم. أدوات «عُدّة الإعلامي» شغالة عادي، والأدوات الذكية هتشتغل بسرعة لما نربط السيرفر الخاص.",server_down:"السيرفر مش بيرد. جرّب كمان شوية.",upstream_error:"حصل خطأ مؤقت. جرب تاني.",slow:"الخدمة بطيئة دلوقتي. جرّب كمان شوية، أو استخدم أدوات «عُدّة الإعلامي» اللي بتشتغل فوراً من غير نت."});
+Object.assign(ERR,{sub_required:"خلص اشتراكك أو التجربة المجانية. اشترك عشان تكمّل.",login_required:"سجّل دخولك الأول.",network:"مفيش اتصال بالإنترنت. اتأكد من النت وجرب تاني.",free_down:"خدمة الذكاء الاصطناعي المجانية واقفة دلوقتي من عندهم. أدوات «عُدّة الإعلامي» شغالة عادي، والأدوات الذكية هتشتغل بسرعة لما نربط السيرفر الخاص.",server_down:"السيرفر مش بيرد. جرّب كمان شوية.",upstream_error:"حصل خطأ مؤقت. جرب تاني.",slow:"الخدمة بطيئة دلوقتي. جرّب كمان شوية، أو استخدم أدوات «عُدّة الإعلامي» اللي بتشتغل فوراً من غير نت."});
 function refreshKeyState(){ $("note").textContent=""; }
 
 // ===== Legal =====

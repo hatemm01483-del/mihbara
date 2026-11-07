@@ -401,7 +401,7 @@ ${stories.map((s, i) => `المادة ${i + 1}:\n${s}`).join("\n\n")}
     const desk = document.getElementById("studioDesk"); if (!desk) return;
     desk.innerHTML = `<form class="slip an-form" id="anForm">
       <h2>المذيع الافتراضي</h2>
-      <p class="lead">اكتب خبر أو أكتر، واختار المذيع وشكل الاستوديو. المذيع هيقدّم النشرة بصوته وشفايفه بتتحرك مع الكلام، ومعاه شريط أخبار وعناوين زي القنوات بالظبط. وتقدر تسجّلها فيديو.</p>
+      <p class="lead">اكتب خبر أو أكتر، واختار المذيع وشكل الاستوديو. المذيع هيقدّم النشرة بصوته وشفايفه بتتحرك مع الكلام، ومعاه شريط أخبار وعناوين زي القنوات بالظبط. وتقدر تسجّلها فيديو وتحمّلها من خانة «الفيديوهات المسجّلة».</p>
       <label>المذيع</label><div class="an-anchors" id="anAnchors"></div>
       <input type="file" id="anPhoto" accept="image/*" hidden>
       <div class="row"><div><label for="anName">الاسم على الشاشة</label><input id="anName" placeholder="${E(anchorOf().name)}" value="${E(cfg.name)}"></div>
@@ -425,6 +425,10 @@ ${stories.map((s, i) => `المادة ${i + 1}:\n${s}`).join("\n\n")}
       <h3 class="scr-title">نص النشرة</h3>
       <div class="script" id="anScript">النص اللي المذيع هيقوله هيظهر هنا.</div>
       <div class="actions"><button class="btn ghost mini" type="button" id="anReplay" hidden>↻ إعادة</button><button class="btn ghost mini" type="button" id="anShare" hidden>مشاركة النص</button></div>
+      <section class="an-vids" id="anVids" aria-label="الفيديوهات المسجّلة">
+        <div class="an-vh"><h3 class="scr-title">🎬 الفيديوهات المسجّلة</h3><small id="anVCount"></small></div>
+        <div id="anVList"><p class="an-vempty">لسه مفيش فيديوهات. اضغط «⏺ سجّلها فيديو» والنشرة هتتسجل وتظهر هنا عشان تحمّلها.</p></div>
+      </section>
     </article>`;
     cv = desk.querySelector("#anCanvas"); ctx = cv.getContext("2d");
     renderAnchors(); renderStories(); renderVoices();
@@ -452,6 +456,7 @@ ${stories.map((s, i) => `المادة ${i + 1}:\n${s}`).join("\n\n")}
     f.querySelector("#anStop").onclick = () => { if (ctl) ctl.stop = true; stopAudio(); };
     desk.querySelector("#anReplay").onclick = () => { if (lastPlan) run(lastPlan, false); };
     desk.querySelector("#anShare").onclick = () => { if (lastPlan) try { shareText(planText(lastPlan)); } catch (e) { } };
+    renderVids().catch(() => { });
     loadPhoto(); checkTTS().then(ok => { const n = document.getElementById("anVoiceNote"); if (n) n.textContent = ok ? "🎙️ الصوت الطبيعي شغال (ذكاء اصطناعي)." : "🔈 هيستخدم صوت الموبايل العربي. الصوت الطبيعي محتاج نت والسيرفر."; });
     if (document.fonts && document.fonts.load) Promise.all([document.fonts.load(`700 40px ${FD}`), document.fonts.load(`500 20px ${FB}`)]).catch(() => { });
     startLoop();
@@ -509,11 +514,59 @@ ${stories.map((s, i) => `المادة ${i + 1}:\n${s}`).join("\n\n")}
     btns(true);
     try { await perform(plan, rec); } finally { btns(false); }
     if (rec) {
-      status("بيحفظ الفيديو…", true);
-      try { const where = await saveBlob(rec.blob(), "NewsCast360_" + Date.now() + "." + rec.ext, rec.mime.split(";")[0]); note("✓ الفيديو اتحفظ في " + where); T("الفيديو اتحفظ ✓"); }
-      catch (e) { note("مقدرتش أحفظ الفيديو."); }
+      status("بيجهّز الفيديو…", true);
+      try {
+        const blob = rec.blob();
+        if (!blob.size) throw new Error("empty");
+        const v = { id: Date.now(), name: "NewsCast360_" + Date.now() + "." + rec.ext, mime: rec.mime.split(";")[0], title: (plan.stories[0] && plan.stories[0].headline) || "نشرة", blob };
+        await VDB.put(v); await renderVids(v.id);
+        note("✓ الفيديو جاهز تحت في «الفيديوهات المسجّلة». اضغط «تحميل الفيديو» عشان يتحفظ على موبايلك."); T("الفيديو جاهز ✓");
+        try { document.getElementById("anVids").scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) { }
+      } catch (e) { note("مقدرتش أجهّز الفيديو. جرّب تسجّل تاني."); }
       status("خلصت", false);
     }
+  }
+
+  // ================= الفيديوهات المسجّلة (بتتحفظ جوه التطبيق لحد ما تحمّلها) =================
+  const VDB = (() => {
+    let dbp = null;
+    const db = () => dbp || (dbp = new Promise((res, rej) => { const r = indexedDB.open("newscast-videos", 1); r.onupgradeneeded = () => r.result.createObjectStore("v", { keyPath: "id" }); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }));
+    const tx = (mode, fn) => db().then(d => new Promise((res, rej) => { const t = d.transaction("v", mode), st = t.objectStore("v"); const out = fn(st); t.oncomplete = () => res(out && out.result !== undefined ? out.result : out); t.onerror = () => rej(t.error); }));
+    return {
+      put: v => tx("readwrite", st => st.put(v)).then(() => VDB.trim()),
+      all: () => tx("readonly", st => st.getAll()).then(a => (a || []).sort((x, y) => y.id - x.id)),
+      del: id => tx("readwrite", st => st.delete(id)),
+      trim: async () => { const a = await VDB.all(); for (const v of a.slice(6)) await VDB.del(v.id); } // آخر ٦ فيديوهات بس عشان المساحة
+    };
+  })();
+  let vidURLs = [];
+  async function renderVids(fresh) {
+    const box = document.getElementById("anVList"), cnt = document.getElementById("anVCount"); if (!box) return;
+    let list = []; try { list = await VDB.all(); } catch (e) { }
+    vidURLs.forEach(u => URL.revokeObjectURL(u)); vidURLs = [];
+    if (cnt) cnt.textContent = list.length ? list.length.toLocaleString("ar-EG") + " فيديو" : "";
+    if (!list.length) { box.innerHTML = '<p class="an-vempty">لسه مفيش فيديوهات. اضغط «⏺ سجّلها فيديو» والنشرة هتتسجل وتظهر هنا عشان تحمّلها.</p>'; return; }
+    box.innerHTML = list.map(v => {
+      const u = URL.createObjectURL(v.blob); vidURLs.push(u);
+      const mb = (v.blob.size / 1048576).toLocaleString("ar-EG", { maximumFractionDigits: 1 });
+      const d = new Date(v.id).toLocaleString("ar-EG", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
+      return `<div class="an-vid${v.id === fresh ? " new" : ""}" data-id="${v.id}"><video src="${u}" controls playsinline preload="metadata"></video>
+        <div class="an-vmeta"><b>${E(v.title)}</b><small>${d} · ${mb} ميجا · ${v.name.split(".").pop().toUpperCase()}</small></div>
+        <div class="an-vbtns"><button type="button" class="btn mini" data-dl="${v.id}">⬇ تحميل الفيديو</button><button type="button" class="btn ghost mini" data-sh="${v.id}">مشاركة</button><button type="button" class="btn ghost mini" data-rmv="${v.id}" aria-label="حذف الفيديو">🗑</button></div></div>`;
+    }).join("");
+    const find = id => list.find(v => v.id === +id);
+    $$(box, "[data-dl]").forEach(b => b.onclick = async () => {
+      const v = find(b.dataset.dl); if (!v) return; b.disabled = true; const t = b.textContent; b.textContent = "بيحمّل…";
+      try { const where = await saveBlob(v.blob, v.name, v.mime); T("الفيديو اتحفظ في " + where + " ✓"); b.textContent = "✓ اتحمّل"; }
+      catch (e) { T("مقدرتش أحمّل الفيديو"); b.textContent = t; }
+      b.disabled = false;
+    });
+    $$(box, "[data-sh]").forEach(b => b.onclick = async () => {
+      const v = find(b.dataset.sh); if (!v) return;
+      try { const f = new File([v.blob], v.name, { type: v.mime }); if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f], title: v.title }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
+      try { const where = await saveBlob(v.blob, v.name, v.mime); T("الفيديو اتحفظ في " + where + "، تقدر تشاركه من المعرض"); } catch (e) { T("مقدرتش أشارك الفيديو"); }
+    });
+    $$(box, "[data-rmv]").forEach(b => b.onclick = async () => { await VDB.del(+b.dataset.rmv); renderVids(); });
   }
 
   const css = `.an-anchors{display:flex;gap:8px;flex-wrap:wrap}.an-pick{display:grid;justify-items:center;gap:4px;font:inherit;font-size:12px;color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:6px;cursor:pointer;width:84px}.an-pick[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft,rgba(37,99,235,.15))}
@@ -522,7 +575,12 @@ ${stories.map((s, i) => `المادة ${i + 1}:\n${s}`).join("\n\n")}
 .an-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}.an-hint{color:var(--muted);font-weight:400}
 .an-stage{position:relative;border-radius:16px;overflow:hidden;background:#000;box-shadow:0 18px 40px -20px rgba(0,0,0,.6)}.an-stage canvas{display:block;width:100%;height:auto;aspect-ratio:16/9}
 .an-loading{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:10px;background:rgba(0,0,0,.55);color:#fff;font-size:15px}.an-loading i{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;animation:anspin 1s linear infinite}@keyframes anspin{to{transform:rotate(360deg)}}
-#anScript p{margin:0 0 10px;line-height:1.85}`;
+#anScript p{margin:0 0 10px;line-height:1.85}
+.an-vids{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}.an-vh{display:flex;align-items:baseline;justify-content:space-between;gap:10px}.an-vh small{color:var(--muted)}
+.an-vempty{margin:6px 0 0;padding:14px;border-radius:14px;border:1px dashed var(--line);color:var(--muted);font-size:13.5px;text-align:center}
+.an-vid{display:grid;gap:8px;margin-top:10px;padding:10px;border-radius:16px;background:var(--bg2);border:1px solid var(--line)}.an-vid.new{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft,rgba(37,99,235,.15))}
+.an-vid video{width:100%;aspect-ratio:16/9;border-radius:12px;background:#000;display:block}.an-vmeta{display:grid;gap:2px}.an-vmeta small{color:var(--muted);font-size:12px}
+.an-vbtns{display:flex;gap:6px;flex-wrap:wrap}.an-vbtns .btn:first-child{flex:1}`;
   const se = document.createElement("style"); se.textContent = css; document.head.appendChild(se);
 
   document.addEventListener("DOMContentLoaded", function () {

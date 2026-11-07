@@ -7,6 +7,8 @@ window.MIHBARA_CONFIG = {
   token: "",
   contact: ""
 };
+// تسجيل الدخول والاشتراك (v3.1)
+document.write('<script src="account.js"><\/script>');
 // تحميل أداة التحقق التلقائي من الأخبار
 document.write('<script src="verify.js"><\/script>');
 document.write('<script src="features.js"><\/script>');

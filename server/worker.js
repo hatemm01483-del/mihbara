@@ -8,11 +8,20 @@
 //   MODEL              (Text)    الموديل للأدوات العادية، مثلاً claude-haiku-5-5 (الأسرع والأرخص)
 //   VERIFY_MODEL       (Text)    الموديل لأداة التحقق بالبحث (اختياري، الافتراضي claude-sonnet-5-5)
 //   TRUSTED_DOMAINS    (Text)    قايمة مواقع موثوقة مفصولة بفواصل (اختياري، فيه قايمة جاهزة)
+// --- الحسابات والاشتراك (v3.1) ---
+//   USERS              (KV namespace binding)  مخزن الحسابات — من Settings → Bindings → KV namespace
+//   AUTH_SECRET        (Secret)  أي كلمة سرية طويلة عشوائية (بتوقّع جلسات الدخول)
+//   PAYMOB_SECRET_KEY  (Secret)  Secret key من لوحة Paymob
+//   PAYMOB_PUBLIC_KEY  (Text)    Public key من لوحة Paymob
+//   PAYMOB_HMAC        (Secret)  HMAC secret من لوحة Paymob
+//   PAYMOB_INTEGRATIONS(Text)    أرقام الـ Integration IDs (كارت، محافظ) مفصولة بفواصل
+//   PRICE_MONTH        (Text)    سعر الشهر بالجنيه (الافتراضي 229)
+//   TRIAL_DAYS         (Text)    أيام التجربة المجانية (الافتراضي 1)
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-  "Access-Control-Allow-Headers": "content-type,x-app-token",
+  "Access-Control-Allow-Headers": "content-type,x-app-token,authorization",
 };
 const json = (o, status = 200) =>
   new Response(JSON.stringify(o), { status, headers: { ...CORS, "content-type": "application/json" } });
@@ -145,16 +154,167 @@ async function pickTts(env) {
 }
 const VOICE_OK = /^[A-Z][a-z]+$/;
 
+// ---------- الحسابات والاشتراكات (v3.1) ----------
+// بتشتغل لما تربط KV اسمه USERS وتحط AUTH_SECRET. من غيرهم السيرفر بيشتغل زي الأول من غير تسجيل دخول.
+const DAY = 86400000;
+const TE = new TextEncoder();
+const toHex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+async function hmacHex(alg, key, msg) {
+  const k = await crypto.subtle.importKey("raw", TE.encode(key), { name: "HMAC", hash: alg }, false, ["sign"]);
+  return toHex(await crypto.subtle.sign("HMAC", k, TE.encode(msg)));
+}
+async function pwHash(pw, salt) {
+  const k = await crypto.subtle.importKey("raw", TE.encode(pw), "PBKDF2", false, ["deriveBits"]);
+  return toHex(await crypto.subtle.deriveBits({ name: "PBKDF2", salt: TE.encode(salt), iterations: 100000, hash: "SHA-256" }, k, 256));
+}
+function safeEq(a, b) { a = String(a || ""); b = String(b || ""); if (a.length !== b.length) return false; let r = 0; for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i); return r === 0; }
+const authOn = (env) => !!(env.USERS && env.AUTH_SECRET);
+const PLAN = (env) => ({ trialDays: +(env.TRIAL_DAYS || 1), price: +(env.PRICE_MONTH || 229), days: +(env.PLAN_DAYS || 30), currency: "EGP" });
+
+async function makeToken(env, uid) {
+  const exp = Date.now() + 365 * DAY, body = uid + "." + exp;
+  return body + "." + (await hmacHex("SHA-256", env.AUTH_SECRET, body));
+}
+async function userFromReq(req, env) {
+  const h = req.headers.get("authorization") || "", t = h.startsWith("Bearer ") ? h.slice(7) : "";
+  const [uid, exp, sig] = t.split(".");
+  if (!uid || !exp || !sig || +exp < Date.now()) return null;
+  if (!safeEq(sig, await hmacHex("SHA-256", env.AUTH_SECRET, uid + "." + exp))) return null;
+  return await env.USERS.get("u:" + uid, "json");
+}
+function stateOf(u, env) {
+  const now = Date.now(), p = PLAN(env);
+  const mode = u.subEnd > now ? "sub" : u.trialEnd > now ? "trial" : "expired";
+  return { email: u.email, name: u.name || "", mode, active: mode !== "expired", trialEnd: u.trialEnd || 0, subEnd: u.subEnd || 0, now, plan: p };
+}
+const putUser = (env, u) => env.USERS.put("u:" + u.id, JSON.stringify(u));
+
+async function authRoutes(req, env, url) {
+  const p = url.pathname;
+  if (p === "/auth/register" && req.method === "POST") {
+    let b; try { b = await req.json(); } catch (e) { return json({ error: "bad_request" }, 400); }
+    const email = String(b.email || "").trim().toLowerCase(), pw = String(b.password || ""), name = String(b.name || "").trim().slice(0, 60);
+    const device = String(b.device || "").replace(/[^\w-]/g, "").slice(0, 64);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || email.length > 120) return json({ error: "bad_email" }, 400);
+    if (pw.length < 6 || pw.length > 128) return json({ error: "weak_password" }, 400);
+    if (await env.USERS.get("e:" + email)) return json({ error: "exists" }, 409);
+    const id = crypto.randomUUID(), salt = crypto.randomUUID(), now = Date.now();
+    let trialEnd = now + PLAN(env).trialDays * DAY, trialUsed = false;
+    if (device) { if (await env.USERS.get("d:" + device)) { trialEnd = 0; trialUsed = true; } else await env.USERS.put("d:" + device, id); }
+    const u = { id, email, name, salt, pw: await pwHash(pw, salt), created: now, trialEnd, subEnd: 0, pays: [] };
+    await putUser(env, u); await env.USERS.put("e:" + email, id);
+    return json({ token: await makeToken(env, id), me: stateOf(u, env), trialUsed });
+  }
+  if (p === "/auth/login" && req.method === "POST") {
+    let b; try { b = await req.json(); } catch (e) { return json({ error: "bad_request" }, 400); }
+    const email = String(b.email || "").trim().toLowerCase(), pw = String(b.password || "");
+    const id = await env.USERS.get("e:" + email), u = id && (await env.USERS.get("u:" + id, "json"));
+    if (!u || !safeEq(await pwHash(pw, u.salt), u.pw)) return json({ error: "bad_login" }, 401);
+    return json({ token: await makeToken(env, u.id), me: stateOf(u, env) });
+  }
+  if (p === "/me") {
+    const u = await userFromReq(req, env); if (!u) return json({ error: "login_required" }, 401);
+    return json(stateOf(u, env));
+  }
+  if (p === "/pay/start" && req.method === "POST") {
+    const u = await userFromReq(req, env); if (!u) return json({ error: "login_required" }, 401);
+    if (!env.PAYMOB_SECRET_KEY || !env.PAYMOB_PUBLIC_KEY || !env.PAYMOB_INTEGRATIONS) return json({ error: "pay_not_ready" }, 503);
+    let b = {}; try { b = await req.json(); } catch (e) { }
+    const phone = String(b.phone || "").replace(/[^\d+]/g, "").slice(0, 16) || "+201000000000";
+    const pl = PLAN(env), cents = Math.round(pl.price * 100), ref = "nc" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    const nm = (u.name || u.email.split("@")[0]).split(/\s+/);
+    const body = {
+      amount: cents, currency: "EGP",
+      payment_methods: String(env.PAYMOB_INTEGRATIONS).split(",").map((x) => parseInt(x.trim(), 10)).filter(Boolean),
+      items: [{ name: "NewsCast 360 - اشتراك شهري", amount: cents, description: pl.days + " يوم", quantity: 1 }],
+      billing_data: { first_name: nm[0] || "Student", last_name: nm.slice(1).join(" ") || "NewsCast", email: u.email, phone_number: phone,
+        apartment: "NA", floor: "NA", street: "NA", building: "NA", city: "NA", country: "EG", state: "NA", postal_code: "NA" },
+      special_reference: ref, notification_url: url.origin + "/pay/webhook", redirection_url: url.origin + "/pay/done",
+    };
+    const r = await fetch("https://accept.paymob.com/v1/intention/", { method: "POST", headers: { Authorization: "Token " + env.PAYMOB_SECRET_KEY, "content-type": "application/json" }, body: JSON.stringify(body) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.client_secret) return json({ error: "pay_failed", detail: (j && (j.detail || j.message)) || r.status }, 502);
+    await env.USERS.put("o:" + ref, JSON.stringify({ uid: u.id, cents, status: "pending", at: Date.now(), po: j.intention_order_id || null }), { expirationTtl: 60 * DAY / 1000 });
+    if (j.intention_order_id) await env.USERS.put("po:" + j.intention_order_id, ref, { expirationTtl: 60 * DAY / 1000 });
+    return json({ ref, url: "https://accept.paymob.com/unifiedcheckout/?publicKey=" + encodeURIComponent(env.PAYMOB_PUBLIC_KEY) + "&clientSecret=" + encodeURIComponent(j.client_secret) });
+  }
+  if (p === "/pay/webhook" && req.method === "POST") {
+    let b; try { b = await req.json(); } catch (e) { return json({ ok: false }, 400); }
+    const o = b && b.obj; if (!o || b.type !== "TRANSACTION") return json({ ok: true });
+    const g = (path) => path.split(".").reduce((x, k) => (x == null ? x : x[k]), o);
+    const ok = await paymobVerify(env, url.searchParams.get("hmac") || b.hmac, (k) => g(k === "order" ? "order.id" : k));
+    if (!ok) return json({ ok: false }, 401);
+    await applyPaid(env, { success: o.success, pending: o.pending, voided: o.is_voided, refunded: o.is_refunded, cents: o.amount_cents, txn: o.id, order: g("order.id"), ref: g("order.merchant_order_id") });
+    return json({ ok: true });
+  }
+  if (p === "/pay/done") {
+    const q = url.searchParams; let paid = false;
+    if (q.get("hmac") && (await paymobVerify(env, q.get("hmac"), (k) => q.get(k)))) {
+      const B = (k) => q.get(k) === "true";
+      paid = await applyPaid(env, { success: B("success"), pending: B("pending"), voided: B("is_voided"), refunded: B("is_refunded"), cents: +q.get("amount_cents"), txn: q.get("id"), order: q.get("order"), ref: q.get("merchant_order_id") });
+    }
+    const okMsg = paid || q.get("success") === "true";
+    return new Response(`<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NewsCast 360</title>
+<body style="font-family:system-ui,sans-serif;background:#0e0e13;color:#fff;display:grid;place-items:center;min-height:100vh;margin:0;text-align:center;padding:20px">
+<div><div style="font-size:64px">${okMsg ? "✅" : "⚠️"}</div><h1 style="font-size:22px">${okMsg ? "تم الدفع والاشتراك اتفعّل" : "الدفع ماكملش"}</h1>
+<p style="opacity:.8">${okMsg ? "ارجع لتطبيق NewsCast 360 دلوقتي، هتلاقي الاشتراك شغال." : "ارجع للتطبيق وجرّب تاني، ومفيش أي فلوس اتخصمت لو العملية فشلت."}</p></div></body></html>`, { headers: { "content-type": "text/html; charset=utf-8" } });
+  }
+  return null;
+}
+const HMAC_KEYS = ["amount_cents", "created_at", "currency", "error_occured", "has_parent_transaction", "id", "integration_id", "is_3d_secure", "is_auth", "is_capture", "is_refunded", "is_standalone_payment", "is_voided", "order", "owner", "pending", "source_data.pan", "source_data.sub_type", "source_data.type", "success"];
+async function paymobVerify(env, given, get) {
+  if (!env.PAYMOB_HMAC || !given) return false;
+  const s = HMAC_KEYS.map((k) => { const v = get(k); return v == null ? "" : String(v); }).join("");
+  return safeEq((await hmacHex("SHA-512", env.PAYMOB_HMAC, s)).toLowerCase(), String(given).toLowerCase());
+}
+async function applyPaid(env, t) {
+  if (!(t.success === true && t.pending === false && !t.voided && !t.refunded)) return false;
+  let ref = t.ref && (await env.USERS.get("o:" + t.ref)) ? t.ref : null;
+  if (!ref && t.order) ref = await env.USERS.get("po:" + t.order);
+  if (!ref) return false;
+  const ord = await env.USERS.get("o:" + ref, "json"); if (!ord) return false;
+  if (ord.status === "paid") return true;
+  if (+t.cents < ord.cents) return false;
+  const u = await env.USERS.get("u:" + ord.uid, "json"); if (!u) return false;
+  const now = Date.now(), days = PLAN(env).days;
+  u.subEnd = Math.max(now, u.subEnd || 0) + days * DAY;
+  u.pays = (u.pays || []).concat([{ ref, txn: t.txn, cents: +t.cents, at: now }]).slice(-24);
+  await putUser(env, u);
+  ord.status = "paid"; ord.txn = t.txn; ord.paidAt = now;
+  await env.USERS.put("o:" + ref, JSON.stringify(ord), { expirationTtl: 365 * DAY / 1000 });
+  return true;
+}
+// الأدوات اللي بتصرف من رصيد الذكاء الاصطناعي محتاجة اشتراك أو تجربة شغالة
+async function gate(req, env) {
+  if (!authOn(env)) return null;
+  const u = await userFromReq(req, env);
+  if (!u) return json({ error: "login_required" }, 401);
+  if (!stateOf(u, env).active) return json({ error: "subscription_required" }, 402);
+  return null;
+}
+
 export default {
   async fetch(req, env) {
     if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
     const url = new URL(req.url);
 
+    // الدفع: Paymob بيكلّم السيرفر مباشرة، فالمسارات دي قبل فحص APP_TOKEN
+    if (authOn(env) && (url.pathname === "/pay/webhook" || url.pathname === "/pay/done")) {
+      const r = await authRoutes(req, env, url); if (r) return r;
+    }
+
     if (env.APP_TOKEN && req.headers.get("x-app-token") !== env.APP_TOKEN)
       return json({ error: "unauthorized" }, 401);
 
+    if (authOn(env) && (url.pathname.startsWith("/auth/") || url.pathname === "/me" || url.pathname.startsWith("/pay/"))) {
+      const r = await authRoutes(req, env, url); if (r) return r;
+    }
+    if (url.pathname === "/media" || url.pathname === "/tts" || url.pathname === "/ai" || url.pathname.startsWith("/did/")) {
+      const g = await gate(req, env); if (g) return g;
+    }
+
     if (url.pathname === "/status")
-      return json({ ai: !!(env.GEMINI_API_KEY || env.ANTHROPIC_API_KEY), provider: env.GEMINI_API_KEY ? "gemini" : (env.ANTHROPIC_API_KEY ? "claude" : null), did: !!env.DID_API_KEY, tts: !!env.GEMINI_API_KEY, media: !!env.GEMINI_API_KEY });
+      return json({ ai: !!(env.GEMINI_API_KEY || env.ANTHROPIC_API_KEY), provider: env.GEMINI_API_KEY ? "gemini" : (env.ANTHROPIC_API_KEY ? "claude" : null), did: !!env.DID_API_KEY, tts: !!env.GEMINI_API_KEY, media: !!env.GEMINI_API_KEY, auth: authOn(env), pay: !!(env.PAYMOB_SECRET_KEY && env.PAYMOB_PUBLIC_KEY && env.PAYMOB_INTEGRATIONS && env.PAYMOB_HMAC), plan: PLAN(env) });
 
     // ملف صوت أو صورة + تعليمات → نص (تفريغ المقابلات، ملخص المحاضرة، معمل الصوت)
     if (url.pathname === "/media" && req.method === "POST") {

@@ -16,6 +16,26 @@
 ## البناء
 GitHub Actions بيبني الـ APK لوحده مع كل تعديل (تبويب Actions ← Artifacts).
 
+## الجديد في نسخة 3.1
+- **تسجيل دخول وحسابات**: حساب جديد بالإيميل وكلمة السر، أو تسجيل دخول.
+- **تجربة مجانية يوم كامل** بكل المميزات (مرة واحدة لكل موبايل).
+- **الاشتراك الشهري 229 جنيه** بالدفع عن طريق Paymob (كارت بنك، فودافون كاش والمحافظ)، والاشتراك بيتفعّل لوحده في ثواني أول ما الدفع يوصل.
+- **المذيع الافتراضي**: خانة «الفيديوهات المسجّلة» فيها كل فيديو اتسجّل مع زرار «تحميل الفيديو» ومشاركة وحذف.
+- **زرار الرجوع** بيرجّعك لنفس المكان اللي كنت واقف فيه في الرئيسية، مش لفوق.
+
+### تفعيل الحسابات والدفع (مرة واحدة في Cloudflare)
+1. Workers & Pages → KV → Create namespace باسم `newscast-users`.
+2. في الـ Worker: Settings → Bindings → Add → KV namespace، الاسم `USERS` واختار `newscast-users`.
+3. Settings → Variables and Secrets، ضيف:
+   - `AUTH_SECRET` (Secret): أي كلمة سرية طويلة عشوائية.
+   - `PAYMOB_SECRET_KEY` (Secret) و `PAYMOB_HMAC` (Secret) و `PAYMOB_PUBLIC_KEY` (Text): من لوحة Paymob → Settings / Developers.
+   - `PAYMOB_INTEGRATIONS` (Text): أرقام الـ Integration IDs (الكارت والمحافظ) مفصولة بفاصلة، مثلاً `123456,654321`.
+   - اختياري: `PRICE_MONTH` (الافتراضي 229) و `TRIAL_DAYS` (الافتراضي 1).
+4. في لوحة Paymob حط الـ Transaction processed callback: `https://<worker>/pay/webhook` والـ Transaction response callback: `https://<worker>/pay/done`.
+5. انسخ `server/worker.js` الجديد في الـ Worker واضغط Deploy.
+
+لو `USERS` أو `AUTH_SECRET` مش موجودين، التطبيق بيفضل شغال زي الأول من غير تسجيل دخول.
+
 ## الجديد في نسخة 3.0
 - **تدريب المذيع:** محاكي «على الهوا»، تشكيل النص، معمل الصوت، محاكي الحوار.
 - **الصوت والصورة:** تفريغ المقابلات، محرر صوت، مكتبة جينجلز، محاكي الكاميرا والإضاءة، جرافيك الشاشة، وقفة المراسل، جدول النشرة.

@@ -1,23 +1,24 @@
-/* NewsCast 360 — تسجيل الدخول والتجربة المجانية والاشتراك الشهري (v3.1)
-   بيشتغل بس لما السيرفر يقول إن الحسابات مفعّلة (auth: true في /status). من غير كده التطبيق شغال زي الأول. */
+/* NewsCast 360 — تسجيل الدخول والتجربة المجانية والاشتراك الشهري (v3.2)
+   لو السيرفر مفعّل فيه الحسابات (auth: true) الحساب والاشتراك بيتسجلوا على السيرفر.
+   لو لسه مش مفعّل: شاشة الدخول بتظهر برضه، والحساب والتجربة بيتحفظوا على الموبايل (وضع مؤقت) لحد ما السيرفر يتفعّل. */
 (function () {
   "use strict";
   var C = window.MIHBARA_CONFIG || {};
   var SERVER = String(C.server || "").replace(/\/+$/, "");
   if (!SERVER) return;
-  var K_TOK = "mihbara-acct-token", K_ME = "mihbara-acct-me", K_ON = "mihbara-acct-on", K_DEV = "mihbara-acct-dev", K_PHONE = "mihbara-acct-phone";
+  var K_TOK = "mihbara-acct-token", K_ME = "mihbara-acct-me", K_ON = "mihbara-acct-on", K_DEV = "mihbara-acct-dev", K_PHONE = "mihbara-acct-phone", K_LOCAL = "mihbara-local-acct", K_LTRIAL = "mihbara-local-trial";
   var ls = {
     get: function (k) { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } },
     set: function (k, v) { try { if (v == null || v === "") localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { } }
   };
-  var A = window.NCAccount = { on: ls.get(K_ON) === "1", token: ls.get(K_TOK), me: null, plan: { price: 229, days: 30, trialDays: 1 } };
+  var A = window.NCAccount = { on: true, local: ls.get(K_ON) !== "1", token: ls.get(K_TOK), me: null, plan: { price: 229, days: 30, trialDays: 1 } };
   try { A.me = JSON.parse(ls.get(K_ME) || "null"); } catch (e) { A.me = null; }
 
   // ---------- كل طلب للسيرفر بياخد مفتاح الجلسة، ولو الاشتراك خلص بيظهر شاشة الاشتراك ----------
   var rawFetch = window.fetch.bind(window);
   window.fetch = function (input, init) {
     var url = typeof input === "string" ? input : (input && input.url) || "";
-    if (A.token && url.indexOf(SERVER) === 0) {
+    if (A.token && !A.local && url.indexOf(SERVER) === 0) {
       init = Object.assign({}, init || {});
       var h = new Headers(init.headers || (typeof input !== "string" && input.headers) || {});
       if (!h.has("authorization")) h.set("authorization", "Bearer " + A.token);
@@ -26,6 +27,7 @@
     var p = rawFetch(input, init);
     if (url.indexOf(SERVER) === 0 && !/\/(auth\/|me$|pay\/|status$)/.test(url.slice(SERVER.length))) {
       p.then(function (r) {
+        if (A.local) return;
         if (r.status === 402) { refreshMe().then(function () { showPaywall(); }); }
         else if (r.status === 401 && A.on) r.clone().json().then(function (j) { if (j && j.error === "login_required") logout(true); }).catch(function () { });
       }).catch(function () { });
@@ -54,8 +56,31 @@
     A.me = me; ls.set(K_ME, me ? JSON.stringify(me) : "");
     paintChip();
   }
+  // ---------- الوضع المؤقت (قبل تفعيل الحسابات على السيرفر) ----------
+  function localAcct() { try { return JSON.parse(ls.get(K_LOCAL) || "null"); } catch (e) { return null; } }
+  function localMe() { var a = localAcct(); return a ? { email: a.email, name: a.name || "", trialEnd: a.trialEnd || 0, subEnd: 0, plan: A.plan, local: true } : null; }
+  function pwHashLocal(pw, email) {
+    var txt = "nc360|" + email + "|" + pw;
+    try { return crypto.subtle.digest("SHA-256", new TextEncoder().encode(txt)).then(function (b) { return [].map.call(new Uint8Array(b), function (x) { return ("0" + x.toString(16)).slice(-2); }).join(""); }); }
+    catch (e) { var h = 0; for (var i = 0; i < txt.length; i++) h = (h * 31 + txt.charCodeAt(i)) | 0; return Promise.resolve("x" + h); }
+  }
+  function localAuth(reg, email, pw, name) {
+    return pwHashLocal(pw, email).then(function (hp) {
+      var a = localAcct();
+      if (reg) {
+        if (a && a.email === email) return { error: "exists" };
+        var used = !!ls.get(K_LTRIAL), now = Date.now();
+        a = { email: email, name: name, pw: hp, created: now, trialEnd: used ? 0 : now + ((A.plan && A.plan.trialDays) || 1) * 86400000 };
+        ls.set(K_LOCAL, JSON.stringify(a)); ls.set(K_LTRIAL, "1");
+        return { token: "local", me: localMe(), trialUsed: used };
+      }
+      if (!a || a.email !== email || a.pw !== hp) return { error: "bad_login" };
+      return { token: "local", me: localMe() };
+    });
+  }
   function refreshMe() {
     if (!A.token) return Promise.resolve(null);
+    if (A.local) { if (A.token === "local") setMe(localMe()); return Promise.resolve(A.me); }
     return api("/me").then(function (j) {
       if (j.__status === 401) { logout(true); return null; }
       if (j.email) setMe(j); return A.me;
@@ -94,7 +119,12 @@
     ".nc-chip.trial{background:rgba(245,159,0,.14);border-color:rgba(245,159,0,.4);color:#c77700}.nc-chip.sub{background:rgba(12,138,99,.13);border-color:rgba(12,138,99,.35);color:#0c8a63}.nc-chip.expired{background:rgba(224,49,49,.12);border-color:rgba(224,49,49,.35);color:#e03131}" +
     ".nc-rows{display:grid;gap:8px;margin:10px 0 4px;font-size:14px}.nc-rows div{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:var(--bg,#0e0e13)}.nc-rows span{color:var(--muted,#999)}" +
     ".nc-trialbar{position:sticky;bottom:calc(88px + env(safe-area-inset-bottom,0px));z-index:14;margin:14px auto 0;max-width:560px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-radius:16px;background:var(--card,#16161d);border:1px solid rgba(245,159,0,.45);font-size:13.5px;backdrop-filter:blur(14px)}" +
-    ".nc-trialbar .btn{padding:8px 14px;font-size:13px}";
+    ".nc-trialbar .btn{padding:8px 14px;font-size:13px}" +
+    ".nc-crew{position:relative;display:flex;justify-content:center;align-items:flex-end;gap:70px;height:170px;padding-top:34px;margin:-4px 0 -18px;z-index:1;pointer-events:none}" +
+    ".nc-crew img{height:136px;width:auto;filter:drop-shadow(0 10px 10px rgba(0,0,0,.25));animation:ncbob 1.6s ease-in-out infinite}.nc-crew img:last-child{animation-delay:-.8s}" +
+    ".nc-bub{position:absolute;top:0;left:50%;transform:translateX(-50%);background:#fff;color:#111;font-size:12.5px;font-weight:700;padding:5px 11px;border-radius:14px;box-shadow:0 6px 16px rgba(0,0,0,.18);white-space:nowrap}" +
+    "@keyframes ncbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}" +
+    "@media (prefers-reduced-motion:reduce){.nc-crew img{animation:none}}";
   var se = document.createElement("style"); se.textContent = css; document.head.appendChild(se);
 
   var gate, chip, bar;
@@ -106,12 +136,13 @@
   function lockScroll(on) { document.documentElement.style.overflow = on ? "hidden" : ""; }
   function hideGate() { if (gate) { gate.hidden = true; gate.innerHTML = ""; } lockScroll(false); stopPoll(); }
   var BRAND = '<div class="nc-brand"><b>NewsCast 360</b><span>خليك محاوط الخبر</span></div>';
+  var CREW = '<div class="nc-crew" aria-hidden="true"><img src="nc-girl.webp" alt=""><span class="nc-bub">أهلاً بيك 👋</span><img src="nc-boy.webp" alt=""></div>';
 
   // شاشة الدخول / حساب جديد
   function showAuth(mode, msg) {
     ensureGate(); lockScroll(true); gate.hidden = false; mode = mode || "register";
     var reg = mode === "register", trialD = (A.plan && A.plan.trialDays) || 1;
-    gate.innerHTML = '<div class="nc-gbox">' + BRAND + '<form class="nc-card" id="ncAuth" novalidate>' +
+    gate.innerHTML = '<div class="nc-gbox">' + BRAND + CREW + '<form class="nc-card" id="ncAuth" novalidate>' +
       '<h2>' + (reg ? "اعمل حسابك" : "سجّل دخولك") + '</h2><p>' + (reg ? "حساب واحد بيفتحلك كل أدوات NewsCast 360." : "أهلاً بيك تاني 👋") + '</p>' +
       (reg ? '<label for="ncName">الاسم</label><input id="ncName" autocomplete="name" placeholder="اسمك">' : "") +
       '<label for="ncEmail">الإيميل</label><input id="ncEmail" type="email" inputmode="email" autocomplete="email" dir="ltr" placeholder="name@example.com">' +
@@ -129,7 +160,7 @@
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { m.className = "nc-msg"; m.textContent = "اكتب إيميل صحيح."; return; }
       if (pw.length < 6) { m.className = "nc-msg"; m.textContent = "كلمة السر لازم تكون ٦ حروف أو أرقام على الأقل."; return; }
       var b = f.querySelector("#ncGo"); b.disabled = true; m.className = "nc-msg ok"; m.textContent = "لحظة…";
-      api(reg ? "/auth/register" : "/auth/login", reg ? { email: email, password: pw, name: name, device: deviceId() } : { email: email, password: pw }).then(function (j) {
+      (A.local ? localAuth(reg, email.toLowerCase(), pw, name) : api(reg ? "/auth/register" : "/auth/login", reg ? { email: email, password: pw, name: name, device: deviceId() } : { email: email, password: pw })).then(function (j) {
         b.disabled = false;
         if (j.token) {
           A.token = j.token; ls.set(K_TOK, j.token); setMe(j.me);
@@ -168,7 +199,12 @@
     var m = gate.querySelector("#ncMsg");
     gate.querySelector("#ncOut").onclick = function () { logout(false); };
     var bk = gate.querySelector("#ncBack"); if (bk) bk.onclick = hideGate;
+    if (A.local) {
+      var cont = document.createElement("button"); cont.type = "button"; cont.className = "btn ghost"; cont.textContent = "كمّل دلوقتي"; cont.style.marginTop = "8px"; cont.style.width = "100%";
+      cont.onclick = hideGate; gate.querySelector("#ncBuy").after(cont);
+    }
     gate.querySelector("#ncBuy").onclick = function () {
+      if (A.local) { m.className = "nc-msg ok"; m.textContent = "الدفع الأونلاين هيتفعّل قريب جداً. لحد كده تقدر تكمّل استخدام التطبيق عادي."; return; }
       var phone = gate.querySelector("#ncPhone").value.replace(/[^\d+]/g, "");
       if (phone && !/^(\+?20)?0?1[0125]\d{8}$/.test(phone)) { m.className = "nc-msg"; m.textContent = "اكتب رقم موبايل مصري صحيح، أو سيبه فاضي لو هتدفع بالكارت."; return; }
       if (phone) ls.set(K_PHONE, phone);
@@ -236,7 +272,7 @@
   }
   function logout(expired) {
     A.token = ""; ls.set(K_TOK, ""); setMe(null); paintBar();
-    if (A.on) showAuth("login", expired ? "الجلسة خلصت. سجّل دخول تاني." : "");
+    if (A.on) showAuth(localAcct() || !A.local ? "login" : "register", expired ? "الجلسة خلصت. سجّل دخول تاني." : "");
   }
 
   // شارة الحساب في الهيدر
@@ -266,7 +302,7 @@
   setInterval(function () {
     if (!A.on || !A.token) return;
     paintChip(); paintBar();
-    if (modeOf(A.me) === "expired" && (!gate || gate.hidden)) refreshMe().then(function () { if (modeOf(A.me) === "expired") showPaywall(); });
+    if (!A.local && modeOf(A.me) === "expired" && (!gate || gate.hidden)) refreshMe().then(function () { if (modeOf(A.me) === "expired") showPaywall(); });
   }, 60000);
 
   // ---------- البداية ----------
@@ -276,13 +312,22 @@
     if (!A.token) { showAuth("register"); return; }
     if (modeOf(A.me) === "expired") showPaywall();
   }
+  var decided = false;
   function boot() {
-    if (A.on) decide(); // من الكاش: الشاشة الصح بتظهر على طول حتى من غير نت
+    if (A.local && A.token === "local") setMe(localMe());
+    // من الكاش: الشاشة الصح بتظهر على طول حتى من غير نت
+    if (A.token) { decided = true; decide(); }
+    var done = false, fallback = setTimeout(function () { if (!done && !decided) { decided = true; decide(); } }, 2500);
     api("/status").then(function (s) {
+      done = true; clearTimeout(fallback);
       if (s.plan) A.plan = s.plan;
-      var on = !!s.auth; A.on = on; ls.set(K_ON, on ? "1" : "");
-      if (on && A.token) refreshMe().then(decide); else decide();
-    }).catch(function () { });
+      var server = !!s.auth, wasLocal = A.local; A.local = !server; ls.set(K_ON, server ? "1" : "");
+      if (server && wasLocal && A.token === "local") {
+        // السيرفر اتفعّل: الحساب المؤقت لازم يتعمل على السيرفر
+        A.token = ""; ls.set(K_TOK, ""); setMe(null); decided = true; decide(); return;
+      }
+      if (server && A.token) refreshMe().then(decide); else { if (A.token === "local") setMe(localMe()); decide(); }
+    }).catch(function () { done = true; clearTimeout(fallback); if (!decided) { decided = true; decide(); } });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { setTimeout(boot, 0); }); else boot();
 })();

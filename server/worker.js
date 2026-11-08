@@ -21,7 +21,7 @@
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-  "Access-Control-Allow-Headers": "content-type,x-app-token,authorization",
+  "Access-Control-Allow-Headers": "content-type,x-app-token,authorization,x-device",
 };
 const json = (o, status = 200) =>
   new Response(JSON.stringify(o), { status, headers: { ...CORS, "content-type": "application/json" } });
@@ -169,7 +169,20 @@ async function pwHash(pw, salt) {
 }
 function safeEq(a, b) { a = String(a || ""); b = String(b || ""); if (a.length !== b.length) return false; let r = 0; for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i); return r === 0; }
 const authOn = (env) => !!(env.USERS && env.AUTH_SECRET);
-const PLAN = (env) => ({ trialDays: +(env.TRIAL_DAYS || 1), price: +(env.PRICE_MONTH || 229), days: +(env.PLAN_DAYS || 30), currency: "EGP" });
+const payOn = (env) => !!(env.PAYMOB_SECRET_KEY && env.PAYMOB_PUBLIC_KEY && env.PAYMOB_INTEGRATIONS && env.PAYMOB_HMAC);
+// 3 خطط: مجاني (FREE_DAILY استخدام ذكي في اليوم) · طالب · محترف. التجربة المجانية = محترف.
+const PLAN = (env) => {
+  const pro = +(env.PRICE_PRO || env.PRICE_MONTH || 229), student = +(env.PRICE_STUDENT || 99);
+  return { trialDays: +(env.TRIAL_DAYS || 1), price: pro, days: +(env.PLAN_DAYS || 30), currency: "EGP", freeDaily: +(env.FREE_DAILY || 3), prices: { student, pro } };
+};
+const TIERS = { free: 0, student: 1, pro: 2 };
+function tierOf(u) {
+  if (!u) return "free";
+  const now = Date.now();
+  if ((u.subEnd || 0) > now || (u.trialEnd || 0) > now) return "pro";
+  if ((u.stuEnd || 0) > now) return "student";
+  return "free";
+}
 
 async function makeToken(env, uid) {
   const exp = Date.now() + 365 * DAY, body = uid + "." + exp;
@@ -184,8 +197,8 @@ async function userFromReq(req, env) {
 }
 function stateOf(u, env) {
   const now = Date.now(), p = PLAN(env);
-  const mode = u.subEnd > now ? "sub" : u.trialEnd > now ? "trial" : "expired";
-  return { email: u.email, name: u.name || "", mode, active: mode !== "expired", trialEnd: u.trialEnd || 0, subEnd: u.subEnd || 0, now, plan: p };
+  const mode = (u.subEnd || 0) > now || (u.stuEnd || 0) > now ? "sub" : u.trialEnd > now ? "trial" : "expired";
+  return { email: u.email, name: u.name || "", mode, tier: tierOf(u), active: mode !== "expired", trialEnd: u.trialEnd || 0, subEnd: u.subEnd || 0, stuEnd: u.stuEnd || 0, now, plan: p };
 }
 const putUser = (env, u) => env.USERS.put("u:" + u.id, JSON.stringify(u));
 
@@ -221,12 +234,12 @@ async function authRoutes(req, env, url) {
     if (!env.PAYMOB_SECRET_KEY || !env.PAYMOB_PUBLIC_KEY || !env.PAYMOB_INTEGRATIONS) return json({ error: "pay_not_ready" }, 503);
     let b = {}; try { b = await req.json(); } catch (e) { }
     const phone = String(b.phone || "").replace(/[^\d+]/g, "").slice(0, 16) || "+201000000000";
-    const pl = PLAN(env), cents = Math.round(pl.price * 100), ref = "nc" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    const pl = PLAN(env), tier = b.plan === "student" ? "student" : "pro", cents = Math.round(pl.prices[tier] * 100), ref = "nc" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
     const nm = (u.name || u.email.split("@")[0]).split(/\s+/);
     const body = {
       amount: cents, currency: "EGP",
       payment_methods: String(env.PAYMOB_INTEGRATIONS).split(",").map((x) => parseInt(x.trim(), 10)).filter(Boolean),
-      items: [{ name: "NewsCast 360 - اشتراك شهري", amount: cents, description: pl.days + " يوم", quantity: 1 }],
+      items: [{ name: "NewsCast 360 - " + (tier === "student" ? "خطة الطالب" : "خطة المحترف") + " (شهر)", amount: cents, description: pl.days + " يوم", quantity: 1 }],
       billing_data: { first_name: nm[0] || "Student", last_name: nm.slice(1).join(" ") || "NewsCast", email: u.email, phone_number: phone,
         apartment: "NA", floor: "NA", street: "NA", building: "NA", city: "NA", country: "EG", state: "NA", postal_code: "NA" },
       special_reference: ref, notification_url: url.origin + "/pay/webhook", redirection_url: url.origin + "/pay/done",
@@ -234,7 +247,7 @@ async function authRoutes(req, env, url) {
     const r = await fetch("https://accept.paymob.com/v1/intention/", { method: "POST", headers: { Authorization: "Token " + env.PAYMOB_SECRET_KEY, "content-type": "application/json" }, body: JSON.stringify(body) });
     const j = await r.json().catch(() => ({}));
     if (!r.ok || !j.client_secret) return json({ error: "pay_failed", detail: (j && (j.detail || j.message)) || r.status }, 502);
-    await env.USERS.put("o:" + ref, JSON.stringify({ uid: u.id, cents, status: "pending", at: Date.now(), po: j.intention_order_id || null }), { expirationTtl: 60 * DAY / 1000 });
+    await env.USERS.put("o:" + ref, JSON.stringify({ uid: u.id, cents, tier, status: "pending", at: Date.now(), po: j.intention_order_id || null }), { expirationTtl: 60 * DAY / 1000 });
     if (j.intention_order_id) await env.USERS.put("po:" + j.intention_order_id, ref, { expirationTtl: 60 * DAY / 1000 });
     return json({ ref, url: "https://accept.paymob.com/unifiedcheckout/?publicKey=" + encodeURIComponent(env.PAYMOB_PUBLIC_KEY) + "&clientSecret=" + encodeURIComponent(j.client_secret) });
   }
@@ -277,19 +290,30 @@ async function applyPaid(env, t) {
   if (+t.cents < ord.cents) return false;
   const u = await env.USERS.get("u:" + ord.uid, "json"); if (!u) return false;
   const now = Date.now(), days = PLAN(env).days;
-  u.subEnd = Math.max(now, u.subEnd || 0) + days * DAY;
-  u.pays = (u.pays || []).concat([{ ref, txn: t.txn, cents: +t.cents, at: now }]).slice(-24);
+  // كل خطة ليها مدتها: محترف = subEnd، طالب = stuEnd (والشراء التاني بيتضاف على اللي فاضل)
+  const f = ord.tier === "student" ? "stuEnd" : "subEnd";
+  u[f] = Math.max(now, u[f] || 0) + days * DAY;
+  u.pays = (u.pays || []).concat([{ ref, txn: t.txn, cents: +t.cents, tier: ord.tier || "pro", at: now }]).slice(-24);
   await putUser(env, u);
   ord.status = "paid"; ord.txn = t.txn; ord.paidAt = now;
   await env.USERS.put("o:" + ref, JSON.stringify(ord), { expirationTtl: 365 * DAY / 1000 });
   return true;
 }
-// الأدوات اللي بتصرف من رصيد الذكاء الاصطناعي محتاجة اشتراك أو تجربة شغالة
-async function gate(req, env) {
-  if (!authOn(env)) return null;
-  const u = await userFromReq(req, env);
-  if (!u) return json({ error: "login_required" }, 401);
-  if (!stateOf(u, env).active) return json({ error: "subscription_required" }, 402);
+// مين يستخدم إيه:
+//  /media و /did (التفريغ والصوت والصورة والمذيع الافتراضي) → خطة المحترف أو التجربة
+//  /ai و /tts → خطة الطالب أو أعلى، والمجاني ليه FREE_DAILY استخدام في اليوم (بالحساب أو برقم الجهاز) من غير تسجيل دخول
+async function gate(req, env, path) {
+  // الخطط بتتطبّق بس لما الحسابات والدفع الاتنين يكونوا متفعّلين (عشان محدش يتقفل عليه من غير ما يقدر يدفع)
+  if (!authOn(env) || !payOn(env)) return null;
+  const u = await userFromReq(req, env), tier = tierOf(u), pl = PLAN(env);
+  const need = path === "/media" || path.startsWith("/did/") ? "pro" : "student";
+  if (TIERS[tier] >= TIERS[need]) return null;
+  if (need === "pro") return json({ error: "subscription_required", need, tier }, 402);
+  const who = u ? "u" + u.id : "d" + String(/^Device /.test(req.headers.get("authorization") || "") ? req.headers.get("authorization").slice(7) : req.headers.get("x-device") || "").replace(/[^\w-]/g, "").slice(0, 64);
+  if (who === "d") return json({ error: "subscription_required", need, tier, left: 0 }, 402);
+  const key = "q:" + who + ":" + new Date().toISOString().slice(0, 10), used = +((await env.USERS.get(key)) || 0);
+  if (used >= pl.freeDaily) return json({ error: "subscription_required", need, tier, left: 0 }, 402);
+  await env.USERS.put(key, String(used + 1), { expirationTtl: 2 * 86400 });
   return null;
 }
 
@@ -310,11 +334,11 @@ export default {
       const r = await authRoutes(req, env, url); if (r) return r;
     }
     if (url.pathname === "/media" || url.pathname === "/tts" || url.pathname === "/ai" || url.pathname.startsWith("/did/")) {
-      const g = await gate(req, env); if (g) return g;
+      const g = await gate(req, env, url.pathname); if (g) return g;
     }
 
     if (url.pathname === "/status")
-      return json({ ai: !!(env.GEMINI_API_KEY || env.ANTHROPIC_API_KEY), provider: env.GEMINI_API_KEY ? "gemini" : (env.ANTHROPIC_API_KEY ? "claude" : null), did: !!env.DID_API_KEY, tts: !!env.GEMINI_API_KEY, media: !!env.GEMINI_API_KEY, auth: authOn(env), pay: !!(env.PAYMOB_SECRET_KEY && env.PAYMOB_PUBLIC_KEY && env.PAYMOB_INTEGRATIONS && env.PAYMOB_HMAC), plan: PLAN(env) });
+      return json({ ai: !!(env.GEMINI_API_KEY || env.ANTHROPIC_API_KEY), provider: env.GEMINI_API_KEY ? "gemini" : (env.ANTHROPIC_API_KEY ? "claude" : null), did: !!env.DID_API_KEY, tts: !!env.GEMINI_API_KEY, media: !!env.GEMINI_API_KEY, auth: authOn(env), pay: payOn(env), plan: PLAN(env) });
 
     // ملف صوت أو صورة + تعليمات → نص (تفريغ المقابلات، ملخص المحاضرة، معمل الصوت)
     if (url.pathname === "/media" && req.method === "POST") {

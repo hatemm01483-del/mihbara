@@ -44,14 +44,14 @@ GitHub Actions بيبني الـ APK لوحده مع كل تعديل (تبويب
 1. Workers & Pages → KV → Create namespace باسم `newscast-users`.
 2. في الـ Worker: Settings → Bindings → Add → KV namespace، الاسم `USERS` واختار `newscast-users`.
 3. Settings → Variables and Secrets، ضيف:
-   - `AUTH_SECRET` (Secret): أي كلمة سرية طويلة عشوائية.
+   - `AUTH_SECRET` (Secret): اختياري — لو مش موجود السيرفر بيعمل مفتاح عشوائي لوحده ويحفظه في `USERS`.
    - `PAYMOB_SECRET_KEY` (Secret) و `PAYMOB_HMAC` (Secret) و `PAYMOB_PUBLIC_KEY` (Text): من لوحة Paymob → Settings / Developers.
    - `PAYMOB_INTEGRATIONS` (Text): أرقام الـ Integration IDs (الكارت والمحافظ) مفصولة بفاصلة، مثلاً `123456,654321`.
    - اختياري: `PRICE_MONTH` (الافتراضي 229) و `TRIAL_DAYS` (الافتراضي 1).
 4. في لوحة Paymob حط الـ Transaction processed callback: `https://<worker>/pay/webhook` والـ Transaction response callback: `https://<worker>/pay/done`.
 5. انسخ `server/worker.js` الجديد في الـ Worker واضغط Deploy.
 
-لو `USERS` أو `AUTH_SECRET` مش موجودين، التطبيق بيفضل شغال زي الأول من غير تسجيل دخول.
+لو `USERS` مش مربوط، التطبيق بيفضل شغال زي الأول من غير حسابات. (متفعّل دلوقتي: KV `newscast-users` مربوط بالـ Worker، والناقص بس مفاتيح Paymob.)
 
 ## الجديد في نسخة 3.0
 - **تدريب المذيع:** محاكي «على الهوا»، تشكيل النص، معمل الصوت، محاكي الحوار.

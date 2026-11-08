@@ -10,7 +10,7 @@
 //   TRUSTED_DOMAINS    (Text)    قايمة مواقع موثوقة مفصولة بفواصل (اختياري، فيه قايمة جاهزة)
 // --- الحسابات والاشتراك (v3.1) ---
 //   USERS              (KV namespace binding)  مخزن الحسابات — من Settings → Bindings → KV namespace
-//   AUTH_SECRET        (Secret)  أي كلمة سرية طويلة عشوائية (بتوقّع جلسات الدخول)
+//   AUTH_SECRET        (Secret)  اختياري: لو مش موجود السيرفر بيعمل واحد عشوائي لوحده ويحفظه في USERS
 //   PAYMOB_SECRET_KEY  (Secret)  Secret key من لوحة Paymob
 //   PAYMOB_PUBLIC_KEY  (Text)    Public key من لوحة Paymob
 //   PAYMOB_HMAC        (Secret)  HMAC secret من لوحة Paymob
@@ -155,7 +155,7 @@ async function pickTts(env) {
 const VOICE_OK = /^[A-Z][a-z]+$/;
 
 // ---------- الحسابات والاشتراكات (v3.1) ----------
-// بتشتغل لما تربط KV اسمه USERS وتحط AUTH_SECRET. من غيرهم السيرفر بيشتغل زي الأول من غير تسجيل دخول.
+// بتشتغل لما تربط KV اسمه USERS. من غيرهم السيرفر بيشتغل زي الأول من غير تسجيل دخول.
 const DAY = 86400000;
 const TE = new TextEncoder();
 const toHex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -168,7 +168,16 @@ async function pwHash(pw, salt) {
   return toHex(await crypto.subtle.deriveBits({ name: "PBKDF2", salt: TE.encode(salt), iterations: 100000, hash: "SHA-256" }, k, 256));
 }
 function safeEq(a, b) { a = String(a || ""); b = String(b || ""); if (a.length !== b.length) return false; let r = 0; for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i); return r === 0; }
-const authOn = (env) => !!(env.USERS && env.AUTH_SECRET);
+const authOn = (env) => !!env.USERS;
+// مفتاح توقيع الجلسات: من AUTH_SECRET لو موجود، وإلا السيرفر بيعمل مفتاح عشوائي مرة واحدة ويحفظه في KV
+let SECRET_CACHE = null;
+async function authSecret(env) {
+  if (env.AUTH_SECRET) return env.AUTH_SECRET;
+  if (SECRET_CACHE) return SECRET_CACHE;
+  let s = await env.USERS.get("cfg:auth-secret");
+  if (!s) { s = [...crypto.getRandomValues(new Uint8Array(32))].map((b) => b.toString(16).padStart(2, "0")).join(""); await env.USERS.put("cfg:auth-secret", s); }
+  return (SECRET_CACHE = s);
+}
 const payOn = (env) => !!(env.PAYMOB_SECRET_KEY && env.PAYMOB_PUBLIC_KEY && env.PAYMOB_INTEGRATIONS && env.PAYMOB_HMAC);
 // 3 خطط: مجاني (FREE_DAILY استخدام ذكي في اليوم) · طالب · محترف. التجربة المجانية = محترف.
 const PLAN = (env) => {
@@ -186,13 +195,13 @@ function tierOf(u) {
 
 async function makeToken(env, uid) {
   const exp = Date.now() + 365 * DAY, body = uid + "." + exp;
-  return body + "." + (await hmacHex("SHA-256", env.AUTH_SECRET, body));
+  return body + "." + (await hmacHex("SHA-256", await authSecret(env), body));
 }
 async function userFromReq(req, env) {
   const h = req.headers.get("authorization") || "", t = h.startsWith("Bearer ") ? h.slice(7) : "";
   const [uid, exp, sig] = t.split(".");
   if (!uid || !exp || !sig || +exp < Date.now()) return null;
-  if (!safeEq(sig, await hmacHex("SHA-256", env.AUTH_SECRET, uid + "." + exp))) return null;
+  if (!safeEq(sig, await hmacHex("SHA-256", await authSecret(env), uid + "." + exp))) return null;
   return await env.USERS.get("u:" + uid, "json");
 }
 function stateOf(u, env) {

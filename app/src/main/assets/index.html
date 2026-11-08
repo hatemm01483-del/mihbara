@@ -542,7 +542,6 @@ footer{margin-top:30px}
     <div class="hhero">
       <p class="hello"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M5 5l1.5 1.5M17.5 17.5L19 19M3 12h2M19 12h2M5 19l1.5-1.5M17.5 6.5L19 5"/></svg><span id="hello">أهلاً بيك</span> · <span id="hdate"></span></p>
       <h2>تحب تشتغل على إيه النهارده؟</h2>
-      <label class="search" for="toolSearch" style="margin:0"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="toolSearch" type="search" placeholder="دوّر على أداة… (خبر، ترجمة، اختبار)" autocomplete="off" aria-label="دوّر على أداة"></label>
       <div class="hh-stats">
         <div><b id="hsTools">14</b><span>أداة</span></div>
         <div><b id="st-count">—</b><span>نتيجة محفوظة</span></div>
@@ -550,13 +549,22 @@ footer{margin-top:30px}
       </div>
     </div>
     <div class="quick" id="quick"></div>
+    <div id="ncHomeExtra"></div>
     <div class="tip"><span class="ic"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z"/></svg></span><div><b>نصيحة اليوم</b><p id="tipText"></p></div></div>
     <div class="grp" id="recentWrap" hidden><h3 class="group-title">كمّل من حيث وقفت</h3><div class="recent" id="recent"></div></div>
+  </section>
+
+  <section id="toolsView" hidden>
+    <div class="nc-tabhead"><h2>الأدوات</h2><p>كل أدوات NewsCast 360 متقسّمة حسب الشغل</p></div>
+      <label class="search" for="toolSearch" style="margin:0 0 6px"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="toolSearch" type="search" placeholder="دوّر على أداة… (خبر، ترجمة، اختبار)" autocomplete="off" aria-label="دوّر على أداة"></label>
     <div id="homeGroups"></div>
     <p class="nores" id="nores">مالقيتش أداة بالاسم دا.</p>
   </section>
 
   <div class="crumb" id="crumb" hidden><button type="button" id="backHome" aria-label="رجوع للرئيسية"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button><span class="cic" id="crumbIcon"></span><span class="ctext"><b id="crumbTitle"></b><small id="crumbDesc"></small></span></div>
+  <section id="accountView" hidden></section>
+  <section id="settingsView" hidden></section>
+  <section id="gameDesk" hidden></section>
 
   <section class="desk" id="mainDesk">
     <form class="slip" id="form">
@@ -723,7 +731,7 @@ footer{margin-top:30px}
   </div>
   <footer>
     <div class="flinks"><button type="button" id="openPrivacy">سياسة الخصوصية</button><span>·</span><button type="button" id="openTerms">الشروط والأحكام</button><span>·</span><button type="button" id="openTour">جولة في التطبيق</button></div>
-    <p>NewsCast 360 · خليك محاوط الخبر · نسخة 3.2 · المحتوى من إنتاج الذكاء الاصطناعي وممكن يحتوي أخطاء. راجع أي معلومة أو رقم من مصدره قبل النشر.</p>
+    <p>NewsCast 360 · خليك محاوط الخبر · نسخة 3.3 · المحتوى من إنتاج الذكاء الاصطناعي وممكن يحتوي أخطاء. راجع أي معلومة أو رقم من مصدره قبل النشر.</p>
     <p>© 2026 NewsCast 360. جميع الحقوق محفوظة.</p>
   </footer>
 </div>
@@ -1035,6 +1043,10 @@ function md(src){
 }
 
 const ICONS={
+  tools:'<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>',
+  account:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>',
+  settings:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  game:'<rect x="2" y="7" width="20" height="11" rx="5"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="15.5" cy="11.5" r="1"/><circle cx="18" cy="13.5" r="1"/>',
   home:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
   news:'<rect x="3" y="4" width="15" height="16" rx="2"/><path d="M18 8h3v10a2 2 0 0 1-2 2"/><path d="M7 8h7M7 12h7M7 16h4"/>',
   opinion:'<path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/>',
@@ -1055,7 +1067,7 @@ const ICONS={
   moon:'<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>'
 };
 const ico=(k,cls="ico")=>`<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]||ICONS.news}</svg>`;
-const EXTRA={studio:{name:"المذيع الافتراضي",desc:"مذيع بيقرا النشرة بصوت عربي"},quiz:{name:"اختبار تدريبي",desc:"أكتر من 35 سؤال بدرجة وشرح",off:true},
+const EXTRA={game:{name:"حقيقة ولا شائعة؟",desc:"لعبة: اسحب يمين للحقيقة وشمال للشائعة"},studio:{name:"المذيع الافتراضي",desc:"مذيع بيقرا النشرة بصوت عربي"},quiz:{name:"اختبار تدريبي",desc:"أكتر من 35 سؤال بدرجة وشرح",off:true},
   prompter:{name:"التلقين (أوتوكيو)",desc:"النص بيتحرك قدامك وانت بتقرا للكاميرا",off:true},
   counter:{name:"عدّاد الكلمات والوقت",desc:"كلمات، وقت الإلقاء، وطول العنوان",off:true},
   glossary:{name:"قاموس المصطلحات",desc:"أهم مصطلحات الإعلام بالعربي والإنجليزي",off:true},
@@ -1069,9 +1081,12 @@ const GROUPS=[
   {title:"الاستوديو",items:["studio"]}
 ];
 const NEWBIES=["opinion","proof","translate"];
-const TINT={news:"#E11D48",opinion:"#f76707",content:"#ae3ec9",proof:"#0b7285",translate:"#0ca678",verify:"#f08c00",interview:"#7048e8",studio:"#d6336c",quiz:"#12b886",prompter:"#228be6",counter:"#1098ad",glossary:"#845ef7",templates:"#fd7e14",checklist:"#37b24d",history:"#868e96",home:"#1E3A8A"};
+const TINT={game:"#7c3aed",tools:"#2563EB",news:"#E11D48",opinion:"#f76707",content:"#ae3ec9",proof:"#0b7285",translate:"#0ca678",verify:"#f08c00",interview:"#7048e8",studio:"#d6336c",quiz:"#12b886",prompter:"#228be6",counter:"#1098ad",glossary:"#845ef7",templates:"#fd7e14",checklist:"#37b24d",history:"#868e96",home:"#1E3A8A"};
 function tintEl(e,k){ const h=TINT[k]||"#2563EB"; const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16); e.style.setProperty("--tint",h); e.style.setProperty("--tint-bg",`rgba(${r},${g},${b},.13)`); const L=x=>Math.round(x+(255-x)*.32); e.style.setProperty("--tint2",`rgb(${L(r)},${L(g)},${L(b)})`); }
-const NAV=[["home","الرئيسية"],["studio","المذيع"],["quiz","الاختبار"],["history","السجل"]];
+const NAV=[["home","الرئيسية"],["tools","الأدوات"],["account","الحساب"],["settings","الإعدادات"]];
+// v3.3: 4 تبويبات أساسية + صفحات بتتفتح من جوّاها (أداة، المذيع، الاختبار، السجل، اللعبة)
+const TABS=["home","tools","account","settings"], PAGES=["studio","quiz","history","game"];
+let lastTab="home";
 let view="home", offTool="counter";
 function toolMeta(k){ return TOOLS[k]||EXTRA[k]; }
 function buildHome(){
@@ -1093,7 +1108,6 @@ function filterTools(){
   const q=$("toolSearch").value.trim().toLowerCase(); let any=false;
   document.querySelectorAll("#homeGroups .grp").forEach(g=>{ let vis=0; g.querySelectorAll(".card").forEach(c=>{ const ok=!q||c.dataset.q.includes(q); c.hidden=!ok; if(ok) vis++; }); g.hidden=!vis; if(vis) any=true; });
   $("nores").style.display=any?"none":"block";
-  const hide=!!q; ["quick","recentWrap"].forEach(id=>{ const e=$(id); if(id==="recentWrap") e.hidden = hide || !loadH().length; else e.style.display=hide?"none":""; }); document.querySelector(".tip").style.display=hide?"none":"";
 }
 $("toolSearch").addEventListener("input",filterTools);
 const QUICK=["news","verify","studio"];
@@ -1110,7 +1124,7 @@ window.addEventListener("scroll",()=>$("appbar").classList.toggle("scrolled",scr
 function buildNav(){
   const nav=$("mainnav"); nav.innerHTML="";
   for(const [k,label] of NAV){ const b=document.createElement("button"); b.type="button"; b.id="nav-"+k;
-    const active = k==="home" ? (view==="home"||view==="tool"||view==="off") : view===k;
+    const active = TABS.includes(view) ? view===k : lastTab===k;
     b.setAttribute("aria-selected",active); b.innerHTML=ico(k)+"<span></span>"; b.querySelector("span").textContent=label;
     b.onclick=()=>open(k); nav.append(b); }
 }
@@ -1119,25 +1133,29 @@ function open(k){
   SCROLLMEM[view==="tool"?"t:"+current:view==="off"?"o:"+offTool:view]=window.scrollY;
   if(view==="tool") saveDraft();
   if(window.stopPrompter) stopPrompter();
-  if(k==="home"||k==="history"||k==="studio"||k==="quiz") view=k; else if(OFF.includes(k)){ view="off"; offTool=k; } else { view="tool"; current=k; }
+  if(window.NCShell && !NCShell.canOpen(k)) return;
+  if(TABS.includes(k)||PAGES.includes(k)) view=k; else if(OFF.includes(k)){ view="off"; offTool=k; } else { view="tool"; current=k; }
   $("homeView").hidden=view!=="home"; $("mainDesk").hidden=view!=="tool"; $("studioDesk").hidden=view!=="studio";
   $("quizDesk").hidden=view!=="quiz"; $("historyDesk").hidden=view!=="history"; $("offDesk").hidden=view!=="off";
-  $("crumb").hidden=view==="home";
+  ["tools","account","settings"].forEach(t=>{ $(t+"View").hidden=view!==t; }); $("gameDesk").hidden=view!=="game";
+  if(TABS.includes(view)) lastTab=view;
+  $("crumb").hidden=TABS.includes(view);
   $("crumbTitle").textContent = view==="tool"?TOOLS[current].name : view==="history"?"السجل" : view==="off"?EXTRA[offTool].name : toolMeta(view)?.name||"";
   if(view==="off") renderOff(offTool);
   if(view==="tool") render(); if(view==="history") renderHistory(); if(view==="home"){ updateStats(); buildRecent(); }
+  if(window.NCShell) NCShell.show(view);
   const key = view==="tool"?current : view==="off"?offTool : view;
   $("crumbIcon").innerHTML=ico(key); tintEl($("crumb"),key); $("crumbDesc").textContent = view==="history" ? "كل نتايجك محفوظة هنا" : (toolMeta(key)?.desc||"");
-  const sec={home:"homeView",tool:"mainDesk",studio:"studioDesk",quiz:"quizDesk",history:"historyDesk",off:"offDesk"}[view];
+  const sec={home:"homeView",tools:"toolsView",account:"accountView",settings:"settingsView",game:"gameDesk",tool:"mainDesk",studio:"studioDesk",quiz:"quizDesk",history:"historyDesk",off:"offDesk"}[view];
   [$(sec),$("crumb")].forEach(e=>{ e.classList.remove("enter"); void e.offsetWidth; e.classList.add("enter"); });
   buildNav();
   // الرجوع للرئيسية (أو لأي صفحة كنت فيها) يرجّعك لنفس النقطة اللي كنت واقف عندها، مش لفوق
   const memKey = view==="tool"?"t:"+current : view==="off"?"o:"+offTool : view;
-  const y = (view==="home"||view==="history") ? (SCROLLMEM[memKey]||0) : 0;
+  const y = (TABS.includes(view)||view==="history") ? (SCROLLMEM[memKey]||0) : 0;
   window.scrollTo(0,y); if(y) requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo(0,y)));
 }
 function showDesk(){}
-$("backHome").onclick=()=>open("home");
+$("backHome").onclick=()=>open(lastTab);
 function saveDraft(){
   const d={}; for(const f of TOOLS[current].fields){ const el=$("f-"+current+"-"+f.id); if(el) d[f.id]=el.value; }
   drafts[current]=d;
@@ -1993,10 +2011,11 @@ window.atheerBack=function(){
   try{
     if(document.querySelector(".prompter")&&window.stopPrompter){ stopPrompter(); return true; }
     if(document.fullscreenElement){ document.exitFullscreen(); return true; }
+    var ng=document.querySelector(".nc-gate:not([hidden])"); if(ng&&window.NCAccount){ NCAccount.close(); return true; }
     var sh=[].slice.call(document.querySelectorAll(".sheet")).filter(function(s){return !s.hidden;});
     if(sh.length){ var s=sh[sh.length-1], x=s.querySelector(".x,[id^=close],[aria-label='إغلاق']"); if(x) x.click(); else s.hidden=true; return true; }
     var w=document.getElementById("welcome"); if(w&&!w.hidden){ closeWelcome(); return true; }
-    if(typeof view!=="undefined"&&view!=="home"){ open("home"); return true; }
+    if(typeof view!=="undefined"&&view!=="home"){ open(TABS.includes(view)?"home":lastTab); return true; }
   }catch(e){}
   return false;
 };

@@ -7,10 +7,12 @@ window.MIHBARA_CONFIG = {
   token: "",
   contact: ""
 };
-// تسجيل الدخول والاشتراك (v3.1)
+// الحساب والخطط (اختياري، v3.3)
 document.write('<script src="account.js"><\/script>');
 // شاشة الترحيب وتقسيم الرئيسية (v3.2)
 document.write('<script src="hello.js"><\/script>');
+// الواجهة الجديدة: 4 تبويبات + اللعبة + أقفال الخطط (v3.3)
+document.write('<script src="shell.js"><\/script>');
 // تحميل أداة التحقق التلقائي من الأخبار
 document.write('<script src="verify.js"><\/script>');
 document.write('<script src="features.js"><\/script>');

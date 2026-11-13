@@ -182,6 +182,19 @@ async function cfText(env, prompt, maxTokens) {
 }
 function b64ToBytes(b64) { const bin = atob(b64); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
 
+// بنستنى أول جزء من رد Gemini مدة محددة بس؛ لو اتأخر بنحوّل على Cloudflare بدل ما المستخدم يستنى
+async function primeStream(body, ms) {
+  const reader = body.getReader();
+  let timer;
+  const first = await Promise.race([reader.read(), new Promise((r) => { timer = setTimeout(() => r(null), ms); })]).catch(() => null);
+  clearTimeout(timer);
+  if (!first || first.done) { try { reader.cancel(); } catch (e) { } return null; }
+  return new ReadableStream({
+    start(c) { c.enqueue(first.value); },
+    async pull(c) { const { done, value } = await reader.read(); if (done) c.close(); else c.enqueue(value); },
+    cancel() { reader.cancel(); },
+  });
+}
 async function viaGemini(env, prompt, search, trusted) {
   if (!env.GEMINI_API_KEY || geminiCooling()) return new Response("{}", { status: 503 });
   const model = await pickGemini(env);
@@ -190,11 +203,18 @@ async function viaGemini(env, prompt, search, trusted) {
     generationConfig: { maxOutputTokens: search ? 3000 : 4000, temperature: 0.7 },
   };
   if (search) body.tools = [{ google_search: {} }];
-  const call = (m, b) => gfetch(GBASE + "/models/" + m + ":streamGenerateContent?alt=sse", {
+  body.generationConfig.thinkingConfig = { thinkingBudget: 0 };
+  const call1 = (m, b) => gfetch(GBASE + "/models/" + m + ":streamGenerateContent?alt=sse", {
     method: "POST",
     headers: { "x-goog-api-key": env.GEMINI_API_KEY, "content-type": "application/json" },
     body: JSON.stringify(b),
   });
+  // من غير "تفكير" الرد بيبدأ أسرع بكتير؛ لو الموديل مش بيقبل الإعداد ده نشيله ونعيد
+  const call = async (m, b) => {
+    let r = await call1(m, b);
+    if (r.status === 400 && b.generationConfig.thinkingConfig) { delete b.generationConfig.thinkingConfig; r = await call1(m, b); }
+    return r;
+  };
   let up = await call(model, body);
   if (!up.ok && search && (up.status === 400 || up.status === 429)) {
     // البحث مش متاح أو خلص الحد المجاني بتاعه: نكمل من غير بحث
@@ -540,7 +560,8 @@ export default {
       const trusted = (env.TRUSTED_DOMAINS ? env.TRUSTED_DOMAINS.split(",") : DEFAULT_TRUSTED).map((d) => d.trim()).filter(Boolean);
       if (env.GEMINI_API_KEY || env.AI) {
         const up = await viaGemini(env, prompt, search, trusted);
-        if (up.ok) return new Response(geminiToEvents(up.body), { headers: { ...CORS, "content-type": "text/event-stream", "x-provider": "gemini" } });
+        const gs = up.ok ? await primeStream(up.body, search ? 15000 : 11000) : null;
+        if (gs) return new Response(geminiToEvents(gs), { headers: { ...CORS, "content-type": "text/event-stream", "x-provider": "gemini" } });
         // الاحتياطي: Cloudflare AI
         const fb = await viaCloudflare(env, prompt, search ? 3000 : 4000);
         if (fb) return new Response(fb, { headers: { ...CORS, "content-type": "text/event-stream", "x-provider": "cloudflare" } });

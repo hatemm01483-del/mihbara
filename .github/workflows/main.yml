@@ -17,7 +17,7 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.9'
+          gradle-version: '8.11.1'
 
       - name: Insert server token
         env:
@@ -61,3 +61,24 @@ jobs:
         with:
           name: NewsCast360-APK
           path: NewsCast360.apk
+
+      # نسخة Google Play (AAB موقّعة) — بتتبني بس لو أسرار مفتاح الرفع متحطّة
+      - name: Build Play Store bundle
+        env:
+          UPLOAD_KEYSTORE_B64: ${{ secrets.UPLOAD_KEYSTORE_B64 }}
+          UPLOAD_STORE_PASSWORD: ${{ secrets.UPLOAD_STORE_PASSWORD }}
+          UPLOAD_KEY_ALIAS: ${{ secrets.UPLOAD_KEY_ALIAS }}
+          UPLOAD_KEY_PASSWORD: ${{ secrets.UPLOAD_KEY_PASSWORD }}
+        run: |
+          if [ -z "$UPLOAD_KEYSTORE_B64" ]; then echo "No upload key yet — skipping Play Store bundle"; exit 0; fi
+          echo "$UPLOAD_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          export UPLOAD_KEYSTORE="$RUNNER_TEMP/upload.jks"
+          gradle bundleRelease --no-daemon
+          cp app/build/outputs/bundle/release/app-release.aab "$GITHUB_WORKSPACE/NewsCast360-PlayStore.aab"
+          rm -f "$RUNNER_TEMP/upload.jks"
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ hashFiles('NewsCast360-PlayStore.aab') != '' }}
+        with:
+          name: NewsCast360-PlayStore
+          path: NewsCast360-PlayStore.aab

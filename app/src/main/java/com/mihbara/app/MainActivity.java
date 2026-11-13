@@ -272,6 +272,16 @@ public class MainActivity extends Activity {
                 return id == null ? "" : id;
             } catch (Exception e) { return ""; }
         }
+        // مين نزّل التطبيق: "com.android.vending" يعني من Google Play
+        @JavascriptInterface
+        public String store() {
+            try {
+                String p;
+                if (Build.VERSION.SDK_INT >= 30) p = getPackageManager().getInstallSourceInfo(getPackageName()).getInstallingPackageName();
+                else p = getPackageManager().getInstallerPackageName(getPackageName());
+                return p == null ? "" : p;
+            } catch (Exception e) { return ""; }
+        }
         @JavascriptInterface
         public void setDark(boolean dark) {
             runOnUiThread(() -> {

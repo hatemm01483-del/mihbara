@@ -125,9 +125,9 @@ function geminiToEvents(upBody) {
 let geminiCoolUntil = 0;
 const GEMINI_TIMEOUT = 25000;
 const geminiCooling = () => Date.now() < geminiCoolUntil;
-function geminiTrip(status) { if (status === 429 || status >= 500 || status === 0) geminiCoolUntil = Date.now() + (status === 429 ? 60000 : 20000); }
-async function gfetch(url, init) {
-  try { return await fetch(url, { ...init, signal: AbortSignal.timeout(GEMINI_TIMEOUT) }); }
+function geminiTrip(status) { if (status === 429 || status >= 500 || status === 0) geminiCoolUntil = Date.now() + 60000; }
+async function gfetch(url, init, ms) {
+  try { return await fetch(url, { ...init, signal: AbortSignal.timeout(ms || GEMINI_TIMEOUT) }); }
   catch (e) { return new Response(JSON.stringify({ error: "timeout" }), { status: 504 }); }
 }
 const CF_MODELS = (env) => [env.CF_AI_MODEL, "@cf/google/gemma-4-26b-a4b-it", "@cf/zai-org/glm-4.7-flash", "@cf/meta/llama-3.3-70b-instruct-fp8-fast"].filter(Boolean);
@@ -198,17 +198,20 @@ async function primeStream(body, ms) {
 async function viaGemini(env, prompt, search, trusted) {
   if (!env.GEMINI_API_KEY || geminiCooling()) return new Response("{}", { status: 503 });
   const model = await pickGemini(env);
+  // أقصى وقت نستناه من Gemini قبل ما نحوّل على Cloudflare (Gemini المجاني ساعات بيعلّق 25 ثانية وبعدين يقول 503)
+  const deadline = Date.now() + (search ? 12000 : 9000);
+  const left = () => deadline - Date.now();
   const body = {
     contents: [{ role: "user", parts: [{ text: search ? prompt + "\n\nاعتمد في البحث على المصادر الرسمية والموثوقة قدر الإمكان، مثل: " + trusted.slice(0, 15).join("، ") : prompt }] }],
     generationConfig: { maxOutputTokens: search ? 3000 : 4000, temperature: 0.7 },
   };
   if (search) body.tools = [{ google_search: {} }];
   body.generationConfig.thinkingConfig = { thinkingBudget: 0 };
-  const call1 = (m, b) => gfetch(GBASE + "/models/" + m + ":streamGenerateContent?alt=sse", {
+  const call1 = (m, b) => left() < 1500 ? Promise.resolve(new Response("{}", { status: 504 })) : gfetch(GBASE + "/models/" + m + ":streamGenerateContent?alt=sse", {
     method: "POST",
     headers: { "x-goog-api-key": env.GEMINI_API_KEY, "content-type": "application/json" },
     body: JSON.stringify(b),
-  });
+  }, left());
   // من غير "تفكير" الرد بيبدأ أسرع بكتير؛ لو الموديل مش بيقبل الإعداد ده نشيله ونعيد
   const call = async (m, b) => {
     let r = await call1(m, b);
@@ -560,7 +563,8 @@ export default {
       const trusted = (env.TRUSTED_DOMAINS ? env.TRUSTED_DOMAINS.split(",") : DEFAULT_TRUSTED).map((d) => d.trim()).filter(Boolean);
       if (env.GEMINI_API_KEY || env.AI) {
         const up = await viaGemini(env, prompt, search, trusted);
-        const gs = up.ok ? await primeStream(up.body, search ? 15000 : 11000) : null;
+        const gs = up.ok ? await primeStream(up.body, search ? 10000 : 8000) : null;
+        if (up.ok && !gs) geminiTrip(504);
         if (gs) return new Response(geminiToEvents(gs), { headers: { ...CORS, "content-type": "text/event-stream", "x-provider": "gemini" } });
         // الاحتياطي: Cloudflare AI
         const fb = await viaCloudflare(env, prompt, search ? 3000 : 4000);

@@ -8,6 +8,11 @@
 //   MODEL              (Text)    الموديل للأدوات العادية، مثلاً claude-haiku-5-5 (الأسرع والأرخص)
 //   VERIFY_MODEL       (Text)    الموديل لأداة التحقق بالبحث (اختياري، الافتراضي claude-sonnet-5-5)
 //   TRUSTED_DOMAINS    (Text)    قايمة مواقع موثوقة مفصولة بفواصل (اختياري، فيه قايمة جاهزة)
+// --- الاحتياطي (v3.4) ---
+//   AI                 (Workers AI binding)  من Settings → Bindings → Workers AI، الاسم AI.
+//                      لو Gemini وقع أو وصل للحد، السيرفر بيحوّل لوحده على موديلات Cloudflare من غير ما الطالب يحس.
+//   CF_AI_MODEL        (Text)    موديل Cloudflare الاحتياطي (اختياري)
+//   GEMINI_LITE_MODEL  (Text)    موديل Gemini الأخف اللي بيتجرّب قبل الاحتياطي (اختياري)
 // --- الحسابات والاشتراك (v3.1) ---
 //   USERS              (KV namespace binding)  مخزن الحسابات — من Settings → Bindings → KV namespace
 //   AUTH_SECRET        (Secret)  اختياري: لو مش موجود السيرفر بيعمل واحد عشوائي لوحده ويحفظه في USERS
@@ -115,14 +120,77 @@ function geminiToEvents(upBody) {
     cancel() { reader.cancel(); },
   });
 }
+// ---------- الاحتياطي: لو Gemini وقع ----------
+// لو Gemini رجّع 429 (الحد خلص) أو 5xx أو اتأخر، بنوقفه دقيقة ونحوّل على طول للاحتياطي عشان مفيش تأخير على الطلبات اللي بعدها
+let geminiCoolUntil = 0;
+const GEMINI_TIMEOUT = 25000;
+const geminiCooling = () => Date.now() < geminiCoolUntil;
+function geminiTrip(status) { if (status === 429 || status >= 500 || status === 0) geminiCoolUntil = Date.now() + (status === 429 ? 60000 : 20000); }
+async function gfetch(url, init) {
+  try { return await fetch(url, { ...init, signal: AbortSignal.timeout(GEMINI_TIMEOUT) }); }
+  catch (e) { return new Response(JSON.stringify({ error: "timeout" }), { status: 504 }); }
+}
+const CF_MODELS = (env) => [env.CF_AI_MODEL, "@cf/google/gemma-4-26b-a4b-it", "@cf/zai-org/glm-4.7-flash", "@cf/meta/llama-3.3-70b-instruct-fp8-fast"].filter(Boolean);
+// بيحوّل رد Cloudflare AI (بأي شكل من الشكلين) لنفس أحداث التطبيق
+function cfToEvents(upBody) {
+  const enc = new TextEncoder(), dec = new TextDecoder();
+  const send = (c, o) => c.enqueue(enc.encode("data: " + JSON.stringify(o) + "\n\n"));
+  let buf = "";
+  const reader = upBody.getReader();
+  return new ReadableStream({
+    async pull(c) {
+      for (;;) {
+        const before = c.desiredSize;
+        const { done, value } = await reader.read();
+        if (done) { send(c, { type: "message_stop" }); c.enqueue(enc.encode("data: [DONE]\n\n")); c.close(); return; }
+        buf += dec.decode(value, { stream: true });
+        let i;
+        while ((i = buf.indexOf("\n")) >= 0) {
+          const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
+          if (!line.startsWith("data:")) continue;
+          const d = line.slice(5).trim(); if (!d || d === "[DONE]") continue;
+          let ev; try { ev = JSON.parse(d); } catch { continue; }
+          const t = typeof ev.response === "string" ? ev.response : (((ev.choices || [])[0] || {}).delta || {}).content;
+          if (t) send(c, { type: "content_block_delta", index: 0, delta: { type: "text_delta", text: t } });
+        }
+        if (c.desiredSize < before) return;
+      }
+    },
+    cancel() { reader.cancel(); },
+  });
+}
+async function viaCloudflare(env, prompt, maxTokens) {
+  if (!env.AI) return null;
+  for (const m of CF_MODELS(env)) {
+    try {
+      const st = await env.AI.run(m, { messages: [{ role: "user", content: prompt }], stream: true, max_tokens: maxTokens || 3000 });
+      if (st && typeof st.getReader === "function") return cfToEvents(st);
+    } catch (e) { /* الموديل ده مش متاح، نجرّب اللي بعده */ }
+  }
+  return null;
+}
+async function cfText(env, prompt, maxTokens) {
+  if (!env.AI) return null;
+  for (const m of CF_MODELS(env)) {
+    try {
+      const r = await env.AI.run(m, { messages: [{ role: "user", content: prompt }], max_tokens: maxTokens || 4000 });
+      const t = typeof r === "string" ? r : r && (typeof r.response === "string" ? r.response : ((((r.choices || [])[0] || {}).message || {}).content));
+      if (t) return t;
+    } catch (e) { }
+  }
+  return null;
+}
+function b64ToBytes(b64) { const bin = atob(b64); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
+
 async function viaGemini(env, prompt, search, trusted) {
+  if (!env.GEMINI_API_KEY || geminiCooling()) return new Response("{}", { status: 503 });
   const model = await pickGemini(env);
   const body = {
     contents: [{ role: "user", parts: [{ text: search ? prompt + "\n\nاعتمد في البحث على المصادر الرسمية والموثوقة قدر الإمكان، مثل: " + trusted.slice(0, 15).join("، ") : prompt }] }],
     generationConfig: { maxOutputTokens: search ? 3000 : 4000, temperature: 0.7 },
   };
   if (search) body.tools = [{ google_search: {} }];
-  const call = (m, b) => fetch(GBASE + "/models/" + m + ":streamGenerateContent?alt=sse", {
+  const call = (m, b) => gfetch(GBASE + "/models/" + m + ":streamGenerateContent?alt=sse", {
     method: "POST",
     headers: { "x-goog-api-key": env.GEMINI_API_KEY, "content-type": "application/json" },
     body: JSON.stringify(b),
@@ -135,6 +203,11 @@ async function viaGemini(env, prompt, search, trusted) {
   if (!up.ok && up.status === 404 && !env.GEMINI_MODEL) {
     cachedGemini = null; up = await call("gemini-flash-latest", body);
   }
+  if (!up.ok && (up.status === 429 || up.status >= 500)) {
+    // الموديل الأساسي مشغول: نجرّب الموديل الأخف (حدوده أعلى) قبل الاحتياطي
+    delete body.tools; up = await call(env.GEMINI_LITE_MODEL || "gemini-flash-lite-latest", body);
+  }
+  if (!up.ok) geminiTrip(up.status);
   return up;
 }
 
@@ -234,6 +307,13 @@ async function authRoutes(req, env, url) {
     if (!u || !safeEq(await pwHash(pw, u.salt), u.pw)) return json({ error: "bad_login" }, 401);
     return json({ token: await makeToken(env, u.id), me: stateOf(u, env) });
   }
+  if (p === "/auth/delete" && req.method === "POST") {
+    const u = await userFromReq(req, env); if (!u) return json({ error: "login_required" }, 401);
+    let b = {}; try { b = await req.json(); } catch (e) { }
+    if (!safeEq(await pwHash(String(b.password || ""), u.salt), u.pw)) return json({ error: "bad_login" }, 403);
+    await deleteUser(env, u);
+    return json({ ok: true });
+  }
   if (p === "/me") {
     const u = await userFromReq(req, env); if (!u) return json({ error: "login_required" }, 401);
     return json(stateOf(u, env));
@@ -326,10 +406,43 @@ async function gate(req, env, path) {
   return null;
 }
 
+// ---------- صفحات عامة: سياسة الخصوصية وحذف الحساب (مطلوبين لـ Google Play) ----------
+const PRIVACY_BODY = "<p class=\"upd\">آخر تحديث: 13 نوفمبر 2026</p>\n<p>توضح هذه السياسة كيف يتعامل تطبيق «NewsCast 360» مع بياناتك. التطبيق يعمل بدون حساب، والحساب اختياري.</p>\n<h3>1. البيانات التي نجمعها</h3>\n<ul>\n<li><b>الحساب (اختياري):</b> الاسم والبريد الإلكتروني وكلمة المرور. تُحفظ كلمة المرور بعد تشفيرها بطريقة لا تسمح لنا بمعرفتها.</li>\n<li><b>الاشتراك:</b> الخطة وتاريخ بدايتها ونهايتها ومرجع ومبلغ كل عملية دفع. بيانات البطاقة أو المحفظة تُكتب في صفحة الدفع الخاصة بشركة Paymob ولا تصل إلينا. رقم الهاتف (اختياري) يُرسل إلى Paymob فقط للدفع بالمحفظة.</li>\n<li><b>معرّف الجهاز:</b> رقم مميّز لجهازك (Android ID) نستخدمه فقط لحساب الاستخدامات المجانية اليومية ولمنع تكرار التجربة المجانية.</li>\n</ul>\n<h3>2. البيانات التي تُعالَج عند استخدام الأدوات</h3>\n<ul>\n<li>النصوص التي تكتبها، والتسجيلات الصوتية أو الصور التي تختار تحليلها، تُرسل إلى مزوّد خدمة ذكاء اصطناعي (Google Gemini، وCloudflare Workers AI كبديل احتياطي) لإنتاج النتيجة، ولا نحتفظ بنسخة منها على خوادمنا.</li>\n<li>عند استخدام المذيع بالفيديو تُرسل الصورة والنص إلى مزوّد توليد الفيديو (D-ID).</li>\n<li>أداة التحقق تبحث عن نص الخبر في مصادر رسمية وموثوقة.</li>\n</ul>\n<h3>3. الميكروفون والكاميرا والإشعارات</h3>\n<p>يُستخدم الميكروفون والكاميرا فقط عندما تفتح أداة تسجيل بنفسك، وتبقى التسجيلات على جهازك إلا إذا طلبت تحليلها. الإشعارات للأخبار العاجلة في اهتماماتك، ويمكنك إيقافها من الإعدادات.</p>\n<h3>4. ما يُحفظ على جهازك</h3>\n<p>سجل نتائجك، ودرجات الاختبارات واللعبة، وتفضيلاتك، وصورة المذيع التي تختارها. لا تُرفع إلى خوادمنا، ويمكنك مسحها من الإعدادات داخل التطبيق.</p>\n<h3>5. ما لا نفعله</h3>\n<ul><li>لا إعلانات، ولا أدوات تتبّع أو تحليلات.</li><li>لا نبيع بياناتك ولا نشاركها لأغراض تسويقية.</li></ul>\n<h3>6. حذف الحساب</h3>\n<p>يمكنك حذف حسابك في أي وقت من داخل التطبيق (الحساب ← حذف الحساب)، أو من صفحة <a href=\"https://mihbara.hatem-m01483.workers.dev/delete-account\">حذف الحساب</a>. يُحذف الاسم والبريد وكلمة المرور وبيانات الاشتراك فورًا. نحتفظ فقط بعلامة على الجهاز تمنع تكرار التجربة المجانية، وبسجلات الدفع للمدة التي يفرضها القانون.</p>\n<h3>7. الأطفال</h3>\n<p>التطبيق موجّه لطلاب الجامعات. لا يُنصح باستخدامه لمن هم دون 13 عامًا إلا تحت إشراف ولي الأمر أو المعلّم.</p>\n<h3>8. التعديلات والتواصل</h3>\n<p>قد نحدّث هذه السياسة، ويظهر تاريخ آخر تحديث في أعلاها. لأي استفسار: CONTACT_PLACEHOLDER</p>";
+function page(title, body) {
+  return new Response(`<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title} — NewsCast 360</title>
+<style>body{margin:0;background:#F6F6F9;color:#15151C;font-family:system-ui,"Segoe UI",Tahoma,sans-serif;line-height:1.8}main{max-width:720px;margin:0 auto;padding:28px 18px 60px}h1{font-size:26px;margin:0 0 4px}h3{margin:22px 0 6px;font-size:17px}.upd{color:#6E6E7E;font-size:14px}a{color:#BE123C}form{display:grid;gap:10px;margin-top:16px;background:#fff;border:1px solid #E7E7EF;border-radius:16px;padding:18px}input{font:inherit;padding:11px 12px;border:1px solid #D6D6E0;border-radius:10px}button{font:inherit;font-weight:700;padding:12px;border:0;border-radius:12px;background:#BE123C;color:#fff;cursor:pointer}.msg{padding:12px 14px;border-radius:12px;background:#fff;border:1px solid #E7E7EF}</style>
+<main><h1>NewsCast 360</h1>${body}</main></html>`, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
+}
+function privacyHtml(env) {
+  const c = env.CONTACT_EMAIL ? `<a href="mailto:${String(env.CONTACT_EMAIL).replace(/[<>"']/g, "")}" dir="ltr">${String(env.CONTACT_EMAIL).replace(/[<>"']/g, "")}</a>` : "تواصل مع فريق NewsCast 360.";
+  return PRIVACY_BODY.replace("CONTACT_PLACEHOLDER", c);
+}
+async function deleteUser(env, u) {
+  await env.USERS.delete("u:" + u.id);
+  if (u.email) await env.USERS.delete("e:" + u.email);
+}
+async function deleteAccountPage(req, env) {
+  const form = `<h3>حذف الحساب</h3><p>اكتب الإيميل وكلمة السر بتوع حسابك. هيتحذف الاسم والإيميل وكلمة السر وبيانات الاشتراك فورًا، والحذف مش هينفع يترجع.</p>
+<form method="post"><label>الإيميل<br><input name="email" type="email" required dir="ltr" autocomplete="email"></label><label>كلمة السر<br><input name="password" type="password" required dir="ltr" autocomplete="current-password"></label><button type="submit">احذف حسابي نهائيًا</button></form>
+<p>تقدر كمان تحذفه من التطبيق: الحساب ← حذف الحساب. <a href="/privacy">سياسة الخصوصية</a></p>`;
+  if (req.method !== "POST") return page("حذف الحساب", form);
+  if (!authOn(env)) return page("حذف الحساب", `<p class="msg">الحسابات مش متفعّلة على السيرفر، فمفيش بيانات حساب محفوظة عندنا.</p>`);
+  let f; try { f = await req.formData(); } catch (e) { return page("حذف الحساب", form); }
+  const email = String(f.get("email") || "").trim().toLowerCase(), pw = String(f.get("password") || "");
+  const id = await env.USERS.get("e:" + email), u = id && (await env.USERS.get("u:" + id, "json"));
+  if (!u || !safeEq(await pwHash(pw, u.salt), u.pw)) return page("حذف الحساب", `<p class="msg">الإيميل أو كلمة السر غلط.</p>` + form);
+  await deleteUser(env, u);
+  return page("حذف الحساب", `<p class="msg">✅ اتحذف الحساب وكل بياناته.</p>`);
+}
+
 export default {
   async fetch(req, env) {
     if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
     const url = new URL(req.url);
+
+    // صفحات عامة (من غير APP_TOKEN): سياسة الخصوصية وحذف الحساب
+    if (url.pathname === "/privacy") return page("سياسة الخصوصية", `<h3 style="margin-top:8px">سياسة الخصوصية</h3>` + privacyHtml(env));
+    if (url.pathname === "/delete-account") return deleteAccountPage(req, env);
 
     // الدفع: Paymob بيكلّم السيرفر مباشرة، فالمسارات دي قبل فحص APP_TOKEN
     if (authOn(env) && (url.pathname === "/pay/webhook" || url.pathname === "/pay/done")) {
@@ -347,11 +460,11 @@ export default {
     }
 
     if (url.pathname === "/status")
-      return json({ ai: !!(env.GEMINI_API_KEY || env.ANTHROPIC_API_KEY), provider: env.GEMINI_API_KEY ? "gemini" : (env.ANTHROPIC_API_KEY ? "claude" : null), did: !!env.DID_API_KEY, tts: !!env.GEMINI_API_KEY, media: !!env.GEMINI_API_KEY, auth: authOn(env), pay: payOn(env), plan: PLAN(env) });
+      return json({ ai: !!(env.GEMINI_API_KEY || env.ANTHROPIC_API_KEY || env.AI), provider: env.GEMINI_API_KEY ? "gemini" : (env.ANTHROPIC_API_KEY ? "claude" : null), did: !!env.DID_API_KEY, tts: !!env.GEMINI_API_KEY, media: !!(env.GEMINI_API_KEY || env.AI), fallback: !!env.AI, auth: authOn(env), pay: payOn(env), plan: PLAN(env) });
 
     // ملف صوت أو صورة + تعليمات → نص (تفريغ المقابلات، ملخص المحاضرة، معمل الصوت)
     if (url.pathname === "/media" && req.method === "POST") {
-      if (!env.GEMINI_API_KEY) return json({ error: "no_media" }, 503);
+      if (!env.GEMINI_API_KEY && !env.AI) return json({ error: "no_media" }, 503);
       let body;
       try { body = await req.json(); } catch { return json({ error: "bad_request" }, 400); }
       const data = String(body.data || ""), mime = String(body.mime || "").toLowerCase().split(";")[0];
@@ -362,17 +475,35 @@ export default {
         contents: [{ role: "user", parts: [{ inline_data: { mime_type: mime, data } }, { text: prompt }] }],
         generationConfig: { maxOutputTokens: 8000, temperature: 0.3 },
       };
-      const call = (m) => fetch(GBASE + "/models/" + m + ":generateContent", {
+      const call = (m) => gfetch(GBASE + "/models/" + m + ":generateContent", {
         method: "POST",
         headers: { "x-goog-api-key": env.GEMINI_API_KEY, "content-type": "application/json" },
         body: JSON.stringify(payload),
       });
-      let up = await call(await pickGemini(env));
-      if (!up.ok && up.status === 404 && !env.GEMINI_MODEL) { cachedGemini = null; up = await call("gemini-flash-latest"); }
-      if (!up.ok) return json({ error: "upstream", status: up.status }, up.status === 429 ? 429 : 502);
-      const j = await up.json();
-      const text = ((((j.candidates || [])[0] || {}).content || {}).parts || []).map((p) => p.text || "").join("");
-      return json({ text });
+      let up = new Response("{}", { status: 503 });
+      if (env.GEMINI_API_KEY && !geminiCooling()) {
+        up = await call(await pickGemini(env));
+        if (!up.ok && up.status === 404 && !env.GEMINI_MODEL) { cachedGemini = null; up = await call("gemini-flash-latest"); }
+        if (!up.ok && (up.status === 429 || up.status >= 500)) up = await call(env.GEMINI_LITE_MODEL || "gemini-flash-lite-latest");
+        if (!up.ok) geminiTrip(up.status);
+      }
+      if (up.ok) {
+        const j = await up.json();
+        const text = ((((j.candidates || [])[0] || {}).content || {}).parts || []).map((p) => p.text || "").join("");
+        return json({ text, provider: "gemini" });
+      }
+      // الاحتياطي للصوت: Whisper يفرّغ، وبعدين موديل نصي ينفّذ المطلوب على التفريغ
+      if (env.AI && mime.startsWith("audio/")) {
+        try {
+          const w = await env.AI.run(env.CF_WHISPER_MODEL || "@cf/openai/whisper-large-v3-turbo", { audio: data, language: "ar" });
+          const transcript = (w && (w.text || (w.segments || []).map((x) => x.text).join(" "))) || "";
+          if (transcript) {
+            const out = await cfText(env, prompt + "\n\nده التفريغ النصي للتسجيل (اتعمل أوتوماتيك، ومفيهوش توقيتات دقيقة):\n" + transcript, 6000);
+            return json({ text: out || transcript, provider: "cloudflare" });
+          }
+        } catch (e) { }
+      }
+      return json({ error: "upstream", status: up.status }, up.status === 429 ? 429 : 502);
     }
 
     if (url.pathname === "/tts" && req.method === "POST") {
@@ -400,17 +531,20 @@ export default {
     }
 
     if (url.pathname === "/ai" && req.method === "POST") {
-      if (!env.GEMINI_API_KEY && !env.ANTHROPIC_API_KEY) return json({ error: "no_ai" }, 503);
+      if (!env.GEMINI_API_KEY && !env.ANTHROPIC_API_KEY && !env.AI) return json({ error: "no_ai" }, 503);
       let body;
       try { body = await req.json(); } catch { return json({ error: "bad_request" }, 400); }
       const prompt = String(body.prompt || "").slice(0, 30000);
       if (!prompt.trim()) return json({ error: "bad_request" }, 400);
       const search = !!body.search;
       const trusted = (env.TRUSTED_DOMAINS ? env.TRUSTED_DOMAINS.split(",") : DEFAULT_TRUSTED).map((d) => d.trim()).filter(Boolean);
-      if (env.GEMINI_API_KEY) {
+      if (env.GEMINI_API_KEY || env.AI) {
         const up = await viaGemini(env, prompt, search, trusted);
-        if (!up.ok) return json({ error: "upstream", status: up.status }, up.status === 429 ? 429 : 502);
-        return new Response(geminiToEvents(up.body), { headers: { ...CORS, "content-type": "text/event-stream" } });
+        if (up.ok) return new Response(geminiToEvents(up.body), { headers: { ...CORS, "content-type": "text/event-stream", "x-provider": "gemini" } });
+        // الاحتياطي: Cloudflare AI
+        const fb = await viaCloudflare(env, prompt, search ? 3000 : 4000);
+        if (fb) return new Response(fb, { headers: { ...CORS, "content-type": "text/event-stream", "x-provider": "cloudflare" } });
+        if (!env.ANTHROPIC_API_KEY) return json({ error: "upstream", status: up.status }, up.status === 429 ? 429 : 502);
       }
       const payload = {
         model: search ? (env.VERIFY_MODEL || "claude-sonnet-5-5") : await pickModel(env),

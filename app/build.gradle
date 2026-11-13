@@ -4,20 +4,33 @@ plugins {
 
 android {
     namespace 'com.mihbara.app'
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.mihbara.app"
         minSdk 24
-        targetSdk 34
-        versionCode 21
-        versionName "3.3"
+        targetSdk 36
+        versionCode 22
+        versionName "3.4"
+    }
+
+    // توقيع نسخة Google Play: المفتاح بييجي من أسرار GitHub وقت البناء (مش بيتحط في المشروع)
+    signingConfigs {
+        upload {
+            def ks = System.getenv("UPLOAD_KEYSTORE")
+            if (ks) {
+                storeFile file(ks)
+                storePassword System.getenv("UPLOAD_STORE_PASSWORD")
+                keyAlias System.getenv("UPLOAD_KEY_ALIAS")
+                keyPassword System.getenv("UPLOAD_KEY_PASSWORD")
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
-            signingConfig signingConfigs.debug
+            signingConfig System.getenv("UPLOAD_KEYSTORE") ? signingConfigs.upload : signingConfigs.debug
         }
     }
 

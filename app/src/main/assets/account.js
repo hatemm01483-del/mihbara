@@ -11,9 +11,11 @@
     get: function (k) { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } },
     set: function (k, v) { try { if (v == null || v === "") localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { } }
   };
+  // نسخة Google Play: مفيش دفع خارجي (Paymob) ولا أسعار، لحد ما نضيف Google Play Billing
+  var PLAY = (function () { try { return !!(window.MihbaraUI && MihbaraUI.store && MihbaraUI.store() === "com.android.vending"); } catch (e) { return false; } })();
   var DEF_PLAN = { price: 229, days: 30, trialDays: 1, freeDaily: 3, prices: { student: 99, pro: 229 } };
   var A = window.NCAccount = {
-    on: !!SERVER, local: ls.get(K_ON) !== "1", enforce: ls.get(K_ON) === "1" && ls.get(K_PAY) === "1",
+    on: !!SERVER, local: ls.get(K_ON) !== "1", enforce: !PLAY && ls.get(K_ON) === "1" && ls.get(K_PAY) === "1", play: PLAY,
     token: ls.get(K_TOK), me: null, plan: DEF_PLAN
   };
   try { A.me = JSON.parse(ls.get(K_ME) || "null"); } catch (e) { A.me = null; }
@@ -248,6 +250,7 @@
 
   // ---------- شاشة الاشتراك ----------
   function showPaywall(need, why, pick) {
+    if (PLAY) { say("كل المميزات مفتوحة ببلاش ✓"); return; }
     need = need || "student";
     var cur = A.realTier(), sel = pick || (RANK[need] > RANK[cur] ? need : cur === "student" ? "pro" : need);
     if (sel === "free") sel = "student";
@@ -334,9 +337,10 @@
       usage = '<div style="margin-top:12px;font-size:14px">استخدامات الأدوات الذكية النهارده: <b>' + N(used) + " من " + N(freeDaily()) + '</b><div class="nc-meter"><i style="width:' + Math.round(used / freeDaily() * 100) + '%"></i></div></div>';
     }
     var status = A.enforce ? '<div class="nc-card"><span class="nc-tier">' + PLANS[t].i + " خطة " + PLANS[t].n + '</span><div class="nc-rows">' + rows + '</div>' + usage + '</div>'
+      : PLAY ? '<div class="nc-note">🎉 <b>كل المميزات مفتوحة ببلاش.</b></div>'
       : '<div class="nc-note">🎉 <b>كل المميزات مفتوحة ببلاش دلوقتي.</b><br>الخطط والاشتراك هيتفعّلوا قريب، وساعتها هتقدر تختار الخطة اللي تناسبك.</div>';
     el.innerHTML = '<div class="nc-tabhead"><h2>الحساب</h2><p>بياناتك وخطتك</p></div><div class="nc-acc">' + prof + status +
-      '<div class="nc-sec">الخطط</div>' + planCards(t === "free" ? "student" : t, A.enforce ? t : "", true) +
+      (PLAY ? "" : '<div class="nc-sec">الخطط</div>' + planCards(t === "free" ? "student" : t, A.enforce ? t : "", true)) +
       (me ? '<div class="nc-switch"><button type="button" class="nc-link" data-a="out">تسجيل خروج</button> · <button type="button" class="nc-link" data-a="del" style="color:#e03131">حذف الحساب</button></div>' : "") + '</div>';
     var on = function (a, fn) { var b = el.querySelector('[data-a="' + a + '"]'); if (b) b.onclick = fn; };
     on("reg", function () { showAuth("register"); }); on("login", function () { showAuth("login"); });
@@ -411,7 +415,7 @@
     api("/status").then(function (s) {
       if (s.plan) A.plan = Object.assign({}, DEF_PLAN, s.plan);
       var server = !!s.auth, wasLocal = A.local;
-      A.local = !server; A.enforce = server && !!s.pay;
+      A.local = !server; A.enforce = !PLAY && server && !!s.pay;
       ls.set(K_ON, server ? "1" : ""); ls.set(K_PAY, A.enforce ? "1" : "");
       if (server && wasLocal && A.token === "local") { A.token = ""; ls.set(K_TOK, ""); A.me = null; }
       if (server && A.token) refreshMe().then(changed); else changed();

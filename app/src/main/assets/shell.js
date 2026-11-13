@@ -40,7 +40,7 @@
     var A = ACC(), enforce = A && A.enforce, my = A ? A.realTier() : "free";
     [].forEach.call(document.querySelectorAll("#homeGroups .card"), function (c) {
       var k = c.id.replace(/^card-/, ""), t = tierOfTool(k), b = c.querySelector(".nc-lock");
-      var show = t !== "free" && (!enforce || A.RANK[my] < A.RANK[t]);
+      var show = t !== "free" && !(A && A.play) && (!enforce || A.RANK[my] < A.RANK[t]);
       if (!show) { if (b) b.remove(); c.classList.remove("nc-locked"); return; }
       if (!b) { b = document.createElement("em"); b.className = "nc-lock"; c.append(b); }
       var locked = enforce && t === "pro";

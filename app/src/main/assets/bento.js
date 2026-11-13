@@ -84,7 +84,7 @@
   var LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>';
   function tags(k, hero) {
     var m = meta(k) || {}, out = [], A = window.NCAccount, S = window.NCShell;
-    if (S && A) {
+    if (S && A && !A.play) {
       var t = S.tierOf(k), my = A.realTier();
       if (t !== "free" && (!A.enforce || A.RANK[my] < A.RANK[t])) {
         var locked = A.enforce && t === "pro";

@@ -40,6 +40,7 @@ public class MainActivity extends Activity {
     private static final String START_URL = "https://" + HOST + "/assets/index.html";
 
     private WebView webView;
+    private android.widget.FrameLayout root;
     private TextToSpeech tts;
     private volatile boolean ttsReady = false;
     private ValueCallback<Uri[]> fileCallback;
@@ -59,7 +60,25 @@ public class MainActivity extends Activity {
         boolean night = (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
         webView.setBackgroundColor(night ? 0xFF0E0E13 : 0xFFF6F6F9);
         webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        setContentView(webView);
+        // Android 15/16: التطبيق بيترسم تحت شريط الحالة والأزرار، فبنسيب مسافة بقدّهم (والكيبورد كمان)
+        root = new android.widget.FrameLayout(this);
+        root.setBackgroundColor(night ? 0xFF0E0E13 : 0xFFF6F6F9);
+        root.addView(webView, new android.widget.FrameLayout.LayoutParams(-1, -1));
+        root.setOnApplyWindowInsetsListener((v, in) -> {
+            int l, t, r, b;
+            if (Build.VERSION.SDK_INT >= 30) {
+                android.graphics.Insets i = in.getInsets(android.view.WindowInsets.Type.systemBars() | android.view.WindowInsets.Type.displayCutout() | android.view.WindowInsets.Type.ime());
+                l = i.left; t = i.top; r = i.right; b = i.bottom;
+            } else { l = in.getSystemWindowInsetLeft(); t = in.getSystemWindowInsetTop(); r = in.getSystemWindowInsetRight(); b = in.getSystemWindowInsetBottom(); }
+            v.setPadding(l, t, r, b);
+            return in;
+        });
+        setContentView(root);
+        // زرار الرجوع في Android 13+ (Android 16 مابقاش بينادي onBackPressed)
+        if (Build.VERSION.SDK_INT >= 33) {
+            getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+                android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT, this::handleBack);
+        }
 
         WebSettings s = webView.getSettings();
         s.setJavaScriptEnabled(true);
@@ -261,6 +280,7 @@ public class MainActivity extends Activity {
                 if (dark || Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) getWindow().setNavigationBarColor(c);
                 else getWindow().setNavigationBarColor(0xFF15151C);
                 webView.setBackgroundColor(c);
+                if (root != null) root.setBackgroundColor(c);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     View d = getWindow().getDecorView();
                     int f = d.getSystemUiVisibility();
@@ -401,8 +421,10 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    public void onBackPressed() {
-        if (webView == null) { super.onBackPressed(); return; }
+    public void onBackPressed() { handleBack(); }
+
+    private void handleBack() {
+        if (webView == null) { finish(); return; }
         webView.evaluateJavascript("(window.atheerBack&&window.atheerBack())?'1':'0'", v -> {
             if (v != null && v.contains("1")) return;
             if (webView.canGoBack()) webView.goBack();

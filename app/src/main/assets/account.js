@@ -337,14 +337,43 @@
       : '<div class="nc-note">🎉 <b>كل المميزات مفتوحة ببلاش دلوقتي.</b><br>الخطط والاشتراك هيتفعّلوا قريب، وساعتها هتقدر تختار الخطة اللي تناسبك.</div>';
     el.innerHTML = '<div class="nc-tabhead"><h2>الحساب</h2><p>بياناتك وخطتك</p></div><div class="nc-acc">' + prof + status +
       '<div class="nc-sec">الخطط</div>' + planCards(t === "free" ? "student" : t, A.enforce ? t : "", true) +
-      (me ? '<div class="nc-switch"><button type="button" class="nc-link" data-a="out">تسجيل خروج</button></div>' : "") + '</div>';
+      (me ? '<div class="nc-switch"><button type="button" class="nc-link" data-a="out">تسجيل خروج</button> · <button type="button" class="nc-link" data-a="del" style="color:#e03131">حذف الحساب</button></div>' : "") + '</div>';
     var on = function (a, fn) { var b = el.querySelector('[data-a="' + a + '"]'); if (b) b.onclick = fn; };
     on("reg", function () { showAuth("register"); }); on("login", function () { showAuth("login"); });
     on("out", function () { logout(false); });
+    on("del", showDelete);
     [].forEach.call(el.querySelectorAll(".nc-pl"), function (b) {
       b.onclick = function () { var p = b.dataset.plan; if (p === "free") { say("الخطة المجانية شغالة على طول ✓"); return; } showPaywall(p, "", p); };
     });
   };
+
+  // حذف الحساب نهائياً (مطلوب لـ Google Play)
+  function showDelete() {
+    openGate(BRAND + '<form class="nc-card" id="ncDel" novalidate><h2>حذف الحساب</h2><p>هيتحذف اسمك وإيميلك وكلمة السر وبيانات اشتراكك نهائيًا، ومش هينفع ترجّعه. التطبيق هيفضل شغال معاك من غير حساب.</p>' +
+      '<label for="ncDelPw">اكتب كلمة السر للتأكيد</label><input id="ncDelPw" type="password" dir="ltr" autocomplete="current-password">' +
+      '<button class="btn wide" type="submit" id="ncDelGo" style="background:#e03131">احذف حسابي نهائيًا</button><div class="nc-msg" id="ncMsg"></div>' +
+      '<div class="nc-switch"><button type="button" class="nc-link" id="ncLater">رجوع</button></div></form>');
+    var f = gate.querySelector("#ncDel"), m = gate.querySelector("#ncMsg");
+    gate.querySelector("#ncLater").onclick = hideGate;
+    f.onsubmit = function (e) {
+      e.preventDefault();
+      var pw = f.querySelector("#ncDelPw").value, b = f.querySelector("#ncDelGo");
+      if (!pw) { m.className = "nc-msg"; m.textContent = "اكتب كلمة السر."; return; }
+      b.disabled = true; m.className = "nc-msg ok"; m.textContent = "لحظة…";
+      var done = function () { A.token = ""; ls.set(K_TOK, ""); setMe(null); hideGate(); say("اتحذف الحساب ✓"); };
+      if (A.local) {
+        var a = localAcct();
+        pwHashLocal(pw, a ? a.email : "").then(function (hp) { b.disabled = false; if (!a || a.pw !== hp) { m.className = "nc-msg"; m.textContent = "كلمة السر غلط."; return; } ls.set(K_LOCAL, ""); done(); });
+        return;
+      }
+      api("/auth/delete", { password: pw }).then(function (j) {
+        b.disabled = false;
+        if (j.ok) { done(); return; }
+        m.className = "nc-msg"; m.textContent = j.error === "bad_login" ? "كلمة السر غلط." : "حصلت مشكلة. جرّب تاني.";
+      }).catch(function () { b.disabled = false; m.className = "nc-msg"; m.textContent = "مفيش اتصال بالإنترنت."; });
+    };
+  }
+  A.showDelete = showDelete;
 
   function logout(expired) {
     A.token = ""; ls.set(K_TOK, ""); setMe(null);

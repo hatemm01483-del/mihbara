@@ -146,7 +146,7 @@
       row("tour", "🧭", "جولة في التطبيق", "", '<span class="rv">‹</span>') +
       row("privacy", "🔒", "سياسة الخصوصية", "", '<span class="rv">‹</span>') +
       row("terms", "📄", "الشروط والأحكام", "", '<span class="rv">‹</span>') + '</div>' +
-      '<p class="nc-about">NewsCast 360 · نسخة 3.3<br>خليك محاوط الخبر</p></div>';
+      '<p class="nc-about">NewsCast 360 · نسخة 3.4<br>خليك محاوط الخبر</p></div>';
     [].forEach.call(el.querySelectorAll("[data-seg]"), function (s) {
       [].forEach.call(s.querySelectorAll("button"), function (b) {
         b.onclick = function () {

@@ -13,6 +13,8 @@ document.write('<script src="account.js"><\/script>');
 document.write('<script src="hello.js"><\/script>');
 // الواجهة الجديدة: 4 تبويبات + اللعبة + أقفال الخطط (v3.3)
 document.write('<script src="shell.js"><\/script>');
+// تبويب الأدوات الجديد: خطوات الشغل + مربعات (v3.4)
+document.write('<script src="bento.js"><\/script>');
 // تحميل أداة التحقق التلقائي من الأخبار
 document.write('<script src="verify.js"><\/script>');
 document.write('<script src="features.js"><\/script>');

@@ -7,7 +7,7 @@ android {
     compileSdk 36
 
     defaultConfig {
-        applicationId "com.mihbara.app"
+        applicationId "com.hatem.newscast360"
         minSdk 24
         targetSdk 36
         versionCode 22

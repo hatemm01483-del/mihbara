@@ -71,8 +71,14 @@ jobs:
           UPLOAD_KEY_PASSWORD: ${{ secrets.UPLOAD_KEY_PASSWORD }}
         run: |
           if [ -z "$UPLOAD_KEYSTORE_B64" ]; then echo "No upload key yet — skipping Play Store bundle"; exit 0; fi
-          echo "$UPLOAD_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          echo "$UPLOAD_KEYSTORE_B64" | tr -d ' \n\r' | base64 -d > "$RUNNER_TEMP/upload.bin"
+          if head -c 8 "$RUNNER_TEMP/upload.bin" | grep -q Salted__; then
+            P="$UPLOAD_STORE_PASSWORD" openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in "$RUNNER_TEMP/upload.bin" -out "$RUNNER_TEMP/upload.jks" -pass env:P
+          else mv "$RUNNER_TEMP/upload.bin" "$RUNNER_TEMP/upload.jks"; fi
+          rm -f "$RUNNER_TEMP/upload.bin"
           export UPLOAD_KEYSTORE="$RUNNER_TEMP/upload.jks"
+          export UPLOAD_KEY_ALIAS="${UPLOAD_KEY_ALIAS:-upload}"
+          export UPLOAD_KEY_PASSWORD="${UPLOAD_KEY_PASSWORD:-$UPLOAD_STORE_PASSWORD}"
           gradle bundleRelease --no-daemon
           cp app/build/outputs/bundle/release/app-release.aab "$GITHUB_WORKSPACE/NewsCast360-PlayStore.aab"
           rm -f "$RUNNER_TEMP/upload.jks"

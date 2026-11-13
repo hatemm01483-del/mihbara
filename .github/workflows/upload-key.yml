@@ -1,0 +1,33 @@
+name: Make Play upload key (one time)
+
+# بيتشغّل بإيدك مرة واحدة بس: Actions → Make Play upload key → Run workflow
+# محتاج قبلها سر واحد: UPLOAD_STORE_PASSWORD (كلمة سر إنت اللي تختارها، 12 حرف أو أكتر)
+on:
+  workflow_dispatch:
+
+jobs:
+  key:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Generate encrypted upload key
+        env:
+          P: ${{ secrets.UPLOAD_STORE_PASSWORD }}
+        run: |
+          if [ ${#P} -lt 12 ]; then echo "::error::حط السر UPLOAD_STORE_PASSWORD الأول (12 حرف أو أكتر)"; exit 1; fi
+          keytool -genkeypair -keystore upload.jks -storetype PKCS12 -alias upload \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass "$P" -keypass "$P" -dname "CN=NewsCast 360, O=NewsCast 360, C=EG"
+          # المفتاح بيتشفّر بكلمة السر بتاعتك قبل ما يطلع من هنا
+          openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -in upload.jks -out upload.enc -pass env:P
+          base64 -w0 upload.enc > UPLOAD_KEYSTORE_B64.txt
+          rm -f upload.jks upload.enc
+          echo "Done. Copy the whole text file into a secret named UPLOAD_KEYSTORE_B64"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: upload-key-encrypted
+          path: UPLOAD_KEYSTORE_B64.txt
+          retention-days: 1
